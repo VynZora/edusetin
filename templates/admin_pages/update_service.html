@@ -1,0 +1,157 @@
+{% extends "admin_pages/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8 grid-margin stretch-card">
+      <div class="card" style="max-height: 80vh; overflow-y: auto;">
+        <div class="card-body">
+          <h4 class="card-title">Update Service</h4>
+          <form id="updateServiceForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Service Name -->
+            <div class="form-group">
+              <label for="serviceName">Service Name</label>
+              <input type="text" class="form-control" id="serviceName" name="name" value="{{ service.name }}" required>
+            </div>
+
+            <!-- Slug -->
+            <div class="form-group">
+              <label for="serviceSlug">Slug</label>
+              <input type="text" class="form-control" id="serviceSlug" name="slug" value="{{ service.slug }}" required>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label for="serviceCategory">Category</label>
+              <select class="form-control" id="serviceCategory" name="category" required>
+                {% for category in categories %}
+                  <option value="{{ category.id }}" {% if category.id == service.category.id %}selected{% endif %}>
+                    {{ category.menu.name }} → {{ category.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label for="serviceDescription">Description</label>
+              <textarea class="form-control ckeditor" id="serviceDescription" name="description" rows="4">{{ service.description }}</textarea>
+            </div>
+
+            <!-- Current Image -->
+            <div class="form-group">
+              <label>Current Image</label><br>
+              {% if service.image %}
+                <img src="{{ service.image.url }}" style="width:150px;height:150px;object-fit:cover;border-radius:5px;">
+              {% else %}
+                No Image
+              {% endif %}
+            </div>
+
+            <!-- Upload New Image -->
+            <div class="form-group">
+              <label for="serviceImage">Upload New Image</label>
+              <input type="file" class="form-control-file" id="serviceImage" name="image" accept="image/*">
+            </div>
+
+            <!-- Scrollable Steps + FAQs Section -->
+            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px;">
+
+              <!-- Process Steps -->
+              <div class="form-group">
+                <label>Service Process Steps</label>
+                <div id="processStepsContainer">
+                  {% for step in service.process_steps.all %}
+                    <div class="border p-2 mt-2" data-step-id="{{ step.id }}">
+                      <label>Step {{ step.step_number }} Title</label>
+                      <input type="text" class="form-control mb-1" name="step_title_{{ step.id }}" value="{{ step.title }}" required>
+                      <label>Step {{ step.step_number }} Description</label>
+                      <textarea class="form-control mb-1" name="step_description_{{ step.id }}" rows="2" required>{{ step.description }}</textarea>
+                      <button type="button" class="btn btn-danger btn-sm" onclick="deleteStep(this)">Delete Step</button>
+                    </div>
+                  {% endfor %}
+                </div>
+                <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addProcessStep()">Add Step</button>
+              </div>
+
+              <!-- FAQs -->
+              <div class="form-group">
+                <label>Service FAQs</label>
+                <div id="faqsContainer">
+                  {% for faq in service.faqs.all %}
+                    <div class="border p-2 mt-2" data-faq-id="{{ faq.id }}">
+                      <label>Question</label>
+                      <input type="text" class="form-control mb-1" name="faq_question_{{ faq.id }}" value="{{ faq.question }}" required>
+                      <label>Answer</label>
+                      <textarea class="form-control mb-1" name="faq_answer_{{ faq.id }}" rows="2" required>{{ faq.answer }}</textarea>
+                      <button type="button" class="btn btn-danger btn-sm" onclick="deleteFAQ(this)">Delete FAQ</button>
+                    </div>
+                  {% endfor %}
+                </div>
+                <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addFAQ()">Add FAQ</button>
+              </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">Update Service</button>
+            <a href="{% url 'view_services' %}" class="btn btn-light mt-3">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CKEditor -->
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+<script>
+let mainEditor;
+ClassicEditor.create(document.querySelector('#serviceDescription'))
+  .then(editor => mainEditor = editor)
+  .catch(error => console.error(error));
+
+document.getElementById('updateServiceForm').addEventListener('submit', function() {
+    document.querySelector('#serviceDescription').value = mainEditor.getData();
+});
+</script>
+
+<!-- Dynamic Steps & FAQs -->
+<script>
+let stepCount = {{ service.process_steps.count }};
+let faqCount = {{ service.faqs.count }};
+
+function addProcessStep() {
+    stepCount++;
+    const container = document.getElementById('processStepsContainer');
+    const html = `
+      <div class="border p-2 mt-2">
+        <label>Step ${stepCount} Title</label>
+        <input type="text" class="form-control mb-1" name="new_step_title_${stepCount}" required>
+        <label>Step ${stepCount} Description</label>
+        <textarea class="form-control mb-1" name="new_step_description_${stepCount}" rows="2" required></textarea>
+        <button type="button" class="btn btn-danger btn-sm" onclick="deleteStep(this)">Delete Step</button>
+      </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function addFAQ() {
+    faqCount++;
+    const container = document.getElementById('faqsContainer');
+    const html = `
+      <div class="border p-2 mt-2">
+        <label>Question</label>
+        <input type="text" class="form-control mb-1" name="new_faq_question_${faqCount}" required>
+        <label>Answer</label>
+        <textarea class="form-control mb-1" name="new_faq_answer_${faqCount}" rows="2" required></textarea>
+        <button type="button" class="btn btn-danger btn-sm" onclick="deleteFAQ(this)">Delete FAQ</button>
+      </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function deleteStep(btn) { btn.closest('div[data-step-id], div').remove(); }
+function deleteFAQ(btn) { btn.closest('div[data-faq-id], div').remove(); }
+</script>
+{% endblock %}

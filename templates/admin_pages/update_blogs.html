@@ -1,0 +1,85 @@
+{% extends "admin_pages/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Update Blog Details</h4>
+          <form class="forms-sample" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+
+              <!-- Category -->
+              <div class="form-group">
+                  <label for="blogCategory">Category</label>
+                  <select class="form-control" id="blogCategory" name="category" required>
+                      {% for category in categories %}
+                          <option value="{{ category.id }}" {% if category.id == blog.category.id %}selected{% endif %}>
+                              {{ category.name }}
+                          </option>
+                      {% endfor %}
+                  </select>
+              </div>
+
+              <!-- Blog Title -->
+              <div class="form-group">
+                  <label for="blogTitle">Title</label>
+                  <input type="text" class="form-control" id="blogTitle" name="title" value="{{ blog.title }}" placeholder="Enter Blog Title" required>
+              </div>
+
+              <!-- Blog Description -->
+              <div class="form-group">
+                  <label for="updateBlogDescription">Description</label>
+                  <textarea class="form-control" id="updateBlogDescription" name="description" rows="5" placeholder="Enter Blog Details">{{ blog.description|safe }}</textarea>
+              </div>
+
+              <!-- Current Image -->
+              <div class="form-group">
+                  <label>Current Image</label><br>
+                  {% if blog.image %}
+                      <img src="{{ blog.image.url }}" alt="Current Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 5px;">
+                  {% else %}
+                      <p>No image available</p>
+                  {% endif %}
+              </div>
+
+              <!-- Upload New Image -->
+              <div class="form-group">
+                  <label for="imageFile">Upload New Image</label><br>
+                  <input type="file" class="form-control-file" id="imageFile" name="image" accept="image/*">
+              </div>
+
+              <button type="submit" class="btn btn-primary me-2">Update</button>
+              <a href="{% url 'view_blogs' %}" class="btn btn-light">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CKEditor -->
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        ClassicEditor
+            .create(document.querySelector('#updateBlogDescription'), {
+                toolbar: [
+                    'heading', '|', 'bold', 'italic', 'underline', 'strikethrough', 'link', '|',
+                    'bulletedList', 'numberedList', 'blockQuote', '|',
+                    'insertTable', 'imageUpload', 'mediaEmbed', 'undo', 'redo'
+                ],
+                ckfinder: {
+                    uploadUrl: '{% url "ckeditor_upload" %}'
+                },
+                simpleUpload: {
+                    uploadUrl: '{% url "ckeditor_upload" %}',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                }
+            })
+            .catch(error => console.error(error));
+    });
+</script>
+{% endblock %}

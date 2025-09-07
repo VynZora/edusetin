@@ -1,0 +1,24 @@
+{% extends "admin_pages/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Add Blog Category</h4>
+          <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              {{ form.name.label_tag }}
+              {{ form.name }}
+              {{ form.name.errors }}
+            </div>
+            <button type="submit" class="btn btn-primary me-2">Submit</button>
+            <a href="{% url 'view_blog_categories' %}" class="btn btn-light">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

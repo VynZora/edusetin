@@ -1,0 +1,163 @@
+{% extends "admin_pages/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+/* Scrollable form container without visible scrollbar */
+.scrollable-form {
+  height: 80vh;             /* fixed height, adjust as needed */
+  overflow-y: auto;         /* allow vertical scrolling */
+  -ms-overflow-style: none; /* hide scrollbar in IE and Edge */
+  scrollbar-width: none;    /* hide scrollbar in Firefox */
+}
+
+.scrollable-form::-webkit-scrollbar {
+  display: none;            /* hide scrollbar in Chrome, Safari, Opera */
+}
+</style>
+
+<div class="container scrollable-form">
+  <div class="row justify-content-center">
+    <div class="col-md-10 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Add Service</h4>
+          <form method="POST" enctype="multipart/form-data" id="serviceForm">
+            {% csrf_token %}
+
+            <!-- Category -->
+            <div class="form-group">
+              <label for="serviceCategory">Category</label>
+              <select class="form-control" id="serviceCategory" name="category" required>
+                {% for category in categories %}
+                  <option value="{{ category.id }}">{{ category.menu.name }} → {{ category.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Service Name -->
+            <div class="form-group">
+              <label for="serviceName">Service Name</label>
+              <input type="text" class="form-control" id="serviceName" name="name" placeholder="Enter Service Name" required>
+            </div>
+
+            <!-- Slug -->
+            <div class="form-group">
+              <label for="serviceSlug">Slug</label>
+              <input type="text" class="form-control" id="serviceSlug" name="slug" placeholder="Auto-generated slug" readonly>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label for="serviceDescription">Description</label>
+              <textarea class="form-control" id="serviceDescription" name="description" rows="5"></textarea>
+            </div>
+
+            <!-- Image -->
+            <div class="form-group">
+              <label for="serviceImage">Service Image</label>
+              <input type="file" class="form-control-file" id="serviceImage" name="image" accept="image/*">
+            </div>
+
+            <!-- Order -->
+            <div class="form-group">
+              <label for="serviceOrder">Order</label>
+              <input type="number" class="form-control" id="serviceOrder" name="order" placeholder="Order" value="0">
+            </div>
+
+            <!-- Process Steps -->
+            <div class="form-group">
+              <label>Service Process Steps</label>
+              <div id="processStepsContainer"></div>
+              <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="addProcessStep()">Add Step</button>
+            </div>
+
+            <!-- FAQs -->
+            <div class="form-group">
+              <label>Service FAQs</label>
+              <div id="faqsContainer"></div>
+              <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="addFAQ()">Add FAQ</button>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CKEditor -->
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+<script>
+let editor;
+ClassicEditor.create(document.querySelector('#serviceDescription'))
+  .then(e => editor = e)
+  .catch(error => console.error(error));
+
+// Sync CKEditor data before submit
+document.getElementById('serviceForm').addEventListener('submit', function() {
+    document.querySelector('#serviceDescription').value = editor.getData();
+});
+</script>
+
+<!-- Dynamic Steps & FAQ -->
+<script>
+let processCount = 0;
+function addProcessStep() {
+    processCount++;
+    const container = document.getElementById('processStepsContainer');
+    const div = document.createElement('div');
+    div.classList.add('border','p-2','mt-2');
+    div.innerHTML = `
+        <label>Step Title</label>
+        <input type="text" class="form-control mb-1" name="new_step_title_${processCount}">
+        <label>Step Description</label>
+        <textarea class="form-control mb-1" name="new_step_description_${processCount}" rows="2"></textarea>
+    `;
+    container.appendChild(div);
+}
+
+let faqCount = 0;
+function addFAQ() {
+    faqCount++;
+    const container = document.getElementById('faqsContainer');
+    const div = document.createElement('div');
+    div.classList.add('border','p-2','mt-2');
+    div.innerHTML = `
+        <label>Question</label>
+        <input type="text" class="form-control mb-1" name="new_faq_question_${faqCount}">
+        <label>Answer</label>
+        <textarea class="form-control mb-1" name="new_faq_answer_${faqCount}" rows="2"></textarea>
+    `;
+    container.appendChild(div);
+}
+</script>
+<script>
+// Function to convert text into a slug
+function slugify(text) {
+    return text.toString().toLowerCase()
+        .replace(/\s+/g, '-')           // Replace spaces with -
+        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+        .replace(/^-+/, '')             // Trim - from start
+        .replace(/-+$/, '');            // Trim - from end
+}
+
+// Auto-generate slug when typing service name
+document.getElementById('serviceName').addEventListener('input', function() {
+    var nameInput = this.value;
+
+    // Optional: limit to 150 characters
+    if(nameInput.length > 150) {
+        alert("Service name cannot exceed 150 characters!");
+        this.value = nameInput.substring(0, 150);
+        nameInput = this.value;
+    }
+
+    // Set the slug field
+    document.getElementById('serviceSlug').value = slugify(nameInput);
+});
+</script>
+{% endblock %}

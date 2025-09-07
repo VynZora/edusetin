@@ -1,0 +1,58 @@
+{% extends "admin_pages/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Update Category</h4>
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+              <label for="categoryName">Category Name</label>
+              <input type="text" class="form-control" id="categoryName" name="name" 
+                     value="{{ category.name }}" placeholder="Category Name" required>
+            </div>
+
+            <div class="form-group">
+              <label for="categorySlug">Slug</label>
+              <input type="text" class="form-control" id="categorySlug" name="slug" 
+                     value="{{ category.slug }}" placeholder="Category Slug" required>
+            </div>
+
+            <div class="form-group">
+              <label for="categoryMenu">Parent Menu</label>
+              <select class="form-control" id="categoryMenu" name="menu" required>
+                {% for menu in menus %}
+                <option value="{{ menu.id }}" {% if menu.id == category.menu.id %}selected{% endif %}>
+                  {{ menu.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="categoryOrder">Display Order</label>
+              <input type="number" class="form-control" id="categoryOrder" name="order" 
+                     value="{{ category.order }}" min="0" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary me-2">Update Category</button>
+            <a href="{% url 'view_categories' %}" class="btn btn-light">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('categoryName').addEventListener('input', function() {
+      var slugInput = document.getElementById('categorySlug');
+      slugInput.value = this.value.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+  });
+</script>
+{% endblock %}

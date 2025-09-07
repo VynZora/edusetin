@@ -1,0 +1,76 @@
+{% extends "admin_pages/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Add Blog</h4>
+          <form class="forms-sample" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Blog Category -->
+            <div class="form-group">
+              <label for="blogCategory">Category</label>
+              <select class="form-control" id="blogCategory" name="category" required>
+                {% for category in categories %}
+                  <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Blog Title -->
+            <div class="form-group">
+              <label for="blogTitle">Title</label>
+              <input type="text" class="form-control" id="blogTitle" name="title" placeholder="Enter Blog Title" required>
+            </div>
+
+            <!-- Blog Description (CKEditor) -->
+            <div class="form-group">
+              <label for="blogDescription">Description</label>
+              <textarea class="form-control" id="blogDescription" name="description" rows="5" placeholder="Enter Blog Details"></textarea>
+            </div>
+
+            <!-- Blog Image -->
+            <div class="form-group">
+              <label for="blogImage">Image</label>
+              <input type="file" class="form-control-file" id="blogImage" name="image" accept="image/*">
+            </div>
+
+            <button type="submit" class="btn btn-primary me-2">Submit</button>
+            <a href="{% url 'view_blogs' %}" class="btn btn-light">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CKEditor -->
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  ClassicEditor
+    .create(document.querySelector('#blogDescription'), {
+      toolbar: [
+        'heading', '|',
+        'bold', 'italic', 'underline', 'strikethrough', 'link', 'uploadFile', '|',
+        'bulletedList', 'numberedList', 'blockQuote', '|',
+        'insertTable', 'imageUpload', 'mediaEmbed', 'undo', 'redo'
+      ],
+      ckfinder: {
+        uploadUrl: '{% url "ckeditor_upload" %}'
+      },
+      simpleUpload: {
+        uploadUrl: '{% url "ckeditor_upload" %}',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+      }
+    })
+    .catch(error => {
+      console.error(error);
+    });
+});
+</script>
+{% endblock %}

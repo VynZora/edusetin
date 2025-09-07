@@ -1,0 +1,54 @@
+{% extends "admin_pages/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Update Menu</h4>
+
+          <form class="forms-sample" method="POST"> 
+            {% csrf_token %}
+            
+            <!-- Menu Name -->
+            <div class="form-group">
+              <label for="menuName">Menu Name</label>
+              <input type="text" class="form-control" id="menuName" name="name" 
+                     value="{{ menu.name }}" placeholder="Menu Name" required>
+            </div>
+
+            <!-- Slug -->
+            <div class="form-group">
+              <label for="menuSlug">Slug</label>
+              <input type="text" class="form-control" id="menuSlug" name="slug" 
+                     value="{{ menu.slug }}" placeholder="Menu Slug" required>
+            </div>
+
+            <!-- Order -->
+            <div class="form-group">
+              <label for="menuOrder">Display Order</label>
+              <input type="number" class="form-control" id="menuOrder" name="order" 
+                     value="{{ menu.order }}" placeholder="Order" min="0" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary me-2">Update</button>
+            <a href="{% url 'view_menus' %}" class="btn btn-light">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Optional: Slug auto-generation or validation -->
+<script>
+  // Optional: auto-generate slug from menu name
+  document.getElementById('menuName').addEventListener('input', function() {
+      var slugInput = document.getElementById('menuSlug');
+      slugInput.value = this.value.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+  });
+</script>
+{% endblock %}
