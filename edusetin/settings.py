@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-e1kg73lrkt8u9+&xag4de%@2m^4*)7@xvgk@o^tmexv-i@nhj1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['edusetin.onrender.com','127.0.0.1']
 
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "edusetin_app"
+    "edusetin_app",
 ]
 
 MIDDLEWARE = [
