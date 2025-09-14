@@ -1,371 +1,813 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html class="no-js" lang="en">
 
 <head>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Gulf Central | Dashboard </title>
-  <!-- plugins:css -->
-  <link rel="stylesheet" href="{% static 'admin_static/assets/vendors/feather/feather.css' %}">
-  <link rel="stylesheet" href="{% static 'admin_static/assets/vendors/mdi/css/materialdesignicons.min.css' %}">
-  <link rel="stylesheet" href="{% static 'admin_static/assets/vendors/ti-icons/css/themify-icons.css' %}">
-  <link rel="stylesheet" href="{% static 'admin_static/assets/vendors/typicons/typicons.css' %}">
-  <link rel="stylesheet" href="{% static 'admin_static/assets/vendors/simple-line-icons/css/simple-line-icons.css' %}">
-  <link rel="stylesheet" href="{% static 'admin_static/assets/vendors/css/vendor.bundle.base.css' %}">
-  <!-- endinject -->
-  <!-- Plugin css for this page -->
-  <link rel="stylesheet" href="{% static 'admin_static/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
-  <link rel="stylesheet" type="text/css" href="{% static 'admin_static/assets/js/select.dataTables.min.css' %}">
-  <!-- End plugin css for this page -->
-  <!-- inject:css -->
-  <link rel="stylesheet" href="{% static 'admin_static/assets/css/vertical-layout-light/style.css' %}">
-  <!-- endinject -->
-  <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
-  <style>
-    * {
-  margin:0px;
-}
-.load {
-  width:100%;
-  height:100vh;
-   background-color: #fff;
-    display: flex;
-    margin-top: -30px;
-    justify-content: center;
-    align-items: center;
-}
-.load div {
-    width: 25px;
-    height: 25px;
-    background-color: #8f859e;
-    margin-left: 5px;
-    border-radius: 50%;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    -ms-border-radius: 50%;
-    -o-border-radius: 50%;
-    margin-top: calc(50px - 12.5px);
-    animation-name: loading;
-    animation-duration: 1.2s;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-}
-.load-two {
-    animation-delay: 0.4s;
-}
-.load-three {
-    animation-delay: 0.8s;
-}
-@keyframes loading {
-    to {
-        opacity: 0.3;
-        transform: translateY(-25px);
-        -webkit-transform: translateY(-25px);
-        -moz-transform: translateY(-25px);
-        -ms-transform: translateY(-25px);
-        -o-transform: translateY(-25px);
-}
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}Admin Dashboard | EdusetIn - Education Platform{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-}
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin-static/assets/img/favicon.ico' %}">
 
-  </style>
+    <!-- CSS here -->
+    <link rel="stylesheet" href="{% static 'admin-static/assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin-static/assets/css/animate.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin-static/assets/css/aos.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin-static/assets/css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'admin-static/assets/css/icofont.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin-static/assets/css/slick.css' %}">
+    <link rel="stylesheet" href="{% static 'admin-static/assets/css/swiper-bundle.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin-static/assets/css/style.css' %}">
+
+    <!-- Professional Dashboard CSS -->
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --dark-blue: #1e40af;
+            --light-blue: #dbeafe;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .dashboard-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-search {
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .header-search input {
+            width: 100%;
+            padding: 8px 40px 8px 16px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--gray-50);
+        }
+
+        .header-search input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: var(--white);
+        }
+
+        .header-search button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            cursor: pointer;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--gray-50);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .user-profile:hover {
+            background: var(--gray-100);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--gray-700);
+        }
+
+        /* Sidebar Styles */
+        .dashboard-sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background: var(--white);
+            border-right: 1px solid var(--gray-200);
+            overflow-y: auto;
+            z-index: 999;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-content {
+            padding: 24px 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 32px;
+        }
+
+        .sidebar-title {
+            padding: 0 24px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray-500);
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 4px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--gray-700);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .sidebar-menu a:hover {
+            background: var(--gray-50);
+            color: var(--primary-blue);
+        }
+
+        .sidebar-menu a.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border-right: 3px solid var(--primary-blue);
+        }
+
+        .sidebar-menu svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .menu-badge {
+            margin-left: auto;
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Main Content Styles */
+        .dashboard-main {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
+            overflow-y: auto;
+        }
+
+        .dashboard-content {
+            padding: 32px;
+        }
+
+        .dashboard-banner {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            border-radius: 16px;
+            padding: 32px;
+            color: var(--white);
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+            opacity: 0.5;
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .banner-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 24px;
+        }
+
+        .banner-stats {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-icon {
+            width: 24px;
+            height: 24px;
+            opacity: 0.8;
+        }
+
+        .stat-text {
+            font-weight: 600;
+        }
+
+        /* Content Cards */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .content-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .card-action {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            :root {
+                --sidebar-width: 260px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .header-search {
+                display: none;
+            }
+
+            .dashboard-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .dashboard-sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .dashboard-main {
+                margin-left: 0;
+            }
+
+            .dashboard-content {
+                padding: 20px 16px;
+            }
+
+            .banner-stats {
+                gap: 16px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .banner-title {
+                font-size: 24px;
+            }
+
+            .user-profile span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-content {
+                padding: 16px 12px;
+            }
+
+            .dashboard-banner {
+                padding: 24px 20px;
+            }
+
+            .banner-title {
+                font-size: 20px;
+            }
+
+            .banner-subtitle {
+                font-size: 14px;
+            }
+        }
+
+        /* Sidebar overlay for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* Hide preloader and other elements */
+        #back__preloader,
+        .theme__shadow__circle {
+            display: none;
+        }
+
+        /* Scrollbar styling */
+        .dashboard-sidebar::-webkit-scrollbar,
+        .dashboard-main::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dashboard-sidebar::-webkit-scrollbar-track,
+        .dashboard-main::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        .dashboard-sidebar::-webkit-scrollbar-thumb,
+        .dashboard-main::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 3px;
+        }
+
+        .dashboard-sidebar::-webkit-scrollbar-thumb:hover,
+        .dashboard-main::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-500);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
 </head>
 
-<body class="with-welcome-text">
-  <div class="load">
-    <div class="load-one"></div>
-    <div class="load-two"></div>
-    <div class="load-three"></div>
-  </div>
-  <div id="loading" style="display: none;">
-  
+<body>
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="header-left">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="icofont-navigation-menu"></i>
+            </button>
+            <a href="#" class="logo">
+                <img src="{% static 'assets/img/logo_1.png' %}" alt="EdusetIn">
+                {% comment %} <span>EdusetIn</span> {% endcomment %}
+            </a>
+        </div>
 
-    <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
-  <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-    <div class="me-3">
-      <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-bs-toggle="minimize">
-        <span class="icon-menu"></span>
-      </button>
+        <div class="header-right">
+            <div class="header-search">
+                <input type="text" placeholder="Search...">
+                <button type="submit">
+                    <i class="icofont-search-1"></i>
+                </button>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar">A</div>
+                <span>Admin</span>
+                <i class="icofont-simple-down"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Dashboard Sidebar -->
+    {% comment %} <aside class="dashboard-sidebar" id="dashboardSidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <h6 class="sidebar-title">Main</h6>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="admin-dashboard.html" class="active">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="admin-profile.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            My Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="admin-message.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            Messages
+                            <span class="menu-badge">12</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h6 class="sidebar-title">Management</h6>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="admin-countries.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
+                            Countries
+                        </a>
+                    </li>
+                    <li>
+                        <a href="admin-universities.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            Universities
+                        </a>
+                    </li>
+                    <li>
+                        <a href="admin-help-points.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            Help Points
+                        </a>
+                    </li>
+                    <li>
+                        <a href="admin-testimonials.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                            </svg>
+                            Testimonials
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h6 class="sidebar-title">Account</h6>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </aside> {% endcomment %}
+
+    <aside class="dashboard-sidebar" id="dashboardSidebar">
+    <div class="sidebar-content">
+
+        <!-- Main Section -->
+        <div class="sidebar-section">
+            <h6 class="sidebar-title">Main</h6>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'admin-dashboard' %}" class="active">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'admin_contacts' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        Messages
+                        <span class="menu-badge">12</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Management Section -->
+        <div class="sidebar-section">
+            <h6 class="sidebar-title">Management</h6>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'country_list' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        Countries
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'uni-list' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        Universities
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'course_list' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 3v4M8 3v4M3 11h18"></path>
+                        </svg>
+                        Courses
+                    </a>
+                </li>
+            <ul>
+                <li>
+                    <a href="{% url 'blog_list' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19h16M4 15h16M4 11h16M4 7h16"></path>
+                        </svg>
+                        Blogs
+                    </a>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <a href="{% url 'team_list' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="7" r="4"></circle>
+                            <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+                        </svg>
+                        Teams
+                    </a>
+                </li>
+            <ul>
+                <li>
+                    <a href="{% url 'testimonial_list' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                        </svg>
+                        Testimonials
+                    </a>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <a href="{% url 'service_list' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                        </svg>
+                        Services
+                    </a>
+                </li>
+            </ul>
+             
+        </div>
+
+        <!-- Account Section -->
+        
+
     </div>
-    <!-- <div>
-      <a class="navbar-brand brand-logo" href="{% url 'dashboard' %}">
-        <img src="{% static 'images/logo.png' %}" alt="logo" style="height: 50px; width: 300px;" />
-      </a>
-    
-    </div> -->
-  </div>
-  <div class="navbar-menu-wrapper d-flex align-items-top">
-    <ul class="navbar-nav">
-      <li class="nav-item font-weight-semibold d-none d-lg-block ms-0">
-        <!-- <h1 class="welcome-text">Welcome To  <span class="text-black fw-bold">Tinos Admin Dashboard</span></h1> -->
-        <!-- <h3 class="welcome-sub-text">Your performance summary this week </h3> -->
-      </li>
-    </ul>
-    <ul class="navbar-nav ms-auto">
-      
-      <!-- <li class="nav-item dropdown d-none d-lg-block user-dropdown">
-        <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-          <img class="img-xs rounded-circle" src="{% static 'images/logo.png' %}" alt="Profile image" style="width: 100px;"> </a> -->
-        <!-- <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown"> -->
-          <!-- <div class="dropdown-header text-center"> -->
-            <!-- <img class="img-md rounded-circle" src="{% static 'images/logo.png' %}" alt="Profile image"> -->
-            <!-- <p class="mb-1 mt-3 font-weight-semibold">Tinos Software and Security Solutions</p>
-            <p class="fw-light text-muted mb-0">support@tinos.co.in</p> -->
-          <!-- </div> -->
-          
-          <!-- <a class="dropdown-item" href="logout_user"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</a>
-        </div> -->
-      <!-- </li>
-    </ul> -->
-    <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
-      data-bs-toggle="offcanvas">
-      <span class="mdi mdi-menu"></span>
-    </button>
-  </div>
-</nav>
-    <!-- partial -->
-    <div class="container-fluid page-body-wrapper">
-      <!-- partial:partials/_settings-panel.html -->
-      <div class="theme-setting-wrapper">
-  <div id="settings-trigger"><i class="ti-settings"></i></div>
-  <div id="theme-settings" class="settings-panel">
-    <i class="settings-close ti-close"></i>
-    <p class="settings-heading">SIDEBAR SKINS</p>
-    <div class="sidebar-bg-options selected" id="sidebar-light-theme">
-      <div class="img-ss rounded-circle bg-light border me-3"></div>Light
-    </div>
-    <div class="sidebar-bg-options" id="sidebar-dark-theme">
-      <div class="img-ss rounded-circle bg-dark border me-3"></div>Dark
-    </div>
-    <p class="settings-heading mt-2">HEADER SKINS</p>
-    <div class="color-tiles mx-0 px-4">
-      <div class="tiles success"></div>
-      <div class="tiles warning"></div>
-      <div class="tiles danger"></div>
-      <div class="tiles info"></div>
-      <div class="tiles dark"></div>
-      <div class="tiles default"></div>
-    </div>
-  </div>
-</div>
-
-      <!-- partial -->
-      <!-- partial:partials/_sidebar.html -->
-<nav class="sidebar sidebar-offcanvas" id="sidebar">
-  <ul class="nav">
-    <li class="nav-item">
-      <a class="nav-link" href="{% url 'dashboard'%}">
-        <i class="mdi mdi-grid-large menu-icon"></i>
-        <span class="menu-title">Dashboard</span>
-      </a>
-    </li>
-
-  
+</aside>
 
 
-   <li class="nav-item nav-category">Services</li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#servicesMenu" aria-expanded="false" aria-controls="servicesMenu">
-        <i class="menu-icon mdi mdi-briefcase"></i>
-        <span class="menu-title">Services</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="servicesMenu">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> 
-            <a class="nav-link" href="{% url 'add_menu' %}">Add Menu</a>
-          </li>
-          <li class="nav-item"> 
-            <a class="nav-link" href="{% url 'view_menus' %}">View Menus</a>
-          </li>
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="dashboard-content">
+            <!-- Dashboard Banner -->
+            <div class="dashboard-banner">
+                <div class="banner-content">
+                    <h1 class="banner-title">Welcome back, Admin!</h1>
+                    <p class="banner-subtitle">Here's what's happening with your education platform today.</p>
+                    <div class="banner-stats">
+                        <div class="stat-item">
+                            <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <span class="stat-text">4.0 (120 Reviews)</span>
+                        </div>
+                        <div class="stat-item">
+                            <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span class="stat-text">1.5K+ Students</span>
+                        </div>
+                        <div class="stat-item">
+                            <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                            <span class="stat-text">300+ Courses</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-          <li class="nav-item"> 
-            <a class="nav-link" href="{% url 'add_category' %}">Add Category</a>
-          </li>
-          <li class="nav-item"> 
-            <a class="nav-link" href="{% url 'view_categories' %}">View Categories</a>
-          </li>
-          <li class="nav-item"> 
-            <a class="nav-link" href="{% url 'add_service' %}">Add Service</a>
-          </li>
-          <li class="nav-item"> 
-            <a class="nav-link" href="{% url 'view_services' %}">View Services</a>
-          </li>
-        </ul>
-      </div>
-    </li>
+            <!-- Content Area -->
+            <div class="content-grid">
+                {% block content %}
+                <!-- Content will be overridden by child templates -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Welcome to Dashboard</h3>
+                        <a href="#" class="card-action">View All</a>
+                    </div>
+                    <p>This is your main content area. Content from child templates will appear here.</p>
+                </div>
+                {% endblock %}
+            </div>
+        </div>
+    </main>
 
-    <li class="nav-item nav-category">Client Reviews</li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#blog" aria-expanded="false" aria-controls="blog">
-        <i class="menu-icon mdi mdi-card-text-outline"></i>
-        <span class="menu-title">Client Reviews</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="blog">
-        <ul class="nav flex-column sub-menu">
+    <!-- JavaScript -->
+    <script src="{% static 'admin-static/assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'admin-static/assets/js/bootstrap.min.js' %}"></script>
 
-          <li class="nav-item"> <a class="nav-link" href="{% url 'add_client_review' %}"> Add Client Reviews</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{% url 'view_client_reviews' %}"> View Clients Reviews</a></li>
-        </ul>
-      </div>
-    </li>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const dashboardSidebar = document.getElementById('dashboardSidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
 
+            function toggleMobileMenu() {
+                dashboardSidebar.classList.toggle('mobile-open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = dashboardSidebar.classList.contains('mobile-open') ? 'hidden' : '';
+            }
 
-   
-  <li class="nav-item nav-category">Blogs</li>
-<li class="nav-item">
-  <a class="nav-link" data-bs-toggle="collapse" href="#blogsMenu" aria-expanded="false" aria-controls="blogsMenu">
-    <i class="menu-icon mdi mdi-book-open-page-variant"></i>
-    <span class="menu-title">Blogs</span>
-    <i class="menu-arrow"></i>
-  </a>
-  <div class="collapse" id="blogsMenu">
-    <ul class="nav flex-column sub-menu">
-      <!-- Blog Categories -->
-      <li class="nav-item"> <a class="nav-link" href="{% url 'add_blog_category' %}">Add Blog Category</a></li>
-      <li class="nav-item"> <a class="nav-link" href="{% url 'view_blog_categories' %}">View Blog Categories</a></li>
+            function closeMobileMenu() {
+                dashboardSidebar.classList.remove('mobile-open');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
 
-      <!-- Blogs -->
-      <li class="nav-item"> <a class="nav-link" href="{% url 'add_blog' %}">Add Blog</a></li>
-      <li class="nav-item"> <a class="nav-link" href="{% url 'view_blogs' %}">View Blogs</a></li>
-    </ul>
-  </div>
-</li>
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            }
 
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', closeMobileMenu);
+            }
 
+            // Close mobile menu on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeMobileMenu();
+                }
+            });
 
+            // Handle sidebar link clicks on mobile
+            const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+        });
+    </script>
 
-    
-    <li class="nav-item nav-category">News</li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#contact123" aria-expanded="false" aria-controls="contact">
-        <i class="menu-icon mdi mdi mdi-book-open"></i>
-        <span class="menu-title">News</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="contact123">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{% url 'add_news' %}"> Add News</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{% url 'view_news' %}"> View News</a></li>
-        </ul>
-      </div>
-    </li>
-
-
-    <li class="nav-item nav-category">Bookings</li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#b1" aria-expanded="false" aria-controls="contact">
-        <i class="menu-icon mdi mdi-blur"></i>
-        <span class="menu-title">Bookings </span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="b1">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="">Bookings</a></li>
-        </ul>
-      </div>
-    </li>
-
-
-
-
-
-    
-    <li class="nav-item nav-category">Contact US</li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#contact" aria-expanded="false" aria-controls="contact">
-        <i class="menu-icon mdi mdi-phone-log"></i>
-        <span class="menu-title">Contact US</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="contact">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{% url 'contact_view' %}">Contact US</a></li>
-        </ul>
-      </div>
-    </li>
-  
-
-    <li class="nav-item nav-category">Sign Out</li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#chatbot1" aria-expanded="false" aria-controls="chatbot">
-        <i class="menu-icon mdi mdi-logout"></i> 
-        <span class="menu-title">Sign Out</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="chatbot1">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="logout_user">Sign Out</a></li>
-          <!-- <li class="nav-item"> <a class="nav-link" href="../pages/ui-features/dropdowns.html">Dropdowns</a></li>
-          <li class="nav-item"> <a class="nav-link" href="../pages/ui-features/typography.html">Typography</a></li> -->
-        </ul>
-      </div>
-    </li>
-   
-    
-  </ul>
-    <!-- {{ redirect_to_login_immediatly }} -->
-</nav>
-
-{% block content%}
-{% endblock %}
-</div>
-        <!-- plugins:js -->
-      
-  <!-- plugins:js -->
-  <script src="{% static 'admin_static/assets/vendors/js/vendor.bundle.base.js' %}"></script>
-  <script src="{% static 'admin_static/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js' %}"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <script src="{% static 'admin_static/assets/vendors/chart.js/Chart.min.js' %}"></script>
-  <script src="{% static 'admin_static/assets/vendors/progressbar.js/progressbar.min.js' %}"></script>
-  <!-- End plugin js for this page -->
-  <!-- inject:js -->
-  <script src="{% static 'admin_static/assets/js/off-canvas.js' %}"></script>
-  <script src="{% static 'admin_static/assets/js/hoverable-collapse.js' %}"></script>
-  <script src="{% static 'admin_static/assets/js/template.js' %}"></script>
-  <script src="{% static 'admin_static/assets/js/settings.js' %}"></script>
-  <script src="{% static 'admin_static/assets/js/todolist.js' %}"></script>
-  <!-- endinject -->
-  <!-- Custom js for this page-->
-  <script src="{% static 'admin_static/assets/js/jquery.cookie.js' %}" type="text/javascript"></script>
-  <script src="{% static 'admin_static/assets/js/dashboard.js' %}"></script>
-  <script src="{% static 'admin_static/assets/js/proBanner.js' %}"></script>
-  <script src="{% static 'admin_static/assets/js/preload.js' %}"></script>
-  <!-- <script src="../../assets/js/Chart.roundedBarCharts.js"></script> -->
-  <!-- End custom js for this page-->
-
-  <!-- <script>
-    document.addEventListener("DOMContentLoaded", function() {
-     
-     setTimeout(function() {
-       document.getElementById('loading').style.display = 'block';
-       document.querySelector('.load').style.display = 'none';
-     }, 2500); 
-    })
-      </script> -->
-      
-      <!-- <script>
-      
-   
-        function redirectToLogin() {
-            window.location.href = "{% url 'user_login' %}";
-        }
- 
-        var timeout = setTimeout(redirectToLogin, 20000);
-
-        window.addEventListener('mousemove', resetTimeout);
-        window.addEventListener('keypress', resetTimeout);
-    
-        function resetTimeout() {
-            clearTimeout(timeout);
-            timeout = setTimeout(redirectToLogin, 20000);
-        }
-    </script> -->
-    
+    {% block extra_js %}{% endblock %}
 </body>
 
 </html>

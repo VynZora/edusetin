@@ -364,6 +364,70 @@ animate();
 }
 </style>
 
+<style>
+    /* Country Detail Page - Content Styling */
+.content-wrapper {
+    width: 100%;
+}
+
+.description-content {
+    width: 100%;
+    text-align: justify;
+    line-height: 1.6;
+}
+
+.description-content p {
+    margin-bottom: 15px;
+    word-wrap: break-word;
+    hyphens: auto;
+    font-size: 16px;
+    color: #555;
+}
+
+.country-banner {
+    margin-bottom: 30px;
+    width: 100%;
+    max-height: 446px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.country-banner img.country-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+h2.mb-20 {
+    color: #222;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pl-50, .pl-md-15, .pl-xs-15 {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+    
+    .description-content {
+        text-align: left;
+    }
+    
+    .country-banner {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .country-banner {
+        max-height: 250px;
+    }
+}
+</style>
+
 <!-- JavaScript -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -438,56 +502,59 @@ document.addEventListener("DOMContentLoaded", function () {
                        
 
                          
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Universities <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'harvard_details' %}">Harvard University</a></li>
-                                <li><a href="{% url 'oxford_details' %}">University of Oxford</a></li>
-                                <li><a href="{% url 'bologna_details' %}">University of Bologna</a></li>
-                                <li><a href="{% url 'sapienza_details' %}">Sapienza University of Rome</a></li>
-                                <li><a href="{% url 'ludwig_details' %}">Ludwig Maximilian University of Munich</a></li>
-                                <li><a href="{% url 'asian_medical_institute_details' %}">Asian Medical Institute</a></li>
-                                <li><a href="{% url 'kyrgyz_state_academy_details' %}">Kyrgyz State Medical Academy</a></li>
-                            </ul>
+                        <li>
+                            <a href="{% url 'index' %}">Home</a>
                         </li>
 
 
 
                          
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Countries <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'dubai_details' %}">Dubai</a></li>
-                                <li><a href="{% url 'united_kingdom_details' %}">United Kingdom</a></li>
-                                <li><a href="{% url 'italy_details' %}">Italy</a></li>
-                                <li><a href="{% url 'kyrgyzstan_details' %}">Kyrgyzstan</a></li>
-                                <li><a href="{% url 'germany_details' %}">Germany</a></li>
-                            </ul>
-                        </li>
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Countries <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        {% for country in countries %}
+            <li>
+                <a href="{% url 'country_detail' country.id %}">
+                    {{ country.name }}
+                </a>
+            </li>
+        {% empty %}
+            <li><a href="#">No countries available</a></li>
+        {% endfor %}
+    </ul>
+</li>
 
-                       <li class="dropdown">
+
+                        {% comment %} add urls after setting universities detial page>>>>>>>>>>>>> {% endcomment %}
+                       {% comment %} <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Courses <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url 'business_management_details' %}">Business & Management</a></li>
-                                <li><a href="{% url 'engineering_details' %}">Engineering</a></li>
-                                <li><a href="{% url 'health_medicine_details' %}">Health & Medicine</a></li>
+                                <li><a href="#">Business & Management</a></li>
+                                <li><a href="#}">Engineering</a></li>
+                                <li><a href="#">Health & Medicine</a></li>
                             </ul>
-                        </li>
+                        </li> {% endcomment %}
 
 
                         <!-- Services Dropdown -->
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Services <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'career_counselling_details' %}">Career Counselling</a></li>
-                                <li><a href="{% url 'course_selection_details' %}">Selection of Course, Country and University</a></li>
-                                <li><a href="{% url 'test_preparation_details' %}">Test Preparations</a></li>
-                                <li><a href="{% url 'application_process_details' %}">Application Process</a></li>
-                                <li><a href="{% url 'visa_guidance_details' %}">Expert Visa Guidance</a></li>
-                               
-                            </ul>
-                        </li>
-
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Services <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        {% for service in services %}
+            <li>
+                <a href="{% url 'service_detail' service.id %}">
+                    {{ service.title }}
+                </a>
+            </li>
+        {% empty %}
+            <li><a href="#">No services available</a></li>
+        {% endfor %}
+    </ul>
+</li>
 
                         <!-- Courses Dropdown -->
                         <!-- <li class="dropdown">
@@ -527,9 +594,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Others <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                  <li><a href="{% url 'about' %}">About</a></li>
-                                <li><a href="{% url 'blogs' %}">Blog</a></li>
+                                {% comment %} <li><a href="#">Blog</a></li> {% endcomment %}
                                 <li> <a href="{% url 'gallery' %}">Gallery</a></li>
-                                 <li><a href="{% url 'contact-us' %}">Contact</a></li>
+                                 <li><a href="#">Contact</a></li>
                             </ul>
                         </li>
                       
@@ -628,75 +695,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="row">
                     
                     <div class="col-xl-8 col-lg-7 order-lg-last pl-50 pl-md-15 pl-xs-15">
-                        <div class="thumb">
-                            <img src="{% static 'assets/img/banner/8.jpg' %}" alt="United Kingdom">
-                        </div>
-                        <h2>Most Popular Courses in United Kingdom</h2>
-                        <p>
-                            The United Kingdom is one of the world’s top destinations for international students, offering globally recognized degrees, 
-                            a rich academic tradition, and diverse cultural experiences. 
-                            UK universities and colleges provide a wide range of undergraduate and postgraduate courses designed to prepare students for successful global careers.
-                        </p>
-                        
-                        <div class="features mt-40 mt-xs-30 mb-30 mb-xs-20">
-                            <div class="row">
-                                <div class="col-xl-5 col-md-6">
-                                    <div class="content">
-                                        <h3>Top Study Fields</h3>
-                                        <ul class="list-style-four">
-                                            <li>Business & Management</li>
-                                            <li>Computer Science & IT</li>
-                                            <li>Engineering & Technology</li>
-                                            <li>Medicine & Healthcare</li>
-                                            <li>Law & Social Sciences</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="col-xl-7 col-md-6 mt-xs-30">
-                                    <div class="content">
-                                        <h3>Why Study in the UK?</h3>
-                                        <p>
-                                            The UK offers internationally accredited degrees, excellent research facilities, and career-focused programs. 
-                                            Students gain exposure to a multicultural environment while enjoying access to scholarships, internships, and part-time work opportunities.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <h3>Study & Visa Support</h3>
-                        <p>
-                            The UK welcomes thousands of international students each year. 
-                            Student visa categories such as the Tier 4 (General Student Visa) are available for those pursuing higher education. 
-                            We provide expert guidance on course selection, university applications, scholarships, and visa processing to make your journey smooth.
-                        </p>
-
-                        <div class="card-style-three mt-40">
-                            <div class="item">
-                                <div class="number">01</div>
-                                <div class="info">
-                                    <h4>Course & University Guidance</h4>
-                                    <p>
-                                        Our advisors help you choose the right program and institution based on your career goals and interests.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="number">02</div>
-                                <div class="info">
-                                    <h4>End-to-End Visa Assistance</h4>
-                                    <p>
-                                        From preparing documentation to application submission, we assist you throughout your UK student visa process.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="country-banner mb-30">
+        {% if country.image %}
+            <img src="{{ country.image.url }}" alt="{{ country.name }}" class="country-image">
+        {% else %}
+            <img src="{% static 'assets/img/banner/default.jpg' %}" alt="{{ country.name }}" class="country-image">
+        {% endif %}
+    </div>
+    <div class="content-wrapper">
+        <h2 class="mb-20">Most popular {{ country.name }}</h2>
+        <div class="description-content">
+            {% if country.description %}
+            <p>{{ country.description }}</p>
+            {% else %}
+            <p>No description available for {{ country.name }}.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
 
                     <div class="col-xl-4 col-lg-5 mt-md-120 mt-xs-50 services-sidebar">
                         <!-- Single Widget -->
-                        <div class="single-widget country-list-widget">
+                        {% comment %} <div class="single-widget country-list-widget">
                             <div class="content">
                                 <ul>
                                     <li>
@@ -726,7 +747,39 @@ document.addEventListener("DOMContentLoaded", function () {
                                     </li>
                                 </ul>
                             </div>
+                        </div> {% endcomment %}
+                        <div class="single-widget country-list-widget">
+    <div class="content">
+        <ul>
+            <!-- Selected country first -->
+            <li class="current-item">
+                <a href="{% url 'country_detail' country.id %}">
+                    <div class="icon">
+                        <img src="{{ country.flag.url }}" alt="{{ country.name }} Flag">
+                    </div>
+                    {{ country.name }}
+                </a>
+            </li>
+
+            <!-- Other countries -->
+            {% for c in countries %}
+                <li>
+                    <a href="{% url 'country_detail' c.id %}">
+                        <div class="icon">
+                            <img src="{{ c.flag.url }}" alt="{{ c.name }} Flag">
                         </div>
+                        {{ c.name }}
+                    </a>
+                </li>
+            {% empty %}
+                <li><a href="#">No other countries available</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+        
+
                         <!-- End Single Widget -->
                         <div class="single-widget text-light appl-visa-widget" style="background-image: url('{% static 'assets/img/shape/1.jpg' %}');">
                             <h4>Dream Tour</h4>
@@ -744,7 +797,163 @@ document.addEventListener("DOMContentLoaded", function () {
                         <!-- End Single Widget -->
                     </div>
 
+                    
+
                 </div>
+                 <!-- =========================
+                    Top Universities Section
+                    ========================== -->
+                    <h3 class="mt-50 mb-30">Top Universities in {{ country.name }}</h3>
+                    {% comment %} <div class="blog-area home-blog blog-grid bg-gray default-padding">
+                        <div class="container">
+                            <div class="blog-item-box">
+                                <div class="row gutter-lg">
+
+                                    <!-- University Item 1 -->
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="home-blog-style-one wow fadeInUp">
+                                            <div class="thumb">
+                                                <img src="{% static 'assets/img/blog/1.jpg' %}" alt="Harvard University" style="width:100%; height:350px; object-fit:cover;">
+                                            </div>
+                                            <div class="info">
+                                                <div class="inner">
+                                                    <div class="meta">
+                                                        <div class="date"><strong>12</strong> Aug</div>
+                                                    </div>
+                                                    <div class="content">
+                                                        <ul class="blog-meta">
+                                                            <li><a href="#"><i class="far fa-user-circle"></i> EduStation Team</a></li>
+                                                            <li><a href="#"><i class="far fa-comments"></i> 25 Comments</a></li>
+                                                        </ul>
+                                                        <h3><a href="#">Harvard University</a></h3>
+                                                        <a href="#" class="btn-regular">
+                                                            Read More
+                                                            <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M1 17L17 1H7.8" stroke="#232323" stroke-width="2"></path>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- University Item 2 -->
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="home-blog-style-one wow fadeInUp" data-wow-delay="100ms">
+                                            <div class="thumb">
+                                                <img src="{% static 'assets/img/blog/2.jpg' %}" alt="Oxford University" style="width:100%; height:350px; object-fit:cover;">
+                                            </div>
+                                            <div class="info">
+                                                <div class="inner">
+                                                    <div class="meta">
+                                                        <div class="date"><strong>28</strong> Jul</div>
+                                                    </div>
+                                                    <div class="content">
+                                                        <ul class="blog-meta">
+                                                            <li><a href="#"><i class="far fa-user-circle"></i> EduStation Experts</a></li>
+                                                            <li><a href="#"><i class="far fa-comments"></i> 30 Comments</a></li>
+                                                        </ul>
+                                                        <h3><a href="#">Oxford University</a></h3>
+                                                        <a href="#" class="btn-regular">
+                                                            Read More
+                                                            <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M1 17L17 1H7.8" stroke="#232323" stroke-width="2"></path>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                   
+
+                                </div>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="row">
+                                <div class="col-md-12 pagi-area text-center">
+                                    <nav aria-label="navigation">
+                                        <ul class="pagination">
+                                            <li class="page-item"><a class="page-link" href="#"><i class="fas fa-angle-double-left"></i></a></li>
+                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                            <li class="page-item"><a class="page-link" href="#"><i class="fas fa-angle-double-right"></i></a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div> {% endcomment %}
+
+                    <div class="blog-area home-blog blog-grid bg-gray default-padding">
+    <div class="container">
+        <div class="blog-item-box">
+            <div class="row gutter-lg">
+
+                {% for uni in universities %}
+                <div class="col-lg-6 col-md-6 mb-4">
+                    <div class="home-blog-style-one wow fadeInUp">
+                        <div class="thumb">
+                            <img src="{{ uni.image.url }}" alt="{{ uni.name }}" style="width:100%; height:350px; object-fit:cover;">
+                        </div>
+                        <div class="info">
+                            <div class="inner">
+                                <div class="meta">
+                                    <div class="date">
+                                        <strong>{{ uni.created_at|date:"d" }}</strong>
+                                        {{ uni.created_at|date:"M" }}
+                                    </div>
+                                </div>
+                                <div class="content">
+                                    <ul class="blog-meta">
+                                        <li><a href="#"><i class="far fa-user-circle"></i> {{ uni.country.name }}</a></li>
+                                        <li><a href="#"><i class="far fa-comments"></i> 0 Comments</a></li>
+                                    </ul>
+                                    <h3><a href="#">{{ uni.name }}</a></h3>
+                                    {% comment %} <p>{{ uni.description|truncatewords:20 }}</p> {% endcomment %}
+                                    <a href="{% url 'uni_detail' uni.pk %}" class="btn-regular">
+                                        Read More
+                                        <svg width="20" height="18" viewBox="0 0 20 18" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M1 17L17 1H7.8" stroke="#232323" stroke-width="2"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">No universities found.</p>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- Pagination (frontend-handled) -->
+        <div class="row">
+            <div class="col-md-12 pagi-area text-center">
+                <nav aria-label="navigation">
+                    <ul class="pagination">
+                        <li class="page-item"><a class="page-link" href="#"><i class="fas fa-angle-double-left"></i></a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#"><i class="fas fa-angle-double-right"></i></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+    </div>
+</div>
+
             </div>
         </div>
     </div>
@@ -825,14 +1034,14 @@ document.addEventListener("DOMContentLoaded", function () {
                                     <li>
                                         <a href="{% url  'about' %}">About</a>
                                     </li>
-                                    <li>
-                                        <a href="{% url 'blogs' %}">Blogs</a>
-                                    </li>
+                                    {% comment %} <li>
+                                        <a href="#">Blogs</a>
+                                    </li> {% endcomment %}
                                     <li>
                                         <a href="{% url 'gallery' %}">Gallery</a>
                                     </li>
                                     <li>
-                                        <a href="{% url 'contact-us' %}">Terms & Conditions</a>
+                                        <a href="#">Terms & Conditions</a>
                                     </li>
                                     
                                 </ul>
@@ -842,11 +1051,11 @@ document.addEventListener("DOMContentLoaded", function () {
                             <div class="f-item link">
                                 <h4 class="widget-title">Our Services</h4>
                               <ul>
-                                                  <li><a href="{% url 'career_counselling_details' %}">Career Counselling</a></li>
-                                <li><a href="{% url 'course_selection_details' %}">Selection of Course, Country and University</a></li>
-                                <li><a href="{% url 'test_preparation_details' %}">Test Preparations</a></li>
-                                <li><a href="{% url 'application_process_details' %}">Application Process</a></li>
-                                <li><a href="{% url 'visa_guidance_details' %}">Expert Visa Guidance</a></li>
+                                                  <li><a href="#">Career Counselling</a></li>
+                                <li><a href="#">Selection of Course, Country and University</a></li>
+                                <li><a href="#">Test Preparations</a></li>
+                                <li><a href="#">Application Process</a></li>
+                                <li><a href="#">Expert Visa Guidance</a></li>
                                 </ul>
 
 
@@ -887,6 +1096,31 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
     </footer>
     <!-- End Footer -->
+    <style>
+        .country-banner {
+    width: 100%;              /* fills container width */
+    height: 100%;             /* fills container height */
+    max-height: 446px;        /* optional max height */
+    overflow: hidden;
+    border-radius: 8px;       /* match screenshot rounded corners */
+}
+
+.country-banner img.country-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;        /* ensures the image fills the container */
+    display: block;
+}
+
+
+    </style> 
+
+    <script>
+        <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/wow.min.js' %}"></script>
+<script>new WOW().init();</script>
+    </script>
     
     <!-- jQuery Frameworks
     ============================================= -->

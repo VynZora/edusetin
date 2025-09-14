@@ -1,0 +1,109 @@
+{% extends "admin_pages/base.html" %}
+{% load static %}
+
+{% block title %}Upload Application Form | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard sp_bottom_100">
+    <div class="container-fluid full__width__padding">
+        <div class="row">
+            <!-- Sidebar comes from base.html -->
+
+            <!-- Main Content -->
+            <div class="col-xl-9 col-lg-9 col-md-12">
+                <div class="dashboard__section__title">
+                    <h4 class="mb-0">Upload Application Form</h4>
+                    <p class="text-muted mt-2">Upload a new application form (PDF only)</p>
+                </div>
+
+                <div class="row mt-4">
+                    <!-- Upload Form -->
+                    <div class="col-12">
+                        <form method="post" enctype="multipart/form-data" class="needs-validation form-wrapper" novalidate>
+                            {% csrf_token %}
+                            <div class="row">
+                                <!-- Title -->
+                                <div class="col-md-12 mb-4">
+                                    <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                                    <input type="text" name="title" id="title" class="form-control modern-input" placeholder="Application Form" required>
+                                    <div class="invalid-feedback">Please provide a title.</div>
+                                </div>
+
+                                <!-- PDF Upload -->
+                                <div class="col-12 mb-4">
+                                    <label for="pdf" class="form-label">Upload PDF <span class="text-danger">*</span></label>
+                                    <input type="file" name="pdf" id="pdf" class="form-control modern-input" accept="application/pdf" required>
+                                    <div class="form-text">Only PDF files are allowed.</div>
+                                    <div class="invalid-feedback">Please upload a PDF file.</div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="col-12 mt-4">
+                                    <div class="dashboard__form__button">
+                                        <button type="submit" class="default__button">Upload</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div> <!-- end row -->
+
+                <!-- List of Uploaded PDFs -->
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <div class="dashboard__section__title">
+                            <h4 class="mb-0">Uploaded Application Forms</h4>
+                        </div>
+                        <ul class="list-group mt-3">
+                            {% for form in forms %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-file-pdf text-danger me-2"></i> {{ form.title }}</span>
+                                    <a href="{{ form.pdf.url }}" class="btn btn-sm btn-outline-primary" download>Download</a>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item">No application forms uploaded yet.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Reuse your form styles */
+.dashboard__section__title {
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+.list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %}

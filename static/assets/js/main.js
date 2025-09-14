@@ -33,7 +33,16 @@
 		/* ==================================================
 		    # Youtube Video Init
 		 ===============================================*/
-		$('.player').mb_YTPlayer();
+				if (typeof $.fn.mb_YTPlayer !== 'undefined') {
+		$(".player").mb_YTPlayer({
+			videoURL: 'your-video-url',
+			containment: 'self',
+			autoPlay: true,
+			mute: true
+		});
+	} else {
+		console.warn('YTPlayer not available');
+	}
 
 
 		/* ==================================================

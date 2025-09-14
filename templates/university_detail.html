@@ -1,0 +1,1647 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- ========== Meta Tags ========== -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Edusetin Study Abroad (EDUSETIN LLP), located in Areakode, Malappuram, Kerala, offers expert guidance for studying in Italy, Germany, Singapore & Kyrgyzstan. Services include MBBS, bachelor’s & master’s admissions, visa assistance, scholarships & test prep.
+">
+
+    <!-- ========== Page Title ========== -->
+    <title>Edusetin Study Abroad – Business and Management</title>
+
+    <!-- ========== Favicon Icon ========== -->
+<link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}" type="image/x-icon">
+
+<!-- ========== Start Stylesheet ========== -->
+<link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/visaco-icons.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/magnific-popup.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/swiper-bundle.min.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/animate.min.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/validnavs.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/helper.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/unit-test.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+<link href="{% static 'style.css' %}" rel="stylesheet">
+
+    
+
+</head>
+
+
+
+<body>
+    <style>
+  /* Hide default cursor */
+body {
+  cursor: none;
+}
+
+/* Dot cursor */
+.cursor-dot,
+.cursor-circle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+}
+
+/* Small dot */
+.cursor-dot {
+  width: 13px;
+  height: 13px;
+  background-color: #4faaff; /* Your brand color */
+  border-radius: 70%;
+}
+
+/* Circular outline */
+.cursor-circle {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #4faaff; /* Your brand color */
+  border-radius: 50%;
+  opacity: 0.6;
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+}
+
+    </style>
+    <script>
+    // Create cursor elements
+const cursorDot = document.createElement('div');
+const cursorCircle = document.createElement('div');
+
+cursorDot.classList.add('cursor-dot');
+cursorCircle.classList.add('cursor-circle');
+
+document.body.appendChild(cursorDot);
+document.body.appendChild(cursorCircle);
+
+let mouseX = 0, mouseY = 0;
+let circleX = 0, circleY = 0;
+
+// Update mouse position on move
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  cursorDot.style.top = `${mouseY}px`;
+  cursorDot.style.left = `${mouseX}px`;
+});
+
+// Animate circle following dot smoothly
+function animate() {
+  circleX += (mouseX - circleX) * 0.1; // 0.1 = smoothness factor
+  circleY += (mouseY - circleY) * 0.1;
+
+  cursorCircle.style.top = `${circleY}px`;
+  cursorCircle.style.left = `${circleX}px`;
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+
+    </script>
+
+	
+<style>
+    #preloader {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: #fff; /* Adjust to var(--white) if using variables */
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader > div {
+  display: inline-flex;
+  width: 25px;
+  height: 25px;
+  margin: 0 5px;
+  border-radius: 50%;
+  background: #0066f5; /* Your $secondary color */
+  animation: bounce 1.48s ease-in-out infinite both;
+}
+
+.loader > div:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loader > div:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+</style>
+
+    <!-- Start Preloader 
+    ============================================= -->
+   <div id="preloader">
+  <div class="vynzora-loader-inner">
+    <div class="loader">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
+</div>
+
+    <!-- preloader end -->
+
+   <!-- Start Header Top 
+    ============================================= -->
+    <div class="top-bar-area bg-dark text-light">
+        <div class="container-full">
+            <div class="row align-center">
+                <div class="col-xl-9 col-lg-9 info">
+                    <div class="address-info">
+                        <ul class="item-flex">
+                            <li>
+                                <i class="fas fa-envelope-open-text"></i> Info@edusetin.com
+                            </li>
+                            <li>
+                                <i class="fas fa-clock"></i> Working Hours: 09:00 AM – 06:00 PM
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-3 text-end">
+                    <div class="social">
+                        <ul class="item-flex">
+                            <li>
+                                <a href="#">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <img src="{% static 'assets/img/icon/twitter-x.png' %}" alt="Image Not Found">
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Header Top -->
+
+    <!-- Popup Modal (Abroad Studies - New Design) -->
+<div id="ctaPopup" class="cta-popup">
+    <div class="cta-popup-content new-popup">
+        <span class="cta-close">&times;</span>
+        <div class="popup-inner d-flex align-items-center">
+            <!-- Left Image -->
+            <div class="popup-left">
+                <img src="{% static 'assets/img/illustration/6.png' %}" alt="Abroad Studies Illustration">
+            </div>
+            <!-- Right Content -->
+            <div class="popup-right">
+                <h4 class="sub-title">Your Abroad Studies Journey</h4>
+                <h2 class="title">Explore Edusetin's Programs Worldwide</h2>
+                <p>Get expert guidance and support for your international education. Learn more about courses, scholarships, and admission procedures.</p>
+                <a href="{% url 'apply-form' %}" class="btn-style-one circle mt-3">
+                    Apply Now <span></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS -->
+<style>
+.cta-popup {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+  pointer-events: all;
+}
+
+.cta-popup-content.new-popup {
+  background: #fff;
+  border-radius: 20px;
+  max-width: 900px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  position: relative;
+  animation: slideIn 0.6s ease forwards;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  pointer-events: auto;
+}
+
+.popup-inner {
+  display: flex;
+  width: 100%;
+}
+
+.popup-left {
+  flex: 1;
+  overflow: hidden;
+}
+
+.popup-left img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.popup-right {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.popup-right .sub-title {
+  color: #ff4d5a;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.popup-right .title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #222;
+}
+
+.popup-right p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.btn-style-one {
+  display: inline-block;
+  padding: 12px 25px;
+ 
+  color: #fff;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+
+
+.cta-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 38px;
+  font-weight: bold;
+  color: #fff;
+  background: rgba(0,0,0,0.7);
+  width: 55px;
+  height: 55px;
+  text-align: center;
+  line-height: 55px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10001;
+  transition: all 0.3s ease;
+}
+
+.cta-close:hover {
+  background: rgba(0,0,0,0.9);
+  transform: scale(1.1);
+}
+
+@keyframes slideIn {
+  from {opacity: 0; transform: translateY(-30px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+@media (max-width: 768px) {
+  .cta-popup-content.new-popup {
+    flex-direction: column;
+  }
+  .popup-left img {
+    height: 200px;
+  }
+}
+</style>
+
+<style>
+/* Top Courses Section Styles */
+.top-courses-section {
+    padding: 80px 0;
+   /* background: #f9f9f9; */
+}
+
+.site-heading h2 {
+    font-size: 36px;
+    margin-bottom: 15px;
+    color: #222;
+}
+
+.site-heading p {
+    color: #666;
+    margin-bottom: 40px;
+}
+
+/* Course Slider Container */
+.course-slider-container {
+    position: relative;
+    overflow: hidden;
+    margin: 0 -15px;
+    padding: 20px 0;
+}
+
+.course-slider-track {
+    display: flex;
+    transition: transform 0.5s ease;
+    padding-bottom: 20px;
+}
+
+.course-card {
+    flex: 0 0 calc(33.333% - 30px);
+    margin: 0 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: #fff;
+    opacity: 0;
+    transform: translateX(50px);
+}
+
+.course-card.animate {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.course-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.course-card .thumb {
+    position: relative;
+    overflow: hidden;
+    height: 250px;
+}
+
+.course-card .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s ease;
+}
+
+.course-card:hover .thumb img {
+    transform: scale(1.1);
+}
+
+.course-card .thumb::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 1;
+}
+
+.course-card:hover .thumb::before {
+    opacity: 1;
+}
+
+.course-card .meta {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    z-index: 2;
+    transform: translateY(100%);
+    transition: transform 0.5s ease;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}
+
+.course-card:hover .meta {
+    transform: translateY(0);
+}
+
+.course-card .meta ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+
+.course-card .meta li {
+    color: #fff;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.course-card .meta i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.course-card .info {
+    padding: 25px;
+}
+
+.course-card .content h4 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: #222;
+    transition: color 0.3s ease;
+}
+
+.course-card:hover .content h4 {
+    color: #3f51b5;
+}
+
+.course-card .content p {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    text-align: left;
+    height: 80px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.circle-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    color: #3f51b5;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.circle-icon-btn .button-icon {
+    width: 40px;
+    height: 40px;
+    background: #3f51b5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    transition: all 0.3s ease;
+}
+
+.circle-icon-btn .button-icon img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+}
+
+.circle-icon-btn:hover {
+    color: #ff4081;
+}
+
+.circle-icon-btn:hover .button-icon {
+    background: #ff4081;
+    transform: rotate(45deg);
+}
+
+/* Animation for cards */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Auto-slider controls */
+.course-slider-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.course-slider-dots {
+    display: flex;
+    gap: 10px;
+}
+
+.course-slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ddd;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.course-slider-dot.active {
+    background: #3f51b5;
+    transform: scale(1.2);
+}
+
+/* Responsive styles */
+@media (max-width: 991px) {
+    .course-card {
+        flex: 0 0 calc(50% - 30px);
+    }
+}
+
+@media (max-width: 767px) {
+    .course-card {
+        flex: 0 0 calc(100% - 30px);
+    }
+    
+    .course-card .info {
+        padding: 20px;
+    }
+    
+    .course-card .content h4 {
+        font-size: 18px;
+    }
+    
+    .course-card .content p {
+        height: auto;
+        -webkit-line-clamp: unset;
+    }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Initialize animation
+    const courseCards = document.querySelectorAll('.course-card');
+    courseCards.forEach(card => {
+        card.classList.add('animate');
+    });
+    
+    // Auto-slide functionality
+    const track = document.querySelector('.course-slider-track');
+    const cards = document.querySelectorAll('.course-card');
+    const dotsContainer = document.querySelector('.course-slider-dots');
+    
+    if (cards.length > 0) {
+        const cardWidth = cards[0].offsetWidth + 30; // width + margin
+        let currentPosition = 0;
+        let autoSlideInterval;
+        
+        // Create dots
+        for (let i = 0; i < Math.ceil(cards.length / 3); i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('course-slider-dot');
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => {
+                goToSlide(i);
+            });
+            dotsContainer.appendChild(dot);
+        }
+        
+        function goToSlide(index) {
+            const dots = document.querySelectorAll('.course-slider-dot');
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[index].classList.add('active');
+            
+            if (window.innerWidth < 992) {
+                currentPosition = -index * cardWidth;
+            } else {
+                currentPosition = -index * cardWidth * 3;
+            }
+            
+            track.style.transform = `translateX(${currentPosition}px)`;
+        }
+        
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(() => {
+                const dots = document.querySelectorAll('.course-slider-dot');
+                let activeIndex = Array.from(dots).findIndex(dot => dot.classList.contains('active'));
+                let nextIndex = (activeIndex + 1) % dots.length;
+                goToSlide(nextIndex);
+            }, 5000);
+        }
+        
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+        
+        // Start auto slide
+        startAutoSlide();
+        
+        // Pause on hover
+        track.addEventListener('mouseenter', stopAutoSlide);
+        track.addEventListener('mouseleave', startAutoSlide);
+        
+        // Responsive adjustment
+        window.addEventListener('resize', function() {
+            goToSlide(0);
+        });
+    }
+});
+</script>
+
+<style>
+    /* Fix for text alignment under image */
+.content-wrapper {
+    width: 100%;
+}
+
+.description-content {
+    width: 100%;
+    text-align: justify;
+    line-height: 1.6;
+}
+
+.description-content p {
+    margin-bottom: 15px;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Ensure proper spacing and alignment */
+.country-banner {
+    margin-bottom: 30px;
+}
+
+.country-banner img.country-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pl-50, .pl-md-15, .pl-xs-15 {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+    
+    .description-content {
+        text-align: left;
+    }
+}
+
+/* Improve readability */
+.description-content p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+h2.mb-20 {
+    color: #222;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+</style>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let popup = document.getElementById("ctaPopup");
+    let closeBtn = document.querySelector(".cta-close");
+
+    // Show popup once after 30 seconds
+    let popupTimer = setTimeout(function() {
+        popup.style.display = "flex";
+    }, 30000); // 30 seconds
+
+    // Close popup
+    closeBtn.onclick = function () {
+        popup.style.display = "none";
+        clearTimeout(popupTimer);
+    }
+
+    // Close when clicking outside content
+    popup.addEventListener('click', function(e) {
+        if (e.target === popup) {
+            popup.style.display = "none";
+            clearTimeout(popupTimer);
+        }
+    });
+});
+</script>
+
+
+    <!-- Header 
+    ============================================= -->
+    <header>
+        <!-- Start Navigation -->
+        <nav class="navbar mobile-sidenav navbar-default validnavs navbar-sticky navbar-style-two">
+
+            <!-- Start Top Search -->
+            <div class="top-search">
+                <div class="container-xl">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search">
+                        <span class="input-group-addon close-search"><i class="fa fa-times"></i></span>
+                    </div>
+                </div>
+            </div>
+            <!-- End Top Search -->
+
+
+            <div class="container-full d-flex justify-content-between align-items-center">            
+
+                <!-- Start Header Navigation -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <a class="navbar-brand" href="{% url 'index' %}">
+                        <img src="{% static 'assets/img/logo1.png' %}" class="logo logo-display" alt="Logo">
+                        <img src="{% static 'assets/img/logo1.png' %}" class="logo logo-scrolled" alt="Logo">
+                    </a>
+                </div>
+                <!-- End Header Navigation -->
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="navbar-menu">
+
+                    <img src="{% static 'assets/img/logo2.png' %}" alt="Logo">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu">
+                        <i class="fa fa-times"></i>
+                    </button>
+                    
+                    <ul class="nav navbar-nav navbar-right" data-in="fadeInDown" data-out="fadeOutUp">
+                       
+                       
+
+                         
+                        <li>
+                            <a href="{% url 'index' %}">Home</a>
+                        </li>
+
+
+
+                         
+                        <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Countries <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        {% for country in countries %}
+            <li>
+                <a href="{% url 'country_detail' country.id %}">
+                    {{ country.name }}
+                </a>
+            </li>
+        {% empty %}
+            <li><a href="#">No countries available</a></li>
+        {% endfor %}
+    </ul>
+</li>
+
+
+                        {% comment %} add urls after setting universities detial page>>>>>>>>>>>>> {% endcomment %}
+                       {% comment %} <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Courses <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Business & Management</a></li>
+                                <li><a href="#}">Engineering</a></li>
+                                <li><a href="#">Health & Medicine</a></li>
+                            </ul>
+                        </li> {% endcomment %}
+
+
+                        <!-- Services Dropdown -->
+                        <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Services <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        {% for service in services %}
+            <li>
+                <a href="{% url 'service_detail' service.id %}">
+                    {{ service.title }}
+                </a>
+            </li>
+        {% empty %}
+            <li><a href="#">No services available</a></li>
+        {% endfor %}
+    </ul>
+</li>
+
+                        <!-- Courses Dropdown -->
+                        <!-- <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Courses</a>
+                            <ul class="dropdown-menu"> -->
+
+                                <!-- Medical Category -->
+                                <!-- <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Medical</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="medicine.html">Medicine</a></li>
+                                    <li><a href="nursing.html">Nursing</a></li>
+                                    <li><a href="pharmacy.html">Pharmacy</a></li>
+                                    <li><a href="dentistry.html">Dentistry</a></li>
+                                </ul>
+                                </li> -->
+
+                                <!-- Engineering Category -->
+                                <!-- <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Engineering</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="civil-engineering.html">Civil Engineering</a></li>
+                                    <li><a href="mechanical-engineering.html">Mechanical Engineering</a></li>
+                                    <li><a href="electrical-engineering.html">Electrical Engineering</a></li>
+                                    <li><a href="computer-engineering.html">Computer Engineering</a></li>
+                                </ul>
+                                </li>
+
+                                
+
+                            
+                            </ul>
+                            </li> -->
+
+
+                         <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Others <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                 <li><a href="{% url 'about' %}">About</a></li>
+                                {% comment %} <li><a href="#">Blog</a></li> {% endcomment %}
+                                <li> <a href="{% url 'gallery' %}">Gallery</a></li>
+                                 <li><a href="#">Contact</a></li>
+                            </ul>
+                        </li>
+                      
+                        <li>
+                           
+                        </li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+
+                <div class="attr-right">
+                    <!-- Start Atribute Navigation -->
+                    <div class="attr-nav">
+                        <ul>
+                            <li class="contact">
+                                <div class="call">
+                                    <div class="icon">
+                                        <img src="{% static 'assets/img/icon/phone.png' %}" alt="Image Not Found">
+                                    </div>
+                                    <div class="info">
+                                        <p>Need to discuss?</p>
+                                        <h5>
+                                            <a href="{% url 'apply-form' %}" class="appointment-btn">Schedule Now</a>
+                                            </h5>
+
+                                            <style>
+                                                .appointment-btn {
+                                                    display: inline-block;
+                                                    background-color: #D3202A; /* your theme color */
+                                                    
+                                                    padding: 10px 20px;
+                                                    border-radius: 8px;
+                                                    font-size: 16px;
+                                                    font-weight: 600;
+                                                    text-decoration: none;
+                                                    transition: background 0.3s ease;
+                                                    }
+
+                                                    .appointment-btn:hover {
+                                                    background-color: #b91c1c; /* darker shade on hover */
+                                                    
+                                                    }
+
+                                            </style>
+                                    </div>
+                                </div>
+                            </li>
+                           
+                            <li>
+                               <a href="https://edusetinglobalcareers.com/" target="_blank" rel="noopener noreferrer" class="btn-style-one" >
+                                        Get Your Job Visa <span></span>
+                                    </a>
+                                </li>
+                        </ul>
+                    </div>
+                    <!-- End Atribute Navigation -->
+                </div>
+
+            </div>   
+            <!-- Overlay screen for menu -->
+            <div class="overlay-screen"></div>
+            <!-- End Overlay screen for menu -->
+
+        </nav>
+        <!-- End Navigation -->
+    </header>
+    <!-- End Header -->
+
+   <!-- Breadcrumb -->
+<div class="breadcrumb-area bg-dark text-light text-center bg-cover" style="background-image: url('{% static 'assets/img/banner/business.jpg' %}');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <h1>{{university.name}}</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li><a href="{% url 'index' %}"><i class="fas fa-home"></i> Home</a></li>
+                        <li class="active">{{ university.name }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Course Details -->
+<div class="services-details-area default-padding">
+    <div class="container">
+        <div class="row">
+
+            <!-- Left Content -->
+            <div class="col-xl-8 col-lg-7 order-lg-last pl-50 pl-md-15 pl-xs-15">
+    <div class="country-banner mb-30">
+        <img src="{{ university.image.url }}" alt="{{ university.name }}" class="country-image">
+    </div>
+    <div class="content-wrapper">
+        <h2 class="mb-20">{{ university.name }}</h2>
+        <div class="description-content">
+            <p>{{ university.description|safe }}</p>
+        </div>
+    </div>
+</div>
+
+
+            <!-- Sidebar -->
+            <div class="col-xl-4 col-lg-5 mt-md-120 mt-xs-50 services-sidebar">
+                {% comment %} <div class="single-widget services-list-widget">
+                    <h4>Other Courses</h4>
+                    <div class="content">
+                        <ul>
+                            <li class="current-item"><a href="{% url 'business_management_details' %}">Business & Management</a></li>
+                            <li><a href="{% url 'engineering_details' %}">Engineering</a></li>
+                            <li><a href="{% url 'health_medicine_details' %}">Health & Medicine</a></li>
+                        </ul>
+                    </div>
+                </div> {% endcomment %}
+                 <div class="single-widget course-info-widget" style="background-image: url(assets/img/shape/wooden.png);">
+                            <h4 class="widget-title">Course Benifits</h4>
+                            <ul class="course-info-list">
+                                <li><i class="fas fa-user"></i> Certified Tutors</li>
+                                <li><i class="fas fa-book"></i> Doubt Solving Sessions</li>
+                                <li><i class="fas fa-graduation-cap"></i> Flexible & Regular Batches</li>
+                                <li><i class="fas fa-briefcase"></i> Free study materials</li>
+                            </ul>
+                        </div>
+                        <!-- Single Widget -->
+                        <div class="single-widget widget-brochure">
+    <h4 class="widget-title">Downloads</h4>
+    <ul>
+        {% if application_form %}
+            <li>
+                <a href="{{ application_form.pdf.url }}" download>
+                    <i class="fas fa-file-pdf"></i> {{ application_form.title }}
+                </a>
+            </li>
+        {% else %}
+            <li>No application form available.</li>
+        {% endif %}
+    </ul>
+</div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Business & Management Courses Section -->
+<div class="top-courses-section default-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="site-heading text-center">
+                    <h2>Top Courses at {{ university.name }}</h2>
+                    <p>Explore our most popular programs designed to shape future leaders</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Animated Courses Slider -->
+        <div class="course-slider-container">
+            <div class="course-slider-track">
+                {% for course in courses %}
+                <div class="course-card wow fadeInUp" data-wow-delay="{{ forloop.counter0|add:0.1 }}s">
+                    <div class="thumb">
+                        <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                        <div class="meta">
+                            <ul>
+                                <li><i class="fas fa-clock"></i> Duration: {{ course.duration }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="info">
+                        <div class="inner">
+                            <div class="content">
+                                <h4>{{ course.title }}</h4>
+                                <div class="course-desc">{{ course.description|safe }}</div>
+                                <a class="circle-icon-btn know-more-btn" href="#" data-course="{{ course.title }}">
+                                    <div class="button-icon">
+                                        <img src="{% static 'assets/img/icon/arrow-up.png' %}" alt="Icon">
+                                    </div>
+                                    <span>Know More</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p>No courses available for this university.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Slider Controls -->
+        <div class="course-slider-controls">
+            <div class="course-slider-dots"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Popup Modal -->
+<!-- Contact Popup Modal -->
+<div id="contactPopup" class="contact-popup">
+    <div class="contact-popup-content">
+        <span class="contact-close">&times;</span>
+        <h3>Contact Us</h3>
+        <form method="post" action="{% url 'contact_submit' %}">
+            {% csrf_token %}
+            <input type="hidden" name="course_subject" id="courseSubject" value="">
+            <div class="form-group">
+                <input type="text" name="name" placeholder="Your Name" required class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="text" name="phone" placeholder="Contact Number" required class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" placeholder="Email ID" required class="form-control">
+            </div>
+            <div class="form-group">
+                <textarea name="message" placeholder="Your Message" required class="form-control"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+        </form>
+    </div>
+</div>
+
+<!-- Popup CSS -->
+<!-- Popup CSS -->
+<style>
+.contact-popup {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; 
+    left:0; 
+    top:0; 
+    width:100%; 
+    height:100%; 
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+}
+.contact-popup-content {
+    background:#fff; 
+    padding:30px; 
+    border-radius:10px; 
+    width:400px; 
+    max-width:90%; 
+    position:relative;
+}
+.contact-close {
+    position:absolute; 
+    right:15px; 
+    top:10px; 
+    font-size:25px; 
+    cursor:pointer;
+}
+.contact-popup .form-group {
+    margin-bottom:15px;
+}
+.contact-popup .form-control {
+    width:100%; 
+    padding:10px; 
+    border-radius:5px; 
+    border:1px solid #ddd;
+}
+</style>
+
+
+<!-- Add this CSS to your style section -->
+<style>
+/* Enhanced Course Cards Styles */
+.blog-grid {
+    position: relative;
+    overflow: hidden;
+}
+
+.blog-item-box {
+    position: relative;
+}
+
+.course-slider-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.course-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: #fff;
+    height: 100%;
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+.course-card.animate {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.course-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.course-card .thumb {
+    position: relative;
+    overflow: hidden;
+    height: 250px;
+}
+
+.course-card .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s ease;
+}
+
+.course-card:hover .thumb img {
+    transform: scale(1.1);
+}
+
+.course-card .thumb::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 1;
+}
+
+.course-card:hover .thumb::before {
+    opacity: 1;
+}
+
+.course-card .meta {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    z-index: 2;
+    transform: translateY(100%);
+    transition: transform 0.5s ease;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}
+
+.course-card:hover .meta {
+    transform: translateY(0);
+}
+
+.course-card .meta ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+
+.course-card .meta li {
+    color: #fff;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.course-card .meta i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.course-card .info {
+    padding: 25px;
+}
+
+.course-card .content h4 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: #222;
+    transition: color 0.3s ease;
+}
+
+.course-card:hover .content h4 {
+    color: #3f51b5;
+}
+
+.course-card .content p {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.circle-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    color: #3f51b5;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.circle-icon-btn .button-icon {
+    width: 40px;
+    height: 40px;
+    background: #3f51b5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    transition: all 0.3s ease;
+}
+
+.circle-icon-btn .button-icon img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+}
+
+.circle-icon-btn:hover {
+    color: #ff4081;
+}
+
+.circle-icon-btn:hover .button-icon {
+    background: #ff4081;
+    transform: rotate(45deg);
+}
+
+/* Animation for cards */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Auto-slider controls */
+.course-slider-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.course-slider-dots {
+    display: flex;
+    gap: 10px;
+}
+
+.course-slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ddd;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.course-slider-dot.active {
+    background: #3f51b5;
+    transform: scale(1.2);
+}
+
+/* Responsive styles */
+@media (max-width: 991px) {
+    .course-card {
+        margin-bottom: 30px;
+    }
+}
+
+@media (max-width: 767px) {
+    .course-card .info {
+        padding: 20px;
+    }
+    
+    .course-card .content h4 {
+        font-size: 18px;
+    }
+}
+</style>
+
+ <style>
+    .country-banner {
+        width: 100%;              /* fills container width */
+        height: 100%;             /* fills container height */
+        max-height: 446px;        /* optional max height */
+        overflow: hidden;
+        border-radius: 8px;       /* match screenshot rounded corners */
+        margin-bottom: 30px;      /* add some space below the banner */
+    }
+
+    .country-banner img.country-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;        /* ensures the image fills the container */
+        display: block;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .country-banner {
+            max-height: 300px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .country-banner {
+            max-height: 250px;
+        }
+    }
+</style>
+<!-- Popup JS -->
+<!-- Popup JS -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Get all "Know More" buttons
+    document.querySelectorAll('.know-more-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var courseName = btn.getAttribute('data-course');
+            document.getElementById('courseSubject').value = courseName + " Inquiry";
+            document.getElementById('contactPopup').style.display = 'flex';
+        });
+    });
+
+    // Close popup when clicking on close button
+    document.querySelector('.contact-close').addEventListener('click', function() {
+        document.getElementById('contactPopup').style.display = 'none';
+    });
+
+    // Close popup when clicking outside of it
+    window.addEventListener('click', function(event) {
+        if (event.target == document.getElementById('contactPopup')) {
+            document.getElementById('contactPopup').style.display = 'none';
+        }
+    });
+});
+</script>
+
+
+  
+    <!-- Start Footer 
+    ============================================= -->
+    <div class="footer-top-area bg-dark-secondary text-light" style="background-image: url('{% static 'assets/img/shape/17.png' %}');">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-4">
+                    <div class="user-card">
+                        <div class="thumb">
+                            <img src="{% static 'assets/img/team/5.jpg' %}" alt="Image Not Found">
+                            <img src="{% static 'assets/img/team/6.jpg' %}" alt="Image Not Found">
+                            <span>1k</span>
+                        </div>
+                        <h4>Approved Student Visa Applications.</h4>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <ul class="address-list">
+                        <li>
+                            <div class="icon"><i class="fas fa-envelope"></i></div>
+                            <div class="info">
+                                <h4>Email:</h4>
+                                <a href="mailto:info@crysta.com">info@edusetin.com</a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+
+
+                            <div class="info">
+                                <h4>Address:</h4>
+                                <p>
+                                    62XW+686, Pathanapuram, Kizhuparamba, Malappuram, Kerala – 673639
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+   <footer class="bg-dark text-light">
+       
+        <div class="footer-style-one">
+            <div class="container">
+                <div class="f-items">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6 footer-item">
+                            <div class="f-item about">
+                                <div class="footer-logo">
+                                    <img src="{% static 'assets/img/logo1.png' %}" alt="Image Not Found">
+                                </div>
+                                <div class="f-item">
+                                  <p>
+                                    We provide authentic, customized visa and immigration solutions you can trust. Unlike generic services, our expert guidance ensures accuracy, transparency, and success—without confusing jargon or unreliable advice.
+                                </p>
+
+                                    <ul class="footer-social-regular mt-30">
+                                        <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                        <li><a href="#"><img src="{% static 'assets/img/icon/twitter-x.png' %}" alt="Image Not Found"></a></li>
+                                        <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                                        <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-6 footer-item">
+                            <div class="f-item link">
+                                <h4 class="widget-title">Quick Links</h4>
+                                <ul>
+                                    <li>
+                                        <a href="{% url 'index' %}">Home</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url  'about' %}">About</a>
+                                    </li>
+                                    {% comment %} <li>
+                                        <a href="{% url 'blogs' %}">Blogs</a>
+                                    </li> {% endcomment %}
+                                    <li>
+                                        <a href="{% url 'gallery' %}">Gallery</a>
+                                    </li>
+                                    {% comment %} <li>
+                                        <a href="{% url 'contact-us' %}">Terms & Conditions</a>
+                                    </li> {% endcomment %}
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 footer-item">
+                            <div class="f-item link">
+                                <h4 class="widget-title">Our Services</h4>
+                              <ul>
+                                                  <li><a href="#">Career Counselling</a></li>
+                                <li><a href="#">Selection of Course, Country and University</a></li>
+                                <li><a href="#">Test Preparations</a></li>
+                                <li><a href="#">Application Process</a></li>
+                                <li><a href="#">Expert Visa Guidance</a></li>
+                                </ul>
+
+
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 footer-item">
+                            <div class="f-item newsletter">
+                                <h4 class="widget-title">Newsletter</h4>
+                                <p>
+                                    Join our subscribers list to get the latest news and special offers.
+                                </p>
+                                <form class="newsletter-form-style-one" action="#">
+                                    <input type="email" placeholder="Your Email" class="form-control" name="email">
+                                    <button type="submit">
+                                        Subsribe
+                                        <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M1 17L17 1H7.8" stroke="white" stroke-width="2"></path>
+                                        </svg>
+                                    </button>  
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Start Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 offset-lg-4">
+                          <p>© Copyright 2025. All rights reserved by <a href="https://www.vynzora.com" target="_blank" rel="noopener noreferrer">Vynzora Pvt.Ltd</a>.</p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Footer Bottom -->
+        </div>
+    </footer>
+    <!-- End Footer -->
+
+    <style>
+        .country-banner {
+    width: 100%;              /* fills container width */
+    height: 100%;             /* fills container height */
+    max-height: 446px;        /* optional max height */
+    overflow: hidden;
+    border-radius: 8px;       /* match screenshot rounded corners */
+}
+
+.country-banner img.country-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;        /* ensures the image fills the container */
+    display: block;
+}
+
+
+    </style>
+    
+    <!-- jQuery Frameworks
+    ============================================= -->
+<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.appear.js' %}"></script>
+<script src="{% static 'assets/js/jquery.easing.min.js' %}"></script>
+<script src="{% static 'assets/js/swiper-bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/progress-bar.min.js' %}"></script>
+<script src="{% static 'assets/js/circle-progress.js' %}"></script>
+<script src="{% static 'assets/js/isotope.pkgd.min.js' %}"></script>
+<script src="{% static 'assets/js/imagesloaded.pkgd.min.js' %}"></script>
+<script src="{% static 'assets/js/magnific-popup.min.js' %}"></script>
+<script src="{% static 'assets/js/count-to.js' %}"></script>
+<script src="{% static 'assets/js/jquery.nice-select.min.js' %}"></script>
+<script src="{% static 'assets/js/wow.min.js' %}"></script>
+<script src="{% static 'assets/js/YTPlayer.min.js' %}"></script>
+<script src="{% static 'assets/js/validnavs.js' %}"></script>
+<script src="{% static 'assets/js/gsap.js' %}"></script>
+<script src="{% static 'assets/js/ScrollTrigger.min.js' %}"></script>
+<script src="{% static 'assets/js/SplitText.min.js' %}"></script>
+<script src="{% static 'assets/js/main.js' %}"></script>
+
+
+</body>
+</html>

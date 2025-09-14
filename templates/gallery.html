@@ -440,13 +440,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Universities <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url 'harvard_details' %}">Harvard University</a></li>
-                                <li><a href="{% url 'oxford_details' %}">University of Oxford</a></li>
-                                <li><a href="{% url 'bologna_details' %}">University of Bologna</a></li>
-                                <li><a href="{% url 'sapienza_details' %}">Sapienza University of Rome</a></li>
-                                <li><a href="{% url 'ludwig_details' %}">Ludwig Maximilian University of Munich</a></li>
-                                <li><a href="{% url 'asian_medical_institute_details' %}">Asian Medical Institute</a></li>
-                                <li><a href="{% url 'kyrgyz_state_academy_details' %}">Kyrgyz State Medical Academy</a></li>
+                                <li><a href="#">Harvard University</a></li>
+                                <li><a href="#">University of Oxford</a></li>
+                                <li><a href="#">University of Bologna</a></li>
+                                <li><a href="#">Sapienza University of Rome</a></li>
+                                <li><a href="#">Ludwig Maximilian University of Munich</a></li>
+                                <li><a href="#">Asian Medical Institute</a></li>
+                                <li><a href="#">Kyrgyz State Medical Academy</a></li>
                             </ul>
                         </li>
 
@@ -456,20 +456,20 @@ document.addEventListener("DOMContentLoaded", function () {
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Countries <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url 'dubai_details' %}">Dubai</a></li>
-                                <li><a href="{% url 'united_kingdom_details' %}">United Kingdom</a></li>
-                                <li><a href="{% url 'italy_details' %}">Italy</a></li>
-                                <li><a href="{% url 'kyrgyzstan_details' %}">Kyrgyzstan</a></li>
-                                <li><a href="{% url 'germany_details' %}">Germany</a></li>
+                                <li><a href="#">Dubai</a></li>
+                                <li><a href="#">United Kingdom</a></li>
+                                <li><a href="#">Italy</a></li>
+                                <li><a href="#">Kyrgyzstan</a></li>
+                                <li><a href="#">Germany</a></li>
                             </ul>
                         </li>
 
                        <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Courses <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url 'business_management_details' %}">Business & Management</a></li>
-                                <li><a href="{% url 'engineering_details' %}">Engineering</a></li>
-                                <li><a href="{% url 'health_medicine_details' %}">Health & Medicine</a></li>
+                                {% comment %} <li><a href="#">Business & Management</a></li>
+                                <li><a href="#}">Engineering</a></li>
+                                <li><a href="#">Health & Medicine</a></li> {% endcomment %}
                             </ul>
                         </li>
 
@@ -478,11 +478,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Services <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url 'career_counselling_details' %}">Career Counselling</a></li>
-                                <li><a href="{% url 'course_selection_details' %}">Selection of Course, Country and University</a></li>
-                                <li><a href="{% url 'test_preparation_details' %}">Test Preparations</a></li>
-                                <li><a href="{% url 'application_process_details' %}">Application Process</a></li>
-                                <li><a href="{% url 'visa_guidance_details' %}">Expert Visa Guidance</a></li>
+                                <li><a href="#">Career Counselling</a></li>
+                                <li><a href="#">Selection of Course, Country and University</a></li>
+                                <li><a href="#">Test Preparations</a></li>
+                                <li><a href="#">Application Process</a></li>
+                                <li><a href="#">Expert Visa Guidance</a></li>
                                
                             </ul>
                         </li>
@@ -526,9 +526,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Others <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                  <li><a href="{% url 'about' %}">About</a></li>
-                                <li><a href="{% url 'blogs' %}">Blog</a></li>
+                                {% comment %} <li><a href="#">Blog</a></li> {% endcomment %}
                                 <li> <a href="{% url 'gallery' %}">Gallery</a></li>
-                                 <li><a href="{% url 'contact-us' %}">Contact</a></li>
+                                 <li><a href="#">Contact</a></li>
                             </ul>
                         </li>
                       
@@ -624,15 +624,13 @@ document.addEventListener("DOMContentLoaded", function () {
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab">All</button>
       </li>
+      {% for category in categories %}
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="onam-tab" data-bs-toggle="pill" data-bs-target="#onam" type="button" role="tab">Onam</button>
+        <button class="nav-link" id="cat-{{ category.id }}-tab" data-bs-toggle="pill" data-bs-target="#cat-{{ category.id }}" type="button" role="tab">
+          {{ category.name }}
+        </button>
       </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="festival-tab" data-bs-toggle="pill" data-bs-target="#festival" type="button" role="tab">Festival</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="events-tab" data-bs-toggle="pill" data-bs-target="#events" type="button" role="tab">Events</button>
-      </li>
+      {% endfor %}
     </ul>
 
     <!-- Tab Content -->
@@ -641,65 +639,38 @@ document.addEventListener("DOMContentLoaded", function () {
       <!-- All Tab -->
       <div class="tab-pane fade show active" id="all" role="tabpanel">
         <div class="row g-4">
+          {% for img in images %}
           <div class="col-lg-4 col-md-6">
             <div class="gallery-item">
-              <img src="{% static 'assets/img/blog/1.jpg' %}" class="img-fluid rounded shadow" alt="Gallery">
+              <img src="{{ img.image.url }}" class="img-fluid rounded shadow" alt="{{ img.title }}">
             </div>
           </div>
-          <div class="col-lg-4 col-md-6">
-            <div class="gallery-item">
-              <img src="{% static 'assets/img/blog/2.jpg' %}" class="img-fluid rounded shadow" alt="Gallery">
-            </div>
-          </div>
-          <div class="col-lg-4 col-md-6">
-            <div class="gallery-item">
-              <img src="{% static 'assets/img/blog/1.jpg' %}" class="img-fluid rounded shadow" alt="Gallery">
-            </div>
-          </div>
+          {% empty %}
+          <p class="text-center">No images available.</p>
+          {% endfor %}
         </div>
       </div>
 
-      <!-- Onam Tab -->
-      <div class="tab-pane fade" id="onam" role="tabpanel">
+      <!-- Category Tabs -->
+      {% for category in categories %}
+      <div class="tab-pane fade" id="cat-{{ category.id }}" role="tabpanel">
         <div class="row g-4">
+          {% for img in category.images.all %}
           <div class="col-lg-4 col-md-6">
             <div class="gallery-item">
-              <img src="{% static 'assets/img/blog/1.jpg' %}" class="img-fluid rounded shadow" alt="Onam">
+              <img src="{{ img.image.url }}" class="img-fluid rounded shadow" alt="{{ img.title }}">
             </div>
           </div>
-          <div class="col-lg-4 col-md-6">
-            <div class="gallery-item">
-              <img src="{% static 'assets/img/blog/1.jpg' %}" class="img-fluid rounded shadow" alt="Onam">
-            </div>
-          </div>
+          {% empty %}
+          <p class="text-center">No images in {{ category.name }}.</p>
+          {% endfor %}
         </div>
       </div>
-
-      <!-- Festival Tab -->
-      <div class="tab-pane fade" id="festival" role="tabpanel">
-        <div class="row g-4">
-          <div class="col-lg-4 col-md-6">
-            <div class="gallery-item">
-              <img src="{% static 'assets/img/blog/1.jpg' %}" class="img-fluid rounded shadow" alt="Festival">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Events Tab -->
-      <div class="tab-pane fade" id="events" role="tabpanel">
-        <div class="row g-4">
-          <div class="col-lg-4 col-md-6">
-            <div class="gallery-item">
-              <img src="{% static 'assets/img/blog/1.jpg' %}" class="img-fluid rounded shadow" alt="Event">
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {% endfor %}
     </div>
   </div>
 </div>
+
 
 <!-- Optional CSS -->
 <style>
@@ -752,14 +723,14 @@ document.addEventListener("DOMContentLoaded", function () {
                                     <li>
                                         <a href="{% url  'about' %}">About</a>
                                     </li>
-                                    <li>
-                                        <a href="{% url 'blogs' %}">Blogs</a>
-                                    </li>
+                                    {% comment %} <li>
+                                        <a href="#">Blogs</a>
+                                    </li> {% endcomment %}
                                     <li>
                                         <a href="{% url 'gallery' %}">Gallery</a>
                                     </li>
                                     <li>
-                                        <a href="{% url 'contact-us' %}">Terms & Conditions</a>
+                                        <a href="#">Terms & Conditions</a>
                                     </li>
                                     
                                 </ul>
@@ -769,11 +740,11 @@ document.addEventListener("DOMContentLoaded", function () {
                             <div class="f-item link">
                                 <h4 class="widget-title">Our Services</h4>
                               <ul>
-                                                  <li><a href="{% url 'career_counselling_details' %}">Career Counselling</a></li>
-                                <li><a href="{% url 'course_selection_details' %}">Selection of Course, Country and University</a></li>
-                                <li><a href="{% url 'test_preparation_details' %}">Test Preparations</a></li>
-                                <li><a href="{% url 'application_process_details' %}">Application Process</a></li>
-                                <li><a href="{% url 'visa_guidance_details' %}">Expert Visa Guidance</a></li>
+                                                  <li><a href="#">Career Counselling</a></li>
+                                <li><a href="#">Selection of Course, Country and University</a></li>
+                                <li><a href="#">Test Preparations</a></li>
+                                <li><a href="#">Application Process</a></li>
+                                <li><a href="#">Expert Visa Guidance</a></li>
                                 </ul>
 
 
