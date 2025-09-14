@@ -437,56 +437,59 @@ document.addEventListener("DOMContentLoaded", function () {
                        
 
                          
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Universities <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'harvard_details' %}">Harvard University</a></li>
-                                <li><a href="{% url 'oxford_details' %}">University of Oxford</a></li>
-                                <li><a href="{% url 'bologna_details' %}">University of Bologna</a></li>
-                                <li><a href="{% url 'sapienza_details' %}">Sapienza University of Rome</a></li>
-                                <li><a href="{% url 'ludwig_details' %}">Ludwig Maximilian University of Munich</a></li>
-                                <li><a href="{% url 'asian_medical_institute_details' %}">Asian Medical Institute</a></li>
-                                <li><a href="{% url 'kyrgyz_state_academy_details' %}">Kyrgyz State Medical Academy</a></li>
-                            </ul>
+                        <li>
+                            <a href="{% url 'index' %}">Home</a>
                         </li>
 
 
 
                          
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Countries <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'dubai_details' %}">Dubai</a></li>
-                                <li><a href="{% url 'united_kingdom_details' %}">United Kingdom</a></li>
-                                <li><a href="{% url 'italy_details' %}">Italy</a></li>
-                                <li><a href="{% url 'kyrgyzstan_details' %}">Kyrgyzstan</a></li>
-                                <li><a href="{% url 'germany_details' %}">Germany</a></li>
-                            </ul>
-                        </li>
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Countries <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        {% for country in countries %}
+            <li>
+                <a href="{% url 'country_detail' country.id %}">
+                    {{ country.name }}
+                </a>
+            </li>
+        {% empty %}
+            <li><a href="#">No countries available</a></li>
+        {% endfor %}
+    </ul>
+</li>
 
-                       <li class="dropdown">
+
+                        {% comment %} add urls after setting universities detial page>>>>>>>>>>>>> {% endcomment %}
+                       {% comment %} <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Courses <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url 'business_management_details' %}">Business & Management</a></li>
-                                <li><a href="{% url 'engineering_details' %}">Engineering</a></li>
-                                <li><a href="{% url 'health_medicine_details' %}">Health & Medicine</a></li>
+                                <li><a href="#">Business & Management</a></li>
+                                <li><a href="#}">Engineering</a></li>
+                                <li><a href="#">Health & Medicine</a></li>
                             </ul>
-                        </li>
+                        </li> {% endcomment %}
 
 
                         <!-- Services Dropdown -->
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Services <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'career_counselling_details' %}">Career Counselling</a></li>
-                                <li><a href="{% url 'course_selection_details' %}">Selection of Course, Country and University</a></li>
-                                <li><a href="{% url 'test_preparation_details' %}">Test Preparations</a></li>
-                                <li><a href="{% url 'application_process_details' %}">Application Process</a></li>
-                                <li><a href="{% url 'visa_guidance_details' %}">Expert Visa Guidance</a></li>
-                               
-                            </ul>
-                        </li>
-
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Services <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        {% for service in services %}
+            <li>
+                <a href="{% url 'service_detail' service.id %}">
+                    {{ service.title }}
+                </a>
+            </li>
+        {% empty %}
+            <li><a href="#">No services available</a></li>
+        {% endfor %}
+    </ul>
+</li>
 
                         <!-- Courses Dropdown -->
                         <!-- <li class="dropdown">
@@ -526,9 +529,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Others <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                  <li><a href="{% url 'about' %}">About</a></li>
-                                <li><a href="{% url 'blogs' %}">Blog</a></li>
+                                {% comment %} <li><a href="#">Blog</a></li> {% endcomment %}
                                 <li> <a href="{% url 'gallery' %}">Gallery</a></li>
-                                 <li><a href="{% url 'contact-us' %}">Contact</a></li>
+                                 <li><a href="#">Contact</a></li>
                             </ul>
                         </li>
                       
@@ -801,11 +804,12 @@ document.addEventListener("DOMContentLoaded", function () {
        <!-- Start Team 
     ============================================= -->
     <div id="team" class="team-style-one-area default-padding bottom-less">
-        <div class="container">
+
+       <div class="container">
             <div class="row">
                 <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1">
                     <div class="site-heading text-center">
-                       <h4 class="sub-title">Our Team</h4>
+                        <h4 class="sub-title">Our Team</h4>
 <h2 class="title split-text">Meet Our Experts</h2>
                     </div>
                 </div>
@@ -813,174 +817,67 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
         <div class="container">
             <div class="row">
+                
                 <!-- Single Item -->
-                <div class="col-lg-4 col-md-6 mb-30">
-                    <div class="team-style-one-item wow fadeInUp">
-                        <div class="thumb">
-                            <img src="{% static 'assets/img/team/t1.jpeg' %}" alt="Image Not Found" style="height: 500px; object-fit: cover;">
-                            <img src="{% static 'assets/img/shape/31.png' %}" alt="Image Not Found">
-                            <div class="social-info">
-                                <div class="social-overlay">
-                                    <ul>
-                                        <li>
-                                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-dribbble"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                        </li>
-                                    </ul>
-                                    <div class="icon">
-                                        <i class="fas fa-plus"></i>
-                                    </div>
+                <div class="row">
+            <!-- Django template loop starts here -->
+            {% for member in team_members %}
+            <!-- Single Item -->
+            <div class="col-lg-4 col-md-6 mb-30">
+                <div class="team-style-one-item wow fadeInUp" data-wow-delay="{{ forloop.counter0|add:1 }}00ms">
+                    <div class="thumb">
+                        {% if member.image %}
+                        <img src="{{ member.image.url }}" alt="{{ member.name }}" style="height: 500px; object-fit: cover;">
+                        {% else %}
+                        <img src="{% static 'assets/img/team/placeholder.jpg' %}" alt="{{ member.name }}" style="height: 500px; object-fit: cover;">
+                        {% endif %}
+                        <img src="{% static 'assets/img/shape/31.png' %}" alt="Image Not Found">
+                        <div class="social-info">
+                            <div class="social-overlay">
+                                <ul>
+                                    {% if member.linkedin %}
+                                    <li>
+                                        <a href="{{ member.linkedin }}"><i class="fab fa-linkedin-in"></i></a>
+                                    </li>
+                                    {% endif %}
+                                    {% if member.github %}
+                                    <li>
+                                        <a href="{{ member.github }}"><i class="fab fa-github"></i></a>
+                                    </li>
+                                    {% endif %}
+                                    {% if member.twitter %}
+                                    <li>
+                                        <a href="{{ member.twitter }}"><i class="fab fa-twitter"></i></a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                                <div class="icon">
+                                    <i class="fas fa-plus"></i>
                                 </div>
-                                <a href=""><i class="fas fa-comments-alt"></i></a>
                             </div>
-                        </div>
-                        <div class="info">
-                            <h4><a href="">RASIF MEEMBATTA</a></h4>
-                            <span>Managing Director</span>
+                            <a href="#"><i class="fas fa-comments-alt"></i></a>
                         </div>
                     </div>
+                    <div class="info">
+                        <h4><a href="#">{{ member.name }}</a></h4>
+                        <span>{{ member.profession }}</span>
+                    </div>
                 </div>
+            </div>
+            <!-- End Single Item -->
+            {% endfor %}
+            <!-- Django template loop ends here -->
+        </div>
+    </div>
                 <!-- End Single Item -->
                 <!-- Single Item -->
-                <div class="col-lg-4 col-md-6 mb-30">
-                    <div class="team-style-one-item wow fadeInUp" data-wow-delay="100ms">
-                        <div class="thumb">
-                            <img src="{% static 'assets/img/team/t2.jpeg' %}" alt="Image Not Found" style="height: 500px; object-fit: cover;">
-                            <img src="{% static 'assets/img/shape/31.png' %}" alt="Image Not Found">
-                            <div class="social-info">
-                                <div class="social-overlay">
-                                    <ul>
-                                        <li>
-                                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-dribbble"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                        </li>
-                                    </ul>
-                                    <div class="icon">
-                                        <i class="fas fa-plus"></i>
-                                    </div>
-                                </div>
-                                <a href=""><i class="fas fa-comments-alt"></i></a>
-                            </div>
-                        </div>
-                        <div class="info">
-                            <h4><a href="">SAJEER POOVENCHERI</a></h4>
-                            <span>Managing Director</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Item -->
-                 <div class="col-lg-4 col-md-6 mb-30">
-                    <div class="team-style-one-item wow fadeInUp" data-wow-delay="200ms">
-                        <div class="thumb">
-                            <img src="{% static 'assets/img/team/t5.jpeg' %}" alt="Image Not Found" style="height: 500px; object-fit: cover;">
-                            <img src="{% static 'assets/img/shape/31.png' %}" alt="Image Not Found">
-                            <div class="social-info">
-                                <div class="social-overlay">
-                                    <ul>
-                                        <li>
-                                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-dribbble"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                        </li>
-                                    </ul>
-                                    <div class="icon">
-                                        <i class="fas fa-plus"></i>
-                                    </div>
-                                </div>
-                                <a href=""><i class="fas fa-comments-alt"></i></a>
-                            </div>
-                        </div>
-                        <div class="info">
-                            <h4><a href="">SHANEEB EDANATTU</a></h4>
-                            <span>Managing Director</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Single Item -->
-                <div class="col-lg-4 col-md-6 mb-30">
-                    <div class="team-style-one-item wow fadeInUp" data-wow-delay="200ms">
-                        <div class="thumb">
-                            <img src="{% static 'assets/img/team/t3.jpeg' %}" alt="Image Not Found" style="height: 500px; object-fit: cover;">
-                            <img src="{% static 'assets/img/shape/31.png' %}" alt="Image Not Found">
-                            <div class="social-info">
-                                <div class="social-overlay">
-                                    <ul>
-                                        <li>
-                                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-dribbble"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                        </li>
-                                    </ul>
-                                    <div class="icon">
-                                        <i class="fas fa-plus"></i>
-                                    </div>
-                                </div>
-                                <a href=""><i class="fas fa-comments-alt"></i></a>
-                            </div>
-                        </div>
-                        <div class="info">
-                            <h4><a href="">NABEEL MUHAMMED</a></h4>
-                            <span>CTO</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Item -->
-                   <!-- Single Item -->
-                <div class="col-lg-4 col-md-6 mb-30">
-                    <div class="team-style-one-item wow fadeInUp" data-wow-delay="200ms">
-                        <div class="thumb">
-                            <img src="{% static 'assets/img/team/t4.jpeg' %}" alt="Image Not Found" style="height: 500px; object-fit: cover;">
-                            <img src="{% static 'assets/img/shape/31.png' %}" alt="Image Not Found">
-                            <div class="social-info">
-                                <div class="social-overlay">
-                                    <ul>
-                                        <li>
-                                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-dribbble"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                        </li>
-                                    </ul>
-                                    <div class="icon">
-                                        <i class="fas fa-plus"></i>
-                                    </div>
-                                </div>
-                                <a href=""><i class="fas fa-comments-alt"></i></a>
-                            </div>
-                        </div>
-                        <div class="info">
-                            <h4><a href="">SONU RESWIN</a></h4>
-                            <span>Advertising Executive</span>
-                        </div>
-                    </div>
-                </div>
                   <!-- Single Item -->
                 
             </div>
         </div>
     </div>
     <!-- End Team -->
+
   <!-- Start Process 
 ============================================= -->
 <div class="process-style-one-area text-center default-padding">
@@ -1077,87 +974,42 @@ document.addEventListener("DOMContentLoaded", function () {
                             <div class="swiper-wrapper">
                                 
                                 <!-- Single Item -->
+                                {% for t in testimonials %}
                                 <div class="swiper-slide">
                                     <div class="testimonial-style-one-item">
+                                        
+                                        <!-- Image -->
                                         <div class="tm-provider">
-                                            <img src="{% static 'assets/img/team/10.jpg' %}" alt="Image Not Found">
+                                            {% if t.image %}
+                                                <img src="{{ t.image.url }}" alt="{{ t.name }}">
+                                            {% else %}
+                                                <img src="{% static 'assets/img/team/default.jpg' %}" alt="Default">
+                                            {% endif %}
                                         </div>
-                                        <div class="reviews">
-                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                        </div>
-                                        <h3>Niranjana Ram, Milan</h3>
-                                        <p>
-                                            I never thought studying in Italy could be this easy. From day one, Edusetin made me feel confident and well-prepared. Thanks to their step-by-step guidance, I secured admission as an Erasmus Mundus Scholar. Today, I’m living my dream in Milan, and I couldn’t be more grateful.
-                                        </p>
-                                        <div class="tm-provider-detaisl">
-                                            <h4>Niranjana Ram</h4>
-                                            <span>Milan</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Item -->
 
-                                <!-- Single Item -->
-                                <div class="swiper-slide">
-                                    <div class="testimonial-style-one-item">
-                                        <div class="tm-provider">
-                                            <img src="{% static 'assets/img/team/11.jpg' %}" alt="Image Not Found">
-                                        </div>
+                                        <!-- Rating Stars -->
                                         <div class="reviews">
-                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                            {% for i in "12345"|slice:":t.rating" %}
+                                                <i class="fas fa-star"></i>
+                                            {% endfor %}
+                                            {% for i in "12345"|slice:"t.rating:" %}
+                                                <i class="far fa-star"></i>
+                                            {% endfor %}
                                         </div>
-                                        <h3>Shaneeb Edanattu, Turin</h3>
-                                        <p>
-                                            Before joining, I felt completely lost about how to move forward with my higher education abroad. But Edusetin gave me the right direction and support. Now, I am preparing for my final departure to the Polytechnic of Turin to pursue Climate Studies with an amazing 6-month internship opportunity.
-                                        </p>
-                                        <div class="tm-provider-detaisl">
-                                            <h4>Shaneeb Edanattu</h4>
-                                            <span>Turin</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Item -->
 
-                                <!-- Single Item -->
-                                <div class="swiper-slide">
-                                    <div class="testimonial-style-one-item">
-                                        <div class="tm-provider">
-                                            <img src="{% static 'assets/img/team/8.jpg' %}" alt="Image Not Found">
-                                        </div>
-                                        <div class="reviews">
-                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                        </div>
-                                        <h3>Jensen Jerone, Pavia</h3>
-                                        <p>
-                                            Studying Food Science abroad was always my dream, but I had no idea where to begin. Edusetin changed that for me. With their detailed guidance, everything from course selection to application became smooth. Now, I’m admitted to the University of Pavia for the 2025 intake.
-                                        </p>
-                                        <div class="tm-provider-detaisl">
-                                            <h4>Jensen Jerone</h4>
-                                            <span>Pavia</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Item -->
+                                        <!-- Review -->
+                                        <h3>{{ t.name }}</h3>
+                                        <p>{{ t.review }}</p>
 
-                                <!-- Single Item -->
-                                <div class="swiper-slide">
-                                    <div class="testimonial-style-one-item">
-                                        <div class="tm-provider">
-                                            <img src="{% static 'assets/img/team/7.jpg' %}" alt="Image Not Found">
-                                        </div>
-                                        <div class="reviews">
-                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                        </div>
-                                        <h3>Pooja Bindu Sadees, Pavia</h3>
-                                        <p>
-                                            The University of Pavia was my top priority for Food Science, but the admission process felt overwhelming. Edusetin’s expert support in documentation, interview prep, and application submission gave me confidence. Now I feel fully prepared to start this exciting new chapter in 2025.
-                                        </p>
+                                        <!-- Details -->
                                         <div class="tm-provider-detaisl">
-                                            <h4>Pooja Bindu Sadees</h4>
-                                            <span>Pavia</span>
+                                            <h4>{{ t.name }}</h4>
+                                            <span>{{ t.created_at|date:"F Y" }}</span>
                                         </div>
+
                                     </div>
                                 </div>
+                                {% endfor %}
                                 <!-- End Single Item -->
 
                             </div>
@@ -1251,13 +1103,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                         <a href="{% url  'about' %}">About</a>
                                     </li>
                                     <li>
-                                        <a href="{% url 'blogs' %}">Blogs</a>
+                                        <a href="#">Blogs</a>
                                     </li>
                                     <li>
                                         <a href="{% url 'gallery' %}">Gallery</a>
                                     </li>
                                     <li>
-                                        <a href="{% url 'contact-us' %}">Terms & Conditions</a>
+                                        <a href="#">Terms & Conditions</a>
                                     </li>
                                     
                                 </ul>
@@ -1267,11 +1119,11 @@ document.addEventListener("DOMContentLoaded", function () {
                             <div class="f-item link">
                                 <h4 class="widget-title">Our Services</h4>
                               <ul>
-                                                  <li><a href="{% url 'career_counselling_details' %}">Career Counselling</a></li>
-                                <li><a href="{% url 'course_selection_details' %}">Selection of Course, Country and University</a></li>
-                                <li><a href="{% url 'test_preparation_details' %}">Test Preparations</a></li>
-                                <li><a href="{% url 'application_process_details' %}">Application Process</a></li>
-                                <li><a href="{% url 'visa_guidance_details' %}">Expert Visa Guidance</a></li>
+                                                  <li><a href="#">Career Counselling</a></li>
+                                <li><a href="#">Selection of Course, Country and University</a></li>
+                                <li><a href="#">Test Preparations</a></li>
+                                <li><a href="#">Application Process</a></li>
+                                <li><a href="#">Expert Visa Guidance</a></li>
                                 </ul>
 
 

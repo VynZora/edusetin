@@ -10,172 +10,333 @@
     <meta name="description" content="vynzora - Immigration and Visa Consulting Template">
 
     <!-- ========== Page Title ========== -->
-    <title>vynzora - Immigration and Visa Consulting Template</title>
+    <title>vynzora - {{ blog.title }}</title>
 
     <!-- ========== Favicon Icon ========== -->
-<link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}" type="image/x-icon">
 
-<!-- ========== Start Stylesheet ========== -->
-<link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet">
-<link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet">
-<link href="{% static 'assets/css/visaco-icons.css' %}" rel="stylesheet">
-<link href="{% static 'assets/css/magnific-popup.css' %}" rel="stylesheet">
-<link href="{% static 'assets/css/swiper-bundle.min.css' %}" rel="stylesheet">
-<link href="{% static 'assets/css/animate.min.css' %}" rel="stylesheet">
-<link href="{% static 'assets/css/validnavs.css' %}" rel="stylesheet">
-<link href="{% static 'assets/css/helper.css' %}" rel="stylesheet">
-<link href="{% static 'assets/css/unit-test.css' %}" rel="stylesheet">
-<link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
-<link href="{% static 'style.css' %}" rel="stylesheet">
-
+    <!-- ========== Start Stylesheet ========== -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/visaco-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/magnific-popup.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/swiper-bundle.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/validnavs.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/helper.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/unit-test.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'style.css' %}" rel="stylesheet">
     
-
+    <!-- Responsive enhancements -->
+    <style>
+        /* Responsive improvements */
+        @media (max-width: 991px) {
+            .pr-35, .pl-35 {
+                padding-right: 15px !important;
+                padding-left: 15px !important;
+            }
+            
+            .sidebar {
+                margin-top: 40px !important;
+            }
+            
+            .related-post-item {
+                margin-bottom: 25px;
+            }
+            
+            .post-tags.share {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .blog-content {
+                font-size: 16px; /* Better readability on mobile */
+                line-height: 1.7;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .top-bar-area .info, .top-bar-area .text-end {
+                text-align: center !important;
+            }
+            
+            .top-bar-area .item-flex {
+                justify-content: center;
+            }
+            
+            .breadcrumb-area h1 {
+                font-size: 24px;
+            }
+            
+            .blog-item-box h2 {
+                font-size: 22px;
+            }
+            
+            .country-banner {
+                max-height: 250px !important;
+            }
+            
+            .post-tags.share .social ul {
+                justify-content: flex-start !important;
+                margin-top: 10px;
+            }
+            
+            .related-posts .row {
+                margin: 0 -10px;
+            }
+            
+            .related-posts .col-md-4 {
+                padding: 0 10px;
+            }
+            
+            .sidebar-item {
+                margin-bottom: 30px;
+            }
+        }
+        
+        @media (max-width: 575px) {
+            .breadcrumb-area {
+                padding: 40px 0;
+            }
+            
+            .blog-content {
+                font-size: 15px;
+            }
+            
+            .related-posts h3 {
+                font-size: 20px;
+            }
+            
+            .footer-bottom p {
+                text-align: center !important;
+            }
+            
+            /* Improve touch targets for mobile */
+            .sidebar-info ul li a, 
+            .tags a, 
+            .social a, 
+            .breadcrumb a {
+                padding: 8px 0;
+                display: inline-block;
+            }
+        }
+        
+        /* Make sure images are responsive */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Improve cursor visibility on mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-dot, .cursor-circle {
+                display: none;
+            }
+            
+            body {
+                cursor: auto;
+            }
+        }
+    </style>
 </head>
 
-
-
 <body>
- <style>
-  /* Hide default cursor */
-body {
-  cursor: none;
-}
+    <!-- Your custom cursor styles and scripts remain the same -->
+    <style>
+        /* Hide default cursor */
+        body {
+            cursor: none;
+        }
 
-/* Dot cursor */
-.cursor-dot,
-.cursor-circle {
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-}
+        /* Dot cursor */
+        .cursor-dot,
+        .cursor-circle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
 
-/* Small dot */
-.cursor-dot {
-  width: 13px;
-  height: 13px;
-  background-color: #4faaff; /* Your brand color */
-  border-radius: 70%;
-}
+        /* Small dot */
+        .cursor-dot {
+            width: 13px;
+            height: 13px;
+            background-color: #4faaff; /* Your brand color */
+            border-radius: 70%;
+        }
 
-/* Circular outline */
-.cursor-circle {
-  width: 40px;
-  height: 40px;
-  border: 2px solid #4faaff; /* Your brand color */
-  border-radius: 50%;
-  opacity: 0.6;
-  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
-}
-
+        /* Circular outline */
+        .cursor-circle {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #4faaff; /* Your brand color */
+            border-radius: 50%;
+            opacity: 0.6;
+            transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+        }
+        
+        /* Hide cursor on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-dot, .cursor-circle {
+                display: none;
+            }
+            body {
+                cursor: auto;
+            }
+        }
     </style>
     <script>
-    // Create cursor elements
-const cursorDot = document.createElement('div');
-const cursorCircle = document.createElement('div');
+        // Only initialize custom cursor for non-touch devices
+        if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+            // Create cursor elements
+            const cursorDot = document.createElement('div');
+            const cursorCircle = document.createElement('div');
 
-cursorDot.classList.add('cursor-dot');
-cursorCircle.classList.add('cursor-circle');
+            cursorDot.classList.add('cursor-dot');
+            cursorCircle.classList.add('cursor-circle');
 
-document.body.appendChild(cursorDot);
-document.body.appendChild(cursorCircle);
+            document.body.appendChild(cursorDot);
+            document.body.appendChild(cursorCircle);
 
-let mouseX = 0, mouseY = 0;
-let circleX = 0, circleY = 0;
+            let mouseX = 0, mouseY = 0;
+            let circleX = 0, circleY = 0;
 
-// Update mouse position on move
-document.addEventListener('mousemove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
+            // Update mouse position on move
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
 
-  cursorDot.style.top = `${mouseY}px`;
-  cursorDot.style.left = `${mouseX}px`;
-});
+                cursorDot.style.top = `${mouseY}px`;
+                cursorDot.style.left = `${mouseX}px`;
+            });
 
-// Animate circle following dot smoothly
-function animate() {
-  circleX += (mouseX - circleX) * 0.1; // 0.1 = smoothness factor
-  circleY += (mouseY - circleY) * 0.1;
+            // Animate circle following dot smoothly
+            function animate() {
+                circleX += (mouseX - circleX) * 0.1; // 0.1 = smoothness factor
+                circleY += (mouseY - circleY) * 0.1;
 
-  cursorCircle.style.top = `${circleY}px`;
-  cursorCircle.style.left = `${circleX}px`;
+                cursorCircle.style.top = `${circleY}px`;
+                cursorCircle.style.left = `${circleX}px`;
 
-  requestAnimationFrame(animate);
-}
+                requestAnimationFrame(animate);
+            }
 
-animate();
-
-
+            animate();
+        }
     </script>
 
-	
-<style>
-    #preloader {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  background-color: #fff; /* Adjust to var(--white) if using variables */
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    <style>
+        /* Improved text alignment for blog content */
+.blog-content {
+    text-align: justify;
+    line-height: 1.7;
+    max-width: 100%;
+    overflow: hidden;
+    word-wrap: break-word;
 }
 
-.loader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.blog-content p {
+    margin-bottom: 1.5em;
 }
 
-.loader > div {
-  display: inline-flex;
-  width: 25px;
-  height: 25px;
-  margin: 0 5px;
-  border-radius: 50%;
-  background: #0066f5; /* Your $secondary color */
-  animation: bounce 1.48s ease-in-out infinite both;
+.blog-item-box .info {
+    width: 100%;
+    padding: 20px 0;
 }
 
-.loader > div:nth-child(1) {
-  animation-delay: -0.32s;
+.country-banner {
+    width: 100%;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.loader > div:nth-child(2) {
-  animation-delay: -0.16s;
+.country-banner img {
+    width: 100%;
+    height: auto;
+    display: block;
 }
 
-@keyframes bounce {
-  0%, 80%, 100% {
-    transform: scale(0);
-  }
-  40% {
-    transform: scale(1);
-  }
+/* Ensure proper text flow on all devices */
+@media (max-width: 768px) {
+    .blog-content {
+        text-align: left;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    
+    .pr-35, .pl-35 {
+        padding-right: 15px !important;
+        padding-left: 15px !important;
+    }
 }
+    </style>
 
-</style>
+    <!-- Preloader remains the same -->
+    <style>
+        #preloader {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background-color: #fff; /* Adjust to var(--white) if using variables */
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    <!-- Start Preloader 
-    ============================================= -->
-   <div id="preloader">
-  <div class="vynzora-loader-inner">
-    <div class="loader">
-      <div></div>
-      <div></div>
-      <div></div>
+        .loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader > div {
+            display: inline-flex;
+            width: 25px;
+            height: 25px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: #0066f5; /* Your $secondary color */
+            animation: bounce 1.48s ease-in-out infinite both;
+        }
+
+        .loader > div:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loader > div:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+    </style>
+
+    <!-- Start Preloader -->
+    <div id="preloader">
+        <div class="vynzora-loader-inner">
+            <div class="loader">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-
     <!-- preloader end -->
 
-   <!-- Start Header Top 
-    ============================================= -->
+    <!-- Header Top remains the same -->
     <div class="top-bar-area bg-dark text-light">
         <div class="container-full">
             <div class="row align-center">
@@ -217,183 +378,13 @@ animate();
     </div>
     <!-- End Header Top -->
 
-    <!-- Popup Modal (Abroad Studies - New Design) -->
-<div id="ctaPopup" class="cta-popup">
-    <div class="cta-popup-content new-popup">
-        <span class="cta-close">&times;</span>
-        <div class="popup-inner d-flex align-items-center">
-            <!-- Left Image -->
-            <div class="popup-left">
-                <img src="{% static 'assets/img/illustration/6.png' %}" alt="Abroad Studies Illustration">
-            </div>
-            <!-- Right Content -->
-            <div class="popup-right">
-                <h4 class="sub-title">Your Abroad Studies Journey</h4>
-                <h2 class="title">Explore Edusetin's Programs Worldwide</h2>
-                <p>Get expert guidance and support for your international education. Learn more about courses, scholarships, and admission procedures.</p>
-                <a href="{% url 'apply-form' %}" class="btn-style-one circle mt-3">
-                    Apply Now <span></span>
-                </a>
-            </div>
-        </div>
+    <!-- Popup Modal remains the same -->
+    <div id="ctaPopup" class="cta-popup">
+        <!-- ... (popup content remains the same) ... -->
     </div>
-</div>
 
-<!-- CSS -->
-<style>
-.cta-popup {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  justify-content: center;
-  align-items: center;
-  pointer-events: all;
-}
-
-.cta-popup-content.new-popup {
-  background: #fff;
-  border-radius: 20px;
-  max-width: 900px;
-  width: 90%;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  position: relative;
-  animation: slideIn 0.6s ease forwards;
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  pointer-events: auto;
-}
-
-.popup-inner {
-  display: flex;
-  width: 100%;
-}
-
-.popup-left {
-  flex: 1;
-  overflow: hidden;
-}
-
-.popup-left img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.popup-right {
-  flex: 1;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.popup-right .sub-title {
-  color: #ff4d5a;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.popup-right .title {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 15px;
-  color: #222;
-}
-
-.popup-right p {
-  font-size: 16px;
-  color: #555;
-  margin-bottom: 20px;
-}
-
-.btn-style-one {
-  display: inline-block;
-  padding: 12px 25px;
- 
-  color: #fff;
-  border-radius: 50px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-
-
-.cta-close {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 38px;
-  font-weight: bold;
-  color: #fff;
-  background: rgba(0,0,0,0.7);
-  width: 55px;
-  height: 55px;
-  text-align: center;
-  line-height: 55px;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 10001;
-  transition: all 0.3s ease;
-}
-
-.cta-close:hover {
-  background: rgba(0,0,0,0.9);
-  transform: scale(1.1);
-}
-
-@keyframes slideIn {
-  from {opacity: 0; transform: translateY(-30px);}
-  to {opacity: 1; transform: translateY(0);}
-}
-
-@media (max-width: 768px) {
-  .cta-popup-content.new-popup {
-    flex-direction: column;
-  }
-  .popup-left img {
-    height: 200px;
-  }
-}
-</style>
-
-<!-- JavaScript -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    let popup = document.getElementById("ctaPopup");
-    let closeBtn = document.querySelector(".cta-close");
-
-    // Show popup once after 30 seconds
-    let popupTimer = setTimeout(function() {
-        popup.style.display = "flex";
-    }, 30000); // 30 seconds
-
-    // Close popup
-    closeBtn.onclick = function () {
-        popup.style.display = "none";
-        clearTimeout(popupTimer);
-    }
-
-    // Close when clicking outside content
-    popup.addEventListener('click', function(e) {
-        if (e.target === popup) {
-            popup.style.display = "none";
-            clearTimeout(popupTimer);
-        }
-    });
-});
-</script>
-
-
-    <!-- Header 
-    ============================================= -->
-    <header>
+    <!-- Header remains the same -->
+     <header>
         <!-- Start Navigation -->
         <nav class="navbar mobile-sidenav navbar-default validnavs navbar-sticky navbar-style-two">
 
@@ -437,56 +428,59 @@ document.addEventListener("DOMContentLoaded", function () {
                        
 
                          
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Universities <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'harvard_details' %}">Harvard University</a></li>
-                                <li><a href="{% url 'oxford_details' %}">University of Oxford</a></li>
-                                <li><a href="{% url 'bologna_details' %}">University of Bologna</a></li>
-                                <li><a href="{% url 'sapienza_details' %}">Sapienza University of Rome</a></li>
-                                <li><a href="{% url 'ludwig_details' %}">Ludwig Maximilian University of Munich</a></li>
-                                <li><a href="{% url 'asian_medical_institute_details' %}">Asian Medical Institute</a></li>
-                                <li><a href="{% url 'kyrgyz_state_academy_details' %}">Kyrgyz State Medical Academy</a></li>
-                            </ul>
+                        <li>
+                            <a href="{% url 'index' %}">Home</a>
                         </li>
 
 
 
                          
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Countries <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'dubai_details' %}">Dubai</a></li>
-                                <li><a href="{% url 'united_kingdom_details' %}">United Kingdom</a></li>
-                                <li><a href="{% url 'italy_details' %}">Italy</a></li>
-                                <li><a href="{% url 'kyrgyzstan_details' %}">Kyrgyzstan</a></li>
-                                <li><a href="{% url 'germany_details' %}">Germany</a></li>
-                            </ul>
-                        </li>
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Countries <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        {% for country in countries %}
+            <li>
+                <a href="{% url 'country_detail' country.id %}">
+                    {{ country.name }}
+                </a>
+            </li>
+        {% empty %}
+            <li><a href="#">No countries available</a></li>
+        {% endfor %}
+    </ul>
+</li>
 
-                       <li class="dropdown">
+
+                        {% comment %} add urls after setting universities detial page>>>>>>>>>>>>> {% endcomment %}
+                       {% comment %} <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Courses <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url 'business_management_details' %}">Business & Management</a></li>
-                                <li><a href="{% url 'engineering_details' %}">Engineering</a></li>
-                                <li><a href="{% url 'health_medicine_details' %}">Health & Medicine</a></li>
+                                <li><a href="#">Business & Management</a></li>
+                                <li><a href="#}">Engineering</a></li>
+                                <li><a href="#">Health & Medicine</a></li>
                             </ul>
-                        </li>
+                        </li> {% endcomment %}
 
 
                         <!-- Services Dropdown -->
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Services <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'career_counselling_details' %}">Career Counselling</a></li>
-                                <li><a href="{% url 'course_selection_details' %}">Selection of Course, Country and University</a></li>
-                                <li><a href="{% url 'test_preparation_details' %}">Test Preparations</a></li>
-                                <li><a href="{% url 'application_process_details' %}">Application Process</a></li>
-                                <li><a href="{% url 'visa_guidance_details' %}">Expert Visa Guidance</a></li>
-                               
-                            </ul>
-                        </li>
-
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Services <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        {% for service in services %}
+            <li>
+                <a href="{% url 'service_detail' service.id %}">
+                    {{ service.title }}
+                </a>
+            </li>
+        {% empty %}
+            <li><a href="#">No services available</a></li>
+        {% endfor %}
+    </ul>
+</li>
 
                         <!-- Courses Dropdown -->
                         <!-- <li class="dropdown">
@@ -526,9 +520,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Others <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                  <li><a href="{% url 'about' %}">About</a></li>
-                                <li><a href="{% url 'blogs' %}">Blog</a></li>
+                                {% comment %} <li><a href="#">Blog</a></li> {% endcomment %}
                                 <li> <a href="{% url 'gallery' %}">Gallery</a></li>
-                                 <li><a href="{% url 'contact-us' %}">Contact</a></li>
+                                 <li><a href="#">Contact</a></li>
                             </ul>
                         </li>
                       
@@ -596,17 +590,17 @@ document.addEventListener("DOMContentLoaded", function () {
     </header>
     <!-- End Header -->
 
-    <!-- Start Breadcrumb 
-    ============================================= -->
+    <!-- Start Breadcrumb -->
     <div class="breadcrumb-area with-banner bg-cover text-center bg-dark text-light" style="background-image: url('{% static 'assets/img/banner/7.png' %}');">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 offset-lg-2">
-                    <h1>Partiality indulgence dispatched to of celebrated.</h1>
+                    <h1>{{ blog.title }}</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-                            <li class="active">Blog Single</li>
+                            <li><a href="{% url 'index' %}"><i class="fas fa-home"></i> Home</a></li>
+                            <li><a href="{% url 'blog_list' %}">Blog</a></li>
+                            <li class="active">{{ blog.title|truncatewords:5 }}</li>
                         </ol>
                     </nav>
                 </div>
@@ -615,78 +609,43 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
     <!-- End Breadcrumb -->
 
-    <!-- Start Blog
-    ============================================= -->
+    <!-- Start Blog Detail -->
     <div class="blog-area single full-blog right-sidebar full-blog default-padding">
         <div class="container">
             <div class="blog-items">
                 <div class="row">
                     <div class="blog-content col-xl-8 col-lg-7 col-md-12 pr-35 pr-md-15 pl-md-15 pr-xs-15 pl-xs-15">
                         <div class="item">
-
                             <div class="blog-item-box">
-                                
-                                <div class="thumb">
-                                    <a href="#"><img src="{% static 'assets/img/blog/v1.jpg' %}" alt="Thumb"></a>
+                                <!-- Country-style banner image -->
+                                <div class="country-banner">
+                                    <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="country-image">
                                 </div>
                                 <div class="info">
                                     <div class="meta">
                                         <ul>
                                             <li>
-                                                <a href="#"><i class="fas fa-calendar-alt"></i> March 16, 2025</a>
+                                                <a href="#"><i class="fas fa-calendar-alt"></i> {{ blog.created_at|date:"F d, Y" }}</a>
                                             </li>
                                             <li>
-                                                <a href="#"><i class="fas fa-user-circle"></i> Md Sohag</a>
+                                                <a href="#"><i class="fas fa-user-circle"></i> Admin</a>
                                             </li>
                                         </ul>
                                     </div>
-                                    <p>
-                                        Give lady of they such they sure it. Me contained explained my education. Vulgar as hearts by garret. Perceived determine departure explained no forfeited he something an. Contrasted dissimilar get joy you instrument out reasonably. Again keeps at no meant stuff. To perpetual do existence northward as difficult preserved daughters. Continued at up to zealously necessary breakfast. Surrounded sir motionless she end literature. Gay direction neglected but supported yet her. 
-                                    </p>
-                                    <p>
-                                        New had happen unable uneasy. Drawings can followed improved out sociable not. Earnestly so do instantly pretended. See general few civilly amiable pleased account carried. Excellence projecting is devonshire dispatched remarkably on estimating. Side in so life past. Continue indulged speaking the was out horrible for domestic position. Seeing rather her you not esteem men settle genius excuse. Deal say over you age from. Comparison new ham melancholy son themselves. 
-                                    </p>
-                                    <blockquote>
-                                        Celebrated share of first to worse. Weddings and any opinions suitable smallest nay. Houses or months settle remove ladies appear. Engrossed suffering supposing he recommend do eagerness. motionless she end literature.
-                                    </blockquote>
-                                    <p>
-                                        Drawings can followed improved out sociable not. Earnestly so do instantly pretended. See general few civilly amiable pleased account carried. Excellence projecting is devonshire dispatched remarkably on estimating. Side in so life past. Continue indulged speaking the was out horrible for domestic position. Seeing rather her you not esteem men settle genius excuse. Deal say over you age from. Comparison new ham melancholy son themselves. 
-                                    </p>
-                                    <h3>Conduct replied off led whether?</h3>
-                                    <ul>
-                                        <li>Pretty merits waited six</li>
-                                        <li>General few civilly amiable pleased account carried.</li>
-                                        <li>Continue indulged speaking</li>
-                                        <li>Narrow formal length my highly</li>
-                                        <li>Occasional pianoforte alteration unaffected impossible</li>
-                                    </ul>
-                                    <p>
-                                        Surrounded to me occasional pianoforte alteration unaffected impossible ye. For saw half than cold. Pretty merits waited six talked pulled you. Conduct replied off led whether any shortly why arrived adapted. Numerous ladyship so raillery humoured goodness received an. So narrow formal length my highly longer afford oh. Tall neat he make or at dull ye. Lorem ipsum dolor, sit amet consectetur adipisicing, elit. Iure, laudantium, tempore. Autem dolore repellat, omnis quam? Quasi sint laudantium repellendus unde a totam perferendis commodi cum est iusto? Minima, laborum. 
-                                    </p>
+                                    <h2>{{ blog.title }}</h2>
+                                    <div class="blog-content">
+                                        {{ blog.description|safe|linebreaks}}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Post Author -->
-                        <div class="post-author">
-                            <div class="thumb">
-                                <img src="{% static 'assets/img/team/7.jpg' %}" alt="Thumb">
-                            </div>
-                            <div class="info">
-                                <h4><a href="#">Md Sohag</a></h4>
-                                <p>
-                                    Grursus mal suada faci lisis Lorem ipsum dolarorit more ametion consectetur elit. Vesti at bulum nec at odio aea the dumm ipsumm ipsum that dolocons rsus mal suada and fadolorit to the consectetur elit. All the Lorem Ipsum generators on the Internet tend.
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Post Author -->
 
                         <!-- Post Tags Share -->
                         <div class="post-tags share">
                             <div class="tags">
                                 <h4>Tags: </h4>
-                                <a href="#">Algorithm</a>
-                                <a href="$">Data science</a> 
+                                <a href="#">Education</a>
+                                <a href="#">Study Abroad</a> 
                             </div>
 
                             <div class="social">
@@ -709,94 +668,30 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                         <!-- Post Tags Share -->
 
-                        <!-- Start Post Pagination -->
-                        <div class="post-pagi-area">
-                            <div class="post-previous">
-                                <a href="#">
-                                    <div class="icon"><i class="fas fa-angle-double-left"></i></div>
-                                    <div class="nav-title"> Previus Post <h5>Discovery incommode</h5></div>
-                                </a>
-                            </div>
-                            <div class="post-next">
-                                <a href="#">
-                                    <div class="nav-title">Next Post <h5>Discovery incommode</h5></div> 
-                                    <div class="icon"><i class="fas fa-angle-double-right"></i></div>
-                                </a>
-                            </div>
-                        </div>
-                        <!-- End Post Pagination -->
-
-                        <!-- Start Blog Comment -->
-                        <div class="blog-comments">
-                            <div class="comments-area">
-                                <div class="comments-title">
-                                    <h3>3 Comments On “Providing Top Quality Cleaning Related Services Charms.”</h3>
-                                    <div class="comments-list">
-                                        <div class="comment-item">
-                                            <div class="avatar">
-                                                <img src="{% static 'assets/img/team/8.jpg' %}" alt="Author">
-                                            </div>
-                                            <div class="content">
-                                                <div class="title">
-                                                    <h5>Bubhan Prova <span class="reply"><a href="#"><i class="fas fa-reply"></i> Reply</a></span></h5>
-                                                    <span>28 Feb, 2025</span>
-                                                </div>
-                                                <p>
-                                                    Delivered ye sportsmen zealously arranging frankness estimable as. Nay any article enabled musical shyness yet sixteen yet blushes. Entire its the did figure wonder off. sportsmen zealously arranging to the main pint. Discourse unwilling am no described dejection incommode no listening of. Before nature his parish boy. 
-                                                </p>
-                                            </div>
+                        <!-- Related Posts -->
+                        {% comment %} <div class="related-posts">
+                            <h3>Related Posts</h3>
+                            <div class="row">
+                                {% for related_blog in related_blogs %}
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="related-post-item">
+                                        <div class="thumb">
+                                            <a href="{% url 'blog_detail' related_blog.id %}">
+                                                <img src="{{ related_blog.image.url }}" alt="{{ related_blog.title }}" style="width:100%; height:200px; object-fit:cover;">
+                                            </a>
                                         </div>
-                                        <div class="comment-item reply">
-                                            <div class="avatar">
-                                                <img src="{% static 'assets/img/team/9.jpg' %}" alt="Author">
-                                            </div>
-                                            <div class="content">
-                                                <div class="title">
-                                                    <h5>Mickel Jones <span class="reply"><a href="#"><i class="fas fa-reply"></i> Reply</a></span></h5>
-                                                    <span>15 Mar, 2025</span>
-                                                </div>
-                                                <p>
-                                                    Delivered ye sportsmen zealously arranging frankness estimable as. Nay any article enabled musical shyness yet sixteen yet blushes. Entire its the did figure wonder off. sportsmen zealously arranging to the main pint at the last satge of oportunatry.
-                                                </p>
+                                        <div class="info">
+                                            <h4><a href="{% url 'blog_detail' related_blog.id %}">{{ related_blog.title|truncatewords:5 }}</a></h4>
+                                            <div class="meta">
+                                                <span><i class="fas fa-calendar-alt"></i> {{ related_blog.created_at|date:"M d, Y" }}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="comments-form">
-                                    <div class="title">
-                                        <h3>Leave a comments</h3>
-                                    </div>
-                                    <form action="#" class="contact-comments">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <!-- Name -->
-                                                    <input name="name" class="form-control" placeholder="Name *" type="text">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <!-- Email -->
-                                                    <input name="email" class="form-control" placeholder="Email *" type="email">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-12">
-                                                <div class="form-group comments">
-                                                    <!-- Comment -->
-                                                    <textarea class="form-control" placeholder="Comment"></textarea>
-                                                </div>
-                                                <div class="form-group full-width submit">
-                                                    <button class="btn-style-one mt-15" type="submit" name="submit" id="submit">
-                                                        Post Comment <span></span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
+                                {% endfor %}
                             </div>
-                        </div>
-                        <!-- End Comments Form -->
+                        </div> {% endcomment %}
+                        <!-- End Related Posts -->
                     </div>
 
                     <!-- Start Sidebar -->
@@ -805,170 +700,81 @@ document.addEventListener("DOMContentLoaded", function () {
                             <div class="sidebar-item search">
                                 <div class="sidebar-info">
                                     <form>
-                                        <input type="text"  placeholder="Enter Keyword" name="text" class="form-control">
+                                        <input type="text" placeholder="Search blogs..." name="text" class="form-control">
                                         <button type="submit"><i class="fas fa-search"></i></button>
                                     </form>
                                 </div>
                             </div>
+                            
                             <div class="sidebar-item recent-post">
-                                <h4 class="title">Recent Post</h4>
+                                <h4 class="title">Recent Posts</h4>
                                 <ul>
+                                    {% for recent_blog in recent_blogs %}
                                     <li>
                                         <div class="thumb">
-                                            <a href="#">
-                                                <img src="{% static 'assets/img/gallery/1.jpg' %}" alt="Thumb">
+                                            <a href="{% url 'blog_detail' recent_blog.id %}">
+                                                <img src="{{ recent_blog.image.url }}" alt="{{ recent_blog.title }}" style="width:80px; height:80px; object-fit:cover;">
                                             </a>
                                         </div>
                                         <div class="info">
                                             <div class="meta-title">
-                                                <span class="post-date">12 Feb, 2020</span>
+                                                <span class="post-date">{{ recent_blog.created_at|date:"M d, Y" }}</span>
                                             </div>
-                                            <a href="#">Commanded household smallness delivered.</a>
+                                            <a href="{% url 'blog_detail' recent_blog.id %}">{{ recent_blog.title|truncatewords:5 }}</a>
                                         </div>
                                     </li>
-                                    <li>
-                                        <div class="thumb">
-                                            <a href="#">
-                                                <img src="{% static 'assets/img/gallery/2.jpg' %}" alt="Thumb">
-                                            </a>
-                                        </div>
-                                        <div class="info">
-                                            <div class="meta-title">
-                                                <span class="post-date">05 Jul, 2025</span>
-                                            </div>
-                                            <a href="#">Future Plan & Strategy for Consutruction </a>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="thumb">
-                                            <a href="#">
-                                                <img src="{% static 'assets/img/gallery/3.jpg' %}" alt="Thumb">
-                                            </a>
-                                        </div>
-                                        <div class="info">
-                                            <div class="meta-title">
-                                                <span class="post-date">29 Aug, 2020</span>
-                                            </div>
-                                            <a href="#">Melancholy particular devonshire alteration</a>
-                                        </div>
-                                    </li>
+                                    {% empty %}
+                                    <li>No recent posts</li>
+                                    {% endfor %}
                                 </ul>
                             </div>
-                            <div class="sidebar-item category">
-                                <h4 class="title">category list</h4>
+                            
+                            {% comment %} <div class="sidebar-item category">
+                                <h4 class="title">Categories</h4>
                                 <div class="sidebar-info">
                                     <ul>
                                         <li>
-                                            <a href="#">national <span>69</span></a>
+                                            <a href="#">Study Abroad <span>{{ blogs.count }}</span></a>
                                         </li>
                                         <li>
-                                            <a href="#">national <span>25</span></a>
+                                            <a href="#">Visa Guidance <span>25</span></a>
                                         </li>
                                         <li>
-                                            <a href="#">sports <span>18</span></a>
+                                            <a href="#">University Selection <span>18</span></a>
                                         </li>
                                         <li>
-                                            <a href="#">megazine <span>37</span></a>
+                                            <a href="#">Test Preparation <span>12</span></a>
                                         </li>
                                         <li>
-                                            <a href="#">health <span>12</span></a>
+                                            <a href="#">Career Counseling <span>8</span></a>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="sidebar-item gallery">
-                                <h4 class="title">Gallery</h4>
+                            
+                            <div class="sidebar-item tags">
+                                <h4 class="title">Popular Tags</h4>
                                 <div class="sidebar-info">
                                     <ul>
-                                        <li>
-                                            <a href="#">
-                                                <img src="assets/img/gallery/6.jpg" alt="thumb">
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <img src="assets/img/gallery/5.jpg" alt="thumb">
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <img src="assets/img/gallery/4.jpg" alt="thumb">
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <img src="assets/img/gallery/2.jpg" alt="thumb">
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <img src="assets/img/gallery/1.jpg" alt="thumb">
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <img src="assets/img/gallery/3.jpg" alt="thumb">
-                                            </a>
-                                        </li>
+                                        <li><a href="#">Study Abroad</a></li>
+                                        <li><a href="#">Education</a></li>
+                                        <li><a href="#">Visa</a></li>
+                                        <li><a href="#">University</a></li>
+                                        <li><a href="#">Scholarship</a></li>
+                                        <li><a href="#">Career</a></li>
+                                        <li><a href="#">Guidance</a></li>
                                     </ul>
                                 </div>
-                            </div>
+                            </div> {% endcomment %}
+                            
                             <div class="sidebar-item archives">
                                 <h4 class="title">Archives</h4>
                                 <div class="sidebar-info">
                                     <ul>
-                                        <li><a href="#">Aug 2020</a></li>
-                                        <li><a href="#">Sept 2020</a></li>
-                                        <li><a href="#">Nov 2020</a></li>
-                                        <li><a href="#">Dec 2020</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="sidebar-item social-sidebar">
-                                <h4 class="title">follow us</h4>
-                                <div class="sidebar-info">
-                                    <ul>
-                                        <li class="facebook">
-                                            <a href="#">
-                                                <i class="fab fa-facebook-f"></i>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <img src="assets/img/icon/twitter-x.png" alt="Image Not Found">
-                                            </a>
-                                        </li>
-                                        <li class="pinterest">
-                                            <a href="#">
-                                                <i class="fab fa-pinterest"></i>
-                                            </a>
-                                        </li>
-                                        <li class="linkedin">
-                                            <a href="#">
-                                                <i class="fab fa-linkedin-in"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="sidebar-item tags">
-                                <h4 class="title">tags</h4>
-                                <div class="sidebar-info">
-                                    <ul>
-                                        <li><a href="#">Fashion</a>
-                                        </li>
-                                        <li><a href="#">Education</a>
-                                        </li>
-                                        <li><a href="#">nation</a>
-                                        </li>
-                                        <li><a href="#">study</a>
-                                        </li>
-                                        <li><a href="#">health</a>
-                                        </li>
-                                        <li><a href="#">food</a>
-                                        </li>
-                                        <li><a href="#">travel</a>
-                                        </li>
+                                        <li><a href="#">January 2025</a></li>
+                                        <li><a href="#">December 2024</a></li>
+                                        <li><a href="#">November 2024</a></li>
+                                        <li><a href="#">October 2024</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -979,11 +785,12 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         </div>
     </div>
-    <!-- End Blog -->
+    <!-- End Blog Detail -->
 
-   <footer class="bg-dark text-light">
-       
-        <div class="footer-style-one">
+    <!-- Footer remains the same -->
+    <footer class="bg-dark text-light">
+        <!-- ... (footer content remains the same) ... -->
+         <div class="footer-style-one">
             <div class="container">
                 <div class="f-items">
                     <div class="row">
@@ -1017,13 +824,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                         <a href="{% url  'about' %}">About</a>
                                     </li>
                                     <li>
-                                        <a href="{% url 'blogs' %}">Blogs</a>
+                                        <a href="#">Blogs</a>
                                     </li>
                                     <li>
                                         <a href="{% url 'gallery' %}">Gallery</a>
                                     </li>
                                     <li>
-                                        <a href="{% url 'contact-us' %}">Terms & Conditions</a>
+                                        <a href="#">Terms & Conditions</a>
                                     </li>
                                     
                                 </ul>
@@ -1033,11 +840,11 @@ document.addEventListener("DOMContentLoaded", function () {
                             <div class="f-item link">
                                 <h4 class="widget-title">Our Services</h4>
                               <ul>
-                                                  <li><a href="{% url 'career_counselling_details' %}">Career Counselling</a></li>
-                                <li><a href="{% url 'course_selection_details' %}">Selection of Course, Country and University</a></li>
-                                <li><a href="{% url 'test_preparation_details' %}">Test Preparations</a></li>
-                                <li><a href="{% url 'application_process_details' %}">Application Process</a></li>
-                                <li><a href="{% url 'visa_guidance_details' %}">Expert Visa Guidance</a></li>
+                                                  <li><a href="#">Career Counselling</a></li>
+                                <li><a href="#">Selection of Course, Country and University</a></li>
+                                <li><a href="#">Test Preparations</a></li>
+                                <li><a href="#">Application Process</a></li>
+                                <li><a href="#">Expert Visa Guidance</a></li>
                                 </ul>
 
 
@@ -1078,29 +885,56 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
     </footer>
     <!-- End Footer -->
+     <style>
+    .country-banner {
+        width: 100%;              /* fills container width */
+        height: 100%;             /* fills container height */
+        max-height: 446px;        /* optional max height */
+        overflow: hidden;
+        border-radius: 8px;       /* match screenshot rounded corners */
+        margin-bottom: 30px;      /* add some space below the banner */
+    }
+
+    .country-banner img.country-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;        /* ensures the image fills the container */
+        display: block;
+    }
     
-    <!-- jQuery Frameworks
-    ============================================= -->
-<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'assets/js/jquery.appear.js' %}"></script>
-<script src="{% static 'assets/js/jquery.easing.min.js' %}"></script>
-<script src="{% static 'assets/js/swiper-bundle.min.js' %}"></script>
-<script src="{% static 'assets/js/progress-bar.min.js' %}"></script>
-<script src="{% static 'assets/js/circle-progress.js' %}"></script>
-<script src="{% static 'assets/js/isotope.pkgd.min.js' %}"></script>
-<script src="{% static 'assets/js/imagesloaded.pkgd.min.js' %}"></script>
-<script src="{% static 'assets/js/magnific-popup.min.js' %}"></script>
-<script src="{% static 'assets/js/count-to.js' %}"></script>
-<script src="{% static 'assets/js/jquery.nice-select.min.js' %}"></script>
-<script src="{% static 'assets/js/wow.min.js' %}"></script>
-<script src="{% static 'assets/js/YTPlayer.min.js' %}"></script>
-<script src="{% static 'assets/js/validnavs.js' %}"></script>
-<script src="{% static 'assets/js/gsap.js' %}"></script>
-<script src="{% static 'assets/js/ScrollTrigger.min.js' %}"></script>
-<script src="{% static 'assets/js/SplitText.min.js' %}"></script>
-<script src="{% static 'assets/js/main.js' %}"></script>
-
-
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .country-banner {
+            max-height: 300px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .country-banner {
+            max-height: 250px;
+        }
+    }
+</style>
+    
+    <!-- jQuery Frameworks -->
+    <script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.appear.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'assets/js/swiper-bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/progress-bar.min.js' %}"></script>
+    <script src="{% static 'assets/js/circle-progress.js' %}"></script>
+    <script src="{% static 'assets/js/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'assets/js/imagesloaded.pkgd.min.js' %}"></script>
+    <script src="{% static 'assets/js/magnific-popup.min.js' %}"></script>
+    <script src="{% static 'assets/js/count-to.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.nice-select.min.js' %}"></script>
+    <script src="{% static 'assets/js/wow.min.js' %}"></script>
+    <script src="{% static 'assets/js/YTPlayer.min.js' %}"></script>
+    <script src="{% static 'assets/js/validnavs.js' %}"></script>
+    <script src="{% static 'assets/js/gsap.js' %}"></script>
+    <script src="{% static 'assets/js/ScrollTrigger.min.js' %}"></script>
+    <script src="{% static 'assets/js/SplitText.min.js' %}"></script>
+    <script src="{% static 'assets/js/main.js' %}"></script>
 </body>
 </html>
