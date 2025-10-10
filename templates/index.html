@@ -1,0 +1,689 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+
+
+{% block content %}
+  <!-- Popup Modal -->
+
+  
+
+  <div id="ctaPopup" class="cta-popup">
+    <div class="cta-popup-content new-popup">
+      <span class="cta-close">&times;</span>
+      <div class="popup-inner d-flex align-items-center">
+        <!-- Left Image -->
+        <div class="popup-left">
+          <img src="{% static 'assets/img/illustration/6.png' %}" alt="Abroad Studies Illustration" />
+        </div>
+        <!-- Right Content -->
+        <div class="popup-right">
+          <h4 class="sub-title">Your Abroad Studies Journey</h4>
+          <h2 class="title">Explore Edusetin's Programs Worldwide</h2>
+          <p>Get expert guidance and support for your international education. Learn more about courses, scholarships, and admission procedures.</p>
+          <a href="{% url 'apply_form' %}" class="btn-style-one circle mt-3">Apply Now <span></span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  Start Banner Area 
+=============================================  -->
+  <div class="banner-area banner-style-three navigation-circle overflow-hidden text-light auto-height">
+    <!-- Slider main container -->
+    <div class="banner-fade">
+      <!-- Additional required wrapper -->
+      <div class="swiper-wrapper">
+        <!-- Single Item (Study Abroad) -->
+        <div class="swiper-slide banner-style-three shadow-left">
+          <div class="item bg-cover" style="background: url('{% static 'assets/img/banner/2.png' %}');">
+            <div class="banner-syle-thee-shape">
+              <img src="{% static 'assets/img/shape/3.png' %}" alt="Image Not Found" />
+              <img src="{% static 'assets/img/shape/4.png' %}" alt="Image Not Found" />
+            </div>
+            <div class="container">
+              <div class="row align-items-center">
+                <div class="col-xl-7">
+                  <div class="content">
+                    <h2>Study Abroad Consultants in Kerala</h2>
+                    <h3 class="tagline">Beyond Your Quest</h3>
+                    <p>Get expert guidance for studying in Germany, Italy, Singapore & Kyrgyzstan. Edusetin offers complete support for admissions, student visa, and scholarships.</p>
+                    <div class="button">
+                      <a href="{% url 'about' %}" class="btn-style-one circle">Discover More <span></span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Single Item -->
+
+        <!-- Single Item (MBBS) -->
+        <div class="swiper-slide banner-style-three shadow-left">
+          <div class="item bg-cover" style="background: url('{% static 'assets/img/banner/1.png' %}');">
+            <div class="banner-syle-thee-shape">
+              <img src="{% static 'assets/img/shape/3.png' %}" alt="Image Not Found" />
+              <img src="{% static 'assets/img/shape/4.png' %}" alt="Image Not Found" />
+            </div>
+            <div class="container">
+              <div class="row align-items-center">
+                <div class="col-xl-7">
+                  <div class="content">
+                    <h2>Affordable MBBS & Study Abroad Guidance</h2>
+                    <h3 class="tagline">Beyond Your Quest</h3>
+                    <p>Secure your seat for MBBS or master’s programs abroad with Edusetin. Trusted for low tuition universities, admission help, and fast visa processing.</p>
+                    <div class="button">
+                      <a href="{% url 'apply_form' %}" class="btn-style-one circle">Apply Now<span></span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Single Item -->
+
+        <!-- Single Item (Job Visa) -->
+        <div class="swiper-slide banner-style-three shadow-left">
+          <div class="item bg-cover" style="background: url('{% static 'assets/img/banner/job-visa.jpg' %}');">
+            <div class="banner-syle-thee-shape">
+              <img src="{% static 'assets/img/shape/3.png' %}" alt="Image Not Found" />
+              <img src="{% static 'assets/img/shape/4.png' %}" alt="Image Not Found" />
+            </div>
+            <div class="container">
+              <div class="row align-items-center">
+                <div class="col-xl-7">
+                  <div class="content">
+                    <h2>Job Visa Assistance & Overseas Careers</h2>
+                    <h3 class="tagline">Beyond Your Quest</h3>
+                    <p>Get expert help in securing international job visas. We guide you through visa applications, documentation, and smooth processing for your dream career abroad.</p>
+                    <div class="button">
+                      <a href="https://edusetinglobalcareers.com/" target="_blank" rel="noopener noreferrer" class="btn-style-one circle">Apply for Job Visa<span></span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Single Item -->
+      </div>
+
+      <!-- Navigation -->
+      <div class="banner-prev-nav">
+        <svg width="27" height="10" viewBox="0 0 27 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M27 9H3L9.9 1" stroke="#ffffff" stroke-width="2"></path>
+        </svg>
+      </div>
+      <div class="banner-next-nav">
+        <svg width="27" height="10" viewBox="0 0 27 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 9H24L17.1 1" stroke="#ffffff" stroke-width="2"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <!-- End Banner -->
+
+  <!--  Start About 
+    =============================================  -->
+  <div id="about" class="about-style-three-area default-padding">
+    <div class="container">
+      <div class="about-style-three-items">
+        <div class="row">
+          <div class="col-xl-6 col-lg-6">
+            <div class="about-style-three-info">
+              <div class="experience-style-one mb-50">
+                <h2 style="background-image: url('{% static 'assets/img/about/5.png' %}');">10</h2>
+                <h4>Years of Trusted Study Abroad & Visa Support Services</h4>
+              </div>
+              <h4 class="sub-title">About Edusetin Study Abroad</h4>
+              <h2 class="title split-text">Trusted Experts in Student Visa & Overseas Education</h2>
+
+              <p class="wow fadeInUp">Edusetin offers expert guidance for students planning to study abroad. From university selection to visa processing, we ensure a smooth journey to top destinations like Germany, Italy, Singapore, and Kyrgyzstan.</p>
+              <ul class="list-card wow fadeInUp" data-wow-delay="100ms">
+                <li>
+                  <div class="top">
+                    <img src="{% static 'assets/img/icon/16.png' %}" alt="Best Consultancy for Study Abroad" />
+                    <h4>Top-Rated Study Abroad Consultancy</h4>
+                  </div>
+                  <p>Edusetin is trusted by students across Kerala for expert guidance on overseas education, including MBBS, bachelor's, and master's programs in top countries.</p>
+                </li>
+                <li>
+                  <div class="top">
+                    <img src="{% static 'assets/img/icon/17.png' %}" alt="Visa Assistance Services" />
+                    <h4>Comprehensive Visa Support</h4>
+                  </div>
+                  <p>We assist students with return visa applications, interview preparation, and complete documentation support to ensure smooth international travel.</p>
+                </li>
+              </ul>
+              <a href="{% url 'about' %}" class="btn-style-one circle mt-30 wow fadeInUp" data-wow-delay="200ms">Discover More <span></span></a>
+            </div>
+          </div>
+          <div class="col-xl-5 offset-xl-1 col-lg-6">
+            <div class="about-three-thumb">
+              <img class="wow fadeInUp" src="{% static 'assets/img/thumb/6.png' %}" alt="Image Not Found" />
+              <div class="success-rate wow fadeInDown" data-wow-delay="100ms">
+                <div class="circle-progress">
+                  <div class="progressbar">
+                    <h4>Success Rate</h4>
+                    <div class="circle" data-percent="92">
+                      <strong></strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End About -->
+
+  <!--  Start Services Category 
+=============================================  -->
+  <div id="services" class="visa-category-area default-padding text-center bg-cover" style="background-image: url(assets/img/shape/20.png);">
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1">
+          <div class="site-heading text-center">
+            <h4 class="sub-title">Our Services</h4>
+            <h2 class="title split-text">We guide you at every step of your study abroad journey</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="visa-category-items wow fadeInUp" data-wow-delay="200ms">
+            <div class="visa-category-carousel swiper">
+              <div class="swiper-wrapper">
+                {% for service in services %}
+                  <div class="swiper-slide">
+                    <div class="visa-cat-style-one">
+                      <div class="thumb">
+                        <img src="{{ service.image.url }}" alt="{{ service.title }}" style="width: 100%; height: 250px; object-fit: cover; object-position: center;" />
+                        <div class="shape">
+                          <img src="{% static 'assets/img/shape/39.png' %}" alt="Shape" />
+                        </div>
+                        <div class="icon">
+                          <img src="{% static 'assets/img/icon/business-visa.png' %}" alt="Icon" />
+                        </div>
+                      </div>
+                      <div class="info">
+                        <h4><a href="{% url 'service_detail' service.id %}">{{ service.title }}</a></h4>
+                        <p class="service-desc">{{ service.description|truncatechars:175|safe }}</p>
+                      </div>
+                      <div class="button">
+                        <a href="{% url 'service_detail' service.id %}">
+                          <i class="fas fa-angle-right"></i>
+                          <span>Know More</span>
+                          <div class="shape">
+                            <img src="{% static 'assets/img/shape/40.png' %}" alt="Shape" />
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+
+              <!-- Optional navigation buttons -->
+              {% comment %} <div class="swiper-button-next"></div>
+              <div class="swiper-button-prev"></div> {% endcomment %}
+
+              <!-- Optional pagination -->
+              <div class="swiper-pagination"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Services Category -->
+
+  <!--  Start Visa Country 
+=============================================  -->
+  <div class="visa-country-area default-padding bg-dark text-light bg-cover" style="background-image: url({% static 'assets/img/shape/21.png' %});">
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1">
+          <div class="site-heading text-center">
+            <h4 class="sub-title">Explore Our Covered</h4>
+            <h2 class="title split-text">Start your journey & pick <br /> your ideal country</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <ul class="visa-offer-country-items" id="accordion">
+            {% for country in countriess %}
+              <li>
+                <div class="visa-offer-country-item">
+                  <div class="country">
+                    <div class="icon">
+                      <img src="{{ country.flag.url }}" alt="{{ country.name }}" />
+                    </div>
+                    <div class="content">
+                      <h5>{{ country.name }}</h5>
+                      <span>{{ country.city }}</span>
+                    </div>
+                  </div>
+                  <div class="bottom">
+                    <ul class="list-style-one">
+                      <li>Student Visa & Admission</li>
+                      <li>5 Years Business Visa</li>
+                      <li>Apply Visa Online</li>
+                    </ul>
+                    <a href="{% url 'country_detail' country.id %}" class="btn-style-one circle mt-30">Discover More <span></span></a>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Visa Country -->
+
+  <!--  Start Team 
+    =============================================  -->
+    <div id="team" class="team-style-one-area default-padding bottom-less bg-gray">
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1">
+          <div class="site-heading text-center">
+            <h4 class="sub-title">Our Team</h4>
+            <h2 class="title split-text">Meet Our Experts</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      {% comment %} <div class="row">
+        {% endcomment %}
+
+        <!-- Single Item -->
+        <div class="row">
+          <!-- Django template loop starts here -->
+          {% for member in team_members %}
+            <!-- Single Item -->
+            <div class="col-lg-4 col-md-6 mb-30">
+              <div class="team-style-one-item wow fadeInUp" data-wow-delay="{{ forloop.counter0|add:1 }}00ms">
+                <div class="thumb">
+                  {% if member.image %}
+                    <img src="{{ member.image.url }}" alt="{{ member.name }}" style="height: 500px; object-fit: cover;" />
+                  {% else %}
+                    <img src="{% static 'assets/img/team/placeholder.jpg' %}" alt="{{ member.name }}" style="height: 500px; object-fit: cover;" />
+                  {% endif %}
+                  <img src="{% static 'assets/img/shape/31.png' %}" alt="Image Not Found" />
+                  <div class="social-info">
+                    <div class="social-overlay">
+                      <ul>
+                        {% if member.linkedin %}
+                          <li>
+                            <a href="{{ member.linkedin }}"><i class="fab fa-linkedin-in"></i></a>
+                          </li>
+                        {% endif %}
+                        {% if member.github %}
+                          <li>
+                            <a href="{{ member.github }}"><i class="fab fa-github"></i></a>
+                          </li>
+                        {% endif %}
+                        {% if member.twitter %}
+                          <li>
+                            <a href="{{ member.twitter }}"><i class="fab fa-twitter"></i></a>
+                          </li>
+                        {% endif %}
+                      </ul>
+                      <div class="icon">
+                        <i class="fas fa-plus"></i>
+                      </div>
+                    </div>
+                    <a href="#"><i class="fas fa-comments-alt"></i></a>
+                  </div>
+                </div>
+                <div class="info">
+                  <h4><a href="#">{{ member.name }}</a></h4>
+                  <span>{{ member.profession }}</span>
+                </div>
+              </div>
+            </div>
+            <!-- End Single Item -->
+          {% endfor %}
+          <!-- Django template loop ends here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Team -->
+
+  <!--  Start FAQ 
+=============================================  -->
+  <div class="faq-style-one-area default-padding bg-cover bg-gray" style="background-image: url('{% static 'assets/img/shape/22.png' %}');">
+    <div class="container">
+      <div class="row justify-content-end">
+        <div class="col-xl-6 offset-xl-1 order-lg-last">
+          <div class="faq-style-one-items">
+            <h4 class="sub-title">Frequently Asked Questions</h4>
+            <h2 class="title wow fadeInUp">Quick Answers About Studying Abroad with Edusetin</h2>
+            <div class="accordion wow fadeInUp" data-wow-delay="100ms" id="faqAccordion">
+              <!-- Single Item -->
+              <div class="accordion-item accordion-style-one">
+                <h2 class="accordion-header" id="heading_1"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_1" aria-expanded="true" aria-controls="collapse_1">Which countries can I apply to through Edusetin?</button></h2>
+                <div id="collapse_1" class="accordion-collapse collapse show" aria-labelledby="heading_1" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    <p>
+                      Edusetin currently offers study opportunities in <strong>Italy, Germany, Singapore, and Kyrgyzstan</strong>. From MBBS programs to bachelor’s and master’s degrees, we guide you in selecting the best-fit country and university based on your career goals.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- End Single Item -->
+
+              <!-- Single Item -->
+              <div class="accordion-item accordion-style-one">
+                <h2 class="accordion-header" id="heading_2"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_2" aria-expanded="false" aria-controls="collapse_2">What services does Edusetin provide?</button></h2>
+                <div id="collapse_2" class="accordion-collapse collapse" aria-labelledby="heading_2" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    <p>
+                      We provide complete <strong>end-to-end support</strong>, including counseling, university selection, admission process, documentation, visa application assistance, and pre-departure guidance. Our goal is to make your study abroad journey smooth and stress-free.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- End Single Item -->
+
+              <!-- Single Item -->
+              <div class="accordion-item accordion-style-one">
+                <h2 class="accordion-header" id="heading_3"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_3" aria-expanded="false" aria-controls="collapse_3">Do I need to know the local language to study abroad?</button></h2>
+                <div id="collapse_3" class="accordion-collapse collapse" aria-labelledby="heading_3" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    <p>
+                      Many programs, especially in <strong>Italy and Germany</strong>, are taught in English. However, learning the local language is recommended for daily life and part-time job opportunities. Edusetin provides guidance and resources for language preparation as well.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- End Single Item -->
+
+              <!-- Single Item -->
+              <div class="accordion-item accordion-style-one">
+                <h2 class="accordion-header" id="heading_4"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_4" aria-expanded="false" aria-controls="collapse_4">What are the costs involved in studying abroad?</button></h2>
+                <div id="collapse_4" class="accordion-collapse collapse" aria-labelledby="heading_4" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    <p>
+                      Costs vary depending on the country and program. For example, MBBS in Kyrgyzstan is affordable compared to Western Europe, while Italy and Germany often provide <strong>low tuition fees and scholarships</strong>. Our team will give you a detailed financial breakdown during counseling.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- End Single Item -->
+
+              <!-- Single Item -->
+              <div class="accordion-item accordion-style-one">
+                <h2 class="accordion-header" id="heading_5"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_5" aria-expanded="false" aria-controls="collapse_5">How can I get started with Edusetin?</button></h2>
+                <div id="collapse_5" class="accordion-collapse collapse" aria-labelledby="heading_5" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    <p>
+                      Simply reach out to us through our <strong>website, Instagram page, or YouTube channel</strong>. Book a counseling session, share your academic background, and we’ll help you choose the right program and start your application process step by step.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- End Single Item -->
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-5">
+          <div class="faq-style-one-thumb">
+            <img src="{% static 'assets/img/illustration/5.png' %}" alt="Study Abroad Support Illustration" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End FAQ -->
+
+  <!--  Start Universities 
+    =============================================  -->
+  <div id="universities" class="course-style-one-area default-padding-top">
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1">
+          <div class="site-heading text-center">
+            <h4 class="sub-title">Top Partner Universities</h4>
+            <h2 class="title split-text">Explore Our Global University Network</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="course-style-one-items">
+      <div class="container">
+        <!-- Navigation -->
+        <div class="course-style-one-nav">
+          <div class="course-carousel-prev">
+            <i class="fas fa-long-arrow-left"></i>
+          </div>
+          <div class="course-carousel-next">
+            <i class="fas fa-long-arrow-right"></i>
+          </div>
+        </div>
+        <!-- Slider main container -->
+        <div class="course-style-one-carousel swiper">
+          <div class="swiper-wrapper">
+            {% for university in universities %}
+              <div class="swiper-slide">
+                <div class="course-style-one-item">
+                  <img src="{{ university.image.url }}" alt="{{ university.name }}" style="height: 550px; object-fit: cover;" />
+
+                  <div class="overlay-title">
+                    <h4><a href="{% url 'uni_detail' university.pk %}">{{ university.name }}</a></h4>
+                    <div class="icon">
+                      <img src="{% static 'assets/img/icon/5.png' %}" alt="Icon" />
+                    </div>
+                  </div>
+
+                  <div class="overlay">
+                    <div class="icon">
+                      <img src="{% static 'assets/img/icon/5.png' %}" alt="Icon" />
+                    </div>
+                    <h4><a href="{% url 'uni_detail' university.pk %}">{{ university.name }}</a></h4>
+                    <p>{{ university.description|truncatewords:25|safe }}</p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Universities -->
+
+  <!--  Start Testimonial 
+============================================= -->
+
+<!-- Start Testimonial Section -->
+<div class="testimonial-style-three-area default-padding ">
+    <div class="container">
+        <div class="row">
+            <!-- Left Image -->
+            <div class="col-lg-5">
+    <div class="testimonial-three-thumb">
+        <div class="image-wrapper">
+            <img 
+                class="testimonial-big-image active" 
+                src="{% static 'assets/img/testimonial.jpg' %}" 
+                alt="Our Happy Customer">
+        </div>
+    </div>
+</div>
+
+
+            <!-- Right Slider -->
+            <div class="col-lg-6 offset-lg-1">
+                <div class="testimoial-style-three-items">
+                    <div class="site-heading">
+                        <h4 class="sub-title">Customers Feedback</h4>
+                        <h2 class="title split-text">What are people saying <br> about our service</h2>
+                    </div>
+
+                    <!-- Swiper Slider -->
+                    <div class="testimonial-style-three-carousel swiper">
+                        <div class="swiper-wrapper">
+                            {% for testimonial in testimonials %}
+                            <div class="swiper-slide">
+                                <div class="testimonial-style-three-item">
+                                    <div class="info">
+                                        <div class="top">
+                                            <h4>{{ testimonial.name|truncatechars:25 }}</h4>
+                                            <div class="ratings">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= testimonial.rating %}
+                                                        <i class="fas fa-star"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <p class="review-text">{{ testimonial.review|truncatewords_html:40|safe }}</p>
+                                        <div class="provider-details">
+                                            <div class="thumb">
+                                                {% if testimonial.image %}
+                                                    <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}">
+                                                {% else %}
+                                                    <img src="assets/img/team/default.jpg" alt="Default Avatar">
+                                                {% endif %}
+                                            </div>
+                                            <div class="content">
+                                                <h4>{{ testimonial.name }}</h4>
+                                                <span>Verified Customer</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="swiper-slide">
+                                <div class="testimonial-style-three-item">
+                                    <p>No testimonials available at the moment.</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                  
+                        
+
+                        <!-- Pagination -->
+                        <div class="swiper-pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+  <!-- End Testimonial -->
+
+  <!--  Start Call to action 
+    =============================================  -->
+  <div class="call-to-action-area">
+    <div class="container">
+      <div class="call-to-action-style-one bg-dark text-light">
+        <div class="shape">
+          <img src="{% static 'assets/img/shape/24.png' %}" alt="Image Not Found" />
+        </div>
+        <div class="row">
+          <div class="col-lg-5">
+            <div class="thumb bg-theme-secondary">
+              <img class="wow fadeInUp" src="{% static 'assets/img/illustration/6.png' %}" alt="Image Not Found" />
+              <div class="shape">
+                <img src="{% static 'assets/img/illustration/7.png' %}" alt="Image Not Found" />
+                <img src="{% static 'assets/img/shape/23.png' %}" alt="Image Not Found" />
+                <img src="{% static 'assets/img/shape/25.png' %}" alt="Image Not Found" />
+                <img src="{% static 'assets/img/shape/26.png' %}" alt="Image Not Found" />
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="call-action-info">
+              <h4 class="sub-title">Get free online visa</h4>
+              <h2 class="title split-text">Reliable visa & immigration experts</h2>
+              <a href="https://edusetinglobalcareers.com/" target="_blank" rel="noopener noreferrer" class="btn-style-one circle mt-10 wow fadeInUp" data-wow-delay="100ms">Apply for visa <span></span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Call to action -->
+
+  <!--  Start Blog 
+=============================================  -->
+  <div id="blog" class="home-blog-area default-padding bg-gray">
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1">
+          <div class="site-heading text-center">
+            <h4 class="sub-title">Study Abroad Insights</h4>
+            <h2 class="title split-text">Latest articles & guides <br /> for international students</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        {% for blog in blogs %}
+          <div class="col-lg-6 col-md-6">
+            <div class="home-blog-style-one wow fadeInUp">
+              <div class="thumb">
+                <img src="{{ blog.image.url }}" alt="{{ blog.title }}" style="width:100%; height:350px; object-fit:cover;" />
+              </div>
+              <div class="info">
+                <div class="inner">
+                  <div class="meta">
+                    <div class="date">
+                      <strong>{{ blog.created_at|date:'d' }}</strong>
+                      {{ blog.created_at|date:'M' }}
+                    </div>
+                  </div>
+                  <div class="content">
+                    <ul class="blog-meta">
+                      <li>
+                        <a href="#"><i class="far fa-user-circle"></i> {{ blog.title }}</a>
+                      </li>
+                      <li>
+                        {% comment %} <a href="#"><i class="far fa-comments"></i> 0 Comments</a> {% endcomment %}
+                      </li>
+                    </ul>
+                    <h3><a href="{% url 'blog_detail' blog.id %}">{{ blog.title }}</a></h3>
+                    <a href="{% url 'blog_detail' blog.id %}" class="btn-regular">
+                      Read More<svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 17L17 1H7.8" stroke="#232323" stroke-width="2"></path>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <p>No blogs available.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <!-- End Blog -->
+{% endblock %}
