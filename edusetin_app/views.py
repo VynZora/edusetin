@@ -74,13 +74,13 @@ from django.db.models.functions import Lower
 
 
 def index(request):
-    course_categories = CourseCategory.objects.all()[:6]
-    countries = Country.objects.all()[:6]
+    course_categories = CourseCategory.objects.all()
+    countries = Country.objects.all()
 
-    countriess = Country.objects.order_by("-id")[:5]
+    countriess = Country.objects.order_by('?')[:5]
     team_members = TeamMember.objects.all()[:6]
     universities = University.objects.all()
-    services = Service.objects.all()[:6]
+    services = Service.objects.all().order_by("created_at")
 
     footer_service = Service.objects.all()[:4]
 
@@ -106,9 +106,9 @@ def index(request):
 
 
 def country_details(request, pk):
-    course_categories = CourseCategory.objects.all()[:6]
+    course_categories = CourseCategory.objects.all()
     universities = University.objects.all()[:6]
-    services = Service.objects.all()[:6]
+    services = Service.objects.all().order_by("created_at")
 
     footer_service = Service.objects.all()[:4]
 
@@ -146,11 +146,11 @@ def country_details(request, pk):
 
 
 def university_detail(request, pk):
-    course_categories = CourseCategory.objects.all()[:6]
-    countries = Country.objects.all()[:6]
+    course_categories = CourseCategory.objects.all()
+    countries = Country.objects.all()
     universities = University.objects.all()
 
-    services = Service.objects.all()[:6]
+    services = Service.objects.all().order_by("created_at")
     university = get_object_or_404(University, id=pk)
     courses = Course.objects.filter(university=university)
     # application_form = ApplicationForm.objects.last()
@@ -176,10 +176,10 @@ def university_detail(request, pk):
 
 
 def about(request):
-    course_categories = CourseCategory.objects.all()[:6]
-    countries = Country.objects.all()[:6]
+    course_categories = CourseCategory.objects.all()
+    countries = Country.objects.all()
     universities = University.objects.all()[:6]
-    services = Service.objects.all()[:6]
+    services = Service.objects.all().order_by("created_at")
     blogs = Blog.objects.all()[:6]
 
     team_members = TeamMember.objects.all()[:6]
@@ -206,7 +206,7 @@ def blog_details(request, blog_id):
     course_categories = CourseCategory.objects.all()
     countries = Country.objects.all()
     universities = University.objects.all()
-    services = Service.objects.all()
+    services = Service.objects.all().order_by("created_at")
 
     footer_service = Service.objects.all()[:4]
 
@@ -251,10 +251,10 @@ def contact_submit(request):
 
 def service_detail(request, pk):
     # blog = blog.objects.all()
-    services = Service.objects.all()[:6]
+    services = Service.objects.all().order_by("created_at")
     other_services = Service.objects.all()
-    course_categories = CourseCategory.objects.all()[:6]
-    countries = Country.objects.all()[:6]
+    course_categories = CourseCategory.objects.all()
+    countries = Country.objects.all()
     service = get_object_or_404(Service, pk=pk)
 
     footer_service = Service.objects.all()[:4]
@@ -273,10 +273,10 @@ def service_detail(request, pk):
 
 
 def gallery(request):
-    blog = Blog.objects.all()[:6]
-    course_categories = CourseCategory.objects.all()[:6]
-    countries = Country.objects.all()[:6]
-    services = Service.objects.all()[:6]
+    blog = Blog.objects.all()
+    course_categories = CourseCategory.objects.all()
+    countries = Country.objects.all()
+    services = Service.objects.all().order_by("created_at")
 
     categories = Category.objects.all()
 
@@ -327,9 +327,9 @@ def inquiry_view(request):
     else:
         form = InquiryForm()
 
-    course_categories = CourseCategory.objects.all()[:6]
-    services = Service.objects.all()[:6]
-    countries = Country.objects.all()[:6]
+    course_categories = CourseCategory.objects.all()
+    services = Service.objects.all().order_by("created_at")
+    countries = Country.objects.all()
     footer_service = Service.objects.all()[:4]
 
     context = {
@@ -360,7 +360,8 @@ def apply_form(request):
     courses = Course.objects.all()
 
     course_categories = CourseCategory.objects.all().order_by("name")
-    services = Service.objects.all()
+    services = Service.objects.all().order_by("created_at")
+    footer_service = Service.objects.all()[:4]
 
     if request.method == "POST":
         form = ApplicationForm(request.POST)  # include FILES
@@ -381,17 +382,19 @@ def apply_form(request):
         "courses": courses,
         "course_categories": course_categories,
         "services": services,
+        "footer_service": footer_service,
+        
     }
     return render(request, "apply-form.html", context)
 
 
 def course_category_detail(request, category_id):
-    course_categories = CourseCategory.objects.all().order_by("name")[:6]
+    course_categories = CourseCategory.objects.all().order_by("name")
     other_course_categories = CourseCategory.objects.all().order_by("name")
     category = get_object_or_404(CourseCategory, id=category_id)
     courses = Course.objects.filter(category=category).order_by("-id")
-    countries = Country.objects.all()[:6]
-    services = Service.objects.all()[:6]
+    countries = Country.objects.all()
+    services = Service.objects.all().order_by("created_at")
 
     footer_service = Service.objects.all()[:4]
 
@@ -416,10 +419,10 @@ def course_category_detail(request, category_id):
 def index_blog(request):
     blogs = Blog.objects.all().order_by("-created_at")
 
-    course_categories = CourseCategory.objects.all().order_by("name")[:6]
-    countries = Country.objects.all()[:6]
+    course_categories = CourseCategory.objects.all().order_by("name")
+    countries = Country.objects.all()
 
-    services = Service.objects.all()[:6]
+    services = Service.objects.all().order_by("created_at")
 
     footer_service = Service.objects.all()[:4]
     paginator = Paginator(blogs, 4)  # 2 blogs per page
@@ -1385,7 +1388,7 @@ def admin_login(request):
 
         user = authenticate(request, username=username, password=password)
 
-        if user is not None and user.is_staff:  # ✅ only staff users
+        if user is not None and user.is_staff:  # only staff users
             login(request, user)
             messages.success(request, f"Welcome {user.username}!")
             print("login sucesfull")

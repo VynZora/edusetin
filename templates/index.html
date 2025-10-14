@@ -181,6 +181,49 @@
     </div>
   </div>
   <!-- End About -->
+<style>
+/* === Scoped only to Services Section === */
+#services .visa-cat-style-one {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#services .swiper-slide {
+  display: flex;
+  height: auto;
+}
+
+#services .visa-cat-style-one .info h4 {
+  line-height: 24px;
+  min-height: 48px; /* ensures layout stability for 2 lines */
+  margin-bottom: 8px; /* tighten spacing */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+#services .visa-cat-style-one .info .service-desc {
+  flex-grow: 1;
+  margin-bottom: 0;
+  min-height: auto;
+  overflow: hidden;
+}
+
+#services .visa-cat-style-one .info,
+#services .visa-cat-style-one .button {
+  margin-top: auto;
+}
+
+#services .swiper-wrapper {
+  align-items: stretch;
+}
+
+#services .visa-cat-style-one img {
+  display: block;
+}
+</style>
 
   <!--  Start Services Category 
 =============================================  -->
@@ -514,62 +557,118 @@
   <!--  Start Testimonial 
 ============================================= -->
 
-<!-- Start Testimonial Section -->
-<div class="testimonial-style-three-area default-padding ">
+<div class="testimonial-style-three-area default-padding">
     <div class="container">
-        <div class="row">
-            <!-- Left Image -->
-            <div class="col-lg-5">
-    <div class="testimonial-three-thumb">
-        <div class="image-wrapper">
-            <img 
-                class="testimonial-big-image active" 
-                src="{% static 'assets/img/testimonial.jpg' %}" 
-                alt="Our Happy Customer">
-        </div>
-    </div>
-</div>
+        <div class="row align-items-center">
+            
+            <!-- Section Header - FIRST ON MOBILE, HIDDEN ON DESKTOP -->
+            <div class="col-12 d-lg-none mb-4">
+                <div class="section-header text-center">
+                    <h4 class="sub-title fw-bold">Student Success Stories</h4>
+                    <h2 class="title fw-bold">What Our Students Say About Edusetin</h2>
+                    <p class="section-description"> Don't just take our word for it – hear from students who’ve achieved their dreams 
+            with the help of Edusetin’s expert guidance and support.</p>
+                </div>
+            </div>
 
-
-            <!-- Right Slider -->
-            <div class="col-lg-6 offset-lg-1">
-                <div class="testimoial-style-three-items">
-                    <div class="site-heading">
-                        <h4 class="sub-title">Customers Feedback</h4>
-                        <h2 class="title split-text">What are people saying <br> about our service</h2>
+            <!-- Left Image Section - SECOND ON MOBILE, FIRST ON DESKTOP -->
+            <div class="col-lg-5 mb-4 mb-lg-0">
+                <div class="testimonial-image-section text-center">
+                    <div class="main-testimonial-image-container">
+                        <div class="image-wrapper">
+                            {% if testimonials and testimonials.0.image %}
+                                <img src="{{ testimonials.0.image.url }}" 
+                                     alt="{{ testimonials.0.name }}" 
+                                     class="testimonial-portrait active-testimonial-image">
+                            {% else %}
+                                <img src="{% static 'assets/img/testimonial-default.jpg' %}" 
+                                     alt="Our Happy Students" 
+                                     class="testimonial-portrait active-testimonial-image">
+                            {% endif %}
+                        </div>
+                        <!-- Decorative Elements -->
+                        <div class="floating-shape shape-1">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="floating-shape shape-2">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="floating-shape shape-3">
+                            <i class="fas fa-plane"></i>
+                        </div>
                     </div>
+                    <div class="image-caption mt-4">
+                        <h5 class="fw-bold">Real Students, Real Stories</h5>
+                        <p class="text-muted">Hear from our successful Edusetin applicants</p>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Swiper Slider -->
-                    <div class="testimonial-style-three-carousel swiper">
+            <!-- Right Testimonial Slider - THIRD ON MOBILE, SECOND ON DESKTOP -->
+            <div class="col-lg-7">
+                <!-- Section Header - FOR DESKTOP ONLY -->
+                <div class="section-header mb-5 d-none d-lg-block">
+                    <h4 class="sub-title fw-bold">Student Success Stories</h4>
+                    <h2 class="title fw-bold">What Our Students Say About Edusetin</h2>
+                    <p class="section-description"> Don't just take our word for it – hear from students who’ve achieved their dreams 
+            with the help of Edusetin’s expert guidance and support.</p>
+                </div>
+
+                <!-- Testimonial Slider -->
+                <div class="testimonial-slider-container position-relative">
+                    <div class="swiper testimonialSwiper">
                         <div class="swiper-wrapper">
                             {% for testimonial in testimonials %}
-                            <div class="swiper-slide">
-                                <div class="testimonial-style-three-item">
-                                    <div class="info">
-                                        <div class="top">
-                                            <h4>{{ testimonial.name|truncatechars:25 }}</h4>
-                                            <div class="ratings">
-                                                {% for i in "12345" %}
-                                                    {% if forloop.counter <= testimonial.rating %}
-                                                        <i class="fas fa-star"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                        <p class="review-text">{{ testimonial.review|truncatewords_html:40|safe }}</p>
-                                        <div class="provider-details">
-                                            <div class="thumb">
-                                                {% if testimonial.image %}
-                                                    <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}">
+                            <div class="swiper-slide" 
+                                 data-image="{% if testimonial.image %}{{ testimonial.image.url }}{% else %}{% static 'assets/img/team/default.jpg' %}{% endif %}"
+                                 data-name="{{ testimonial.name }}">
+                                <div class="testimonial-card">
+                                    <div class="testimonial-content">
+                                        <!-- Rating Stars -->
+                                        <div class="rating-stars mb-3">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= testimonial.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
                                                 {% else %}
-                                                    <img src="assets/img/team/default.jpg" alt="Default Avatar">
+                                                    <i class="far fa-star text-warning"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <span class="rating-text ms-2">Rated {{ testimonial.rating }}/5</span>
+                                        </div>
+                                        
+                                        <!-- Testimonial Text - FIXED SPACING -->
+                                        <div class="testimonial-text">
+                                            <p>"{{ testimonial.review|safe }}"</p>
+                                        </div>
+                                        
+                                        <!-- Student Info -->
+                                        <div class="student-info d-flex align-items-center">
+                                            <div class="student-avatar me-3">
+                                                {% if testimonial.image %}
+                                                    <img src="{{ testimonial.image.url }}" 
+                                                         alt="{{ testimonial.name }}" 
+                                                         class="student-thumbnail">
+                                                {% else %}
+                                                    <div class="avatar-placeholder">
+                                                        <i class="fas fa-user-graduate"></i>
+                                                    </div>
                                                 {% endif %}
                                             </div>
-                                            <div class="content">
-                                                <h4>{{ testimonial.name }}</h4>
-                                                <span>Verified Customer</span>
+                                            <div class="student-details">
+                                                <h6 class="student-name mb-1 fw-bold">{{ testimonial.name }}</h6>
+                                                <p class="student-course mb-0 text-muted small">
+                                                    {% if testimonial.course %}
+                                                        {{ testimonial.course }}
+                                                    {% else %}
+                                                        Edusetin Student
+                                                    {% endif %}
+                                                </p>
+                                                {% if testimonial.country %}
+                                                    <p class="student-country mb-0 text-muted small">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                                        {{ testimonial.country }}
+                                                    </p>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>
@@ -577,24 +676,440 @@
                             </div>
                             {% empty %}
                             <div class="swiper-slide">
-                                <div class="testimonial-style-three-item">
-                                    <p>No testimonials available at the moment.</p>
+                                <div class="testimonial-card text-center">
+                                    <div class="testimonial-content">
+                                        <div class="no-testimonials py-5">
+                                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">No Testimonials Yet</h5>
+                                            <p class="text-muted">Be the first to share your study abroad experience!</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
 
-                  
-                        
-
                         <!-- Pagination -->
-                        <div class="swiper-pagination"></div>
+                        <div class="swiper-pagination mt-4"></div>
+                    </div>
+                </div>
+
+                <!-- Trust Indicators -->
+                <div class="trust-indicators mt-5 pt-3 border-top">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="trust-item">
+                                <h4 class="fw-bold mb-1">92%</h4>
+                                <p class="small mb-0">Success Rate</p>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="trust-item">
+                                <h4 class="fw-bold mb-1">500+</h4>
+                                <p class="small mb-0">Students Helped</p>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="trust-item">
+                                <h4 class="fw-bold mb-1">4.8/5</h4>
+                                <p class="small mb-0">Average Rating</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+
+<style>
+.testimonial-style-three-area {
+    background-color: #f9fafb!important;
+}
+
+/* Also target any child containers that might have white background */
+.testimonial-style-three-area .container,
+.testimonial-style-three-area .row {
+    background-color: transparent !important;
+}
+
+/* IMPROVED IMAGE CONTAINER */
+.main-testimonial-image-container {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.image-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    border: 5px solid white;
+}
+
+/* PERFECT PORTRAIT CROPPING */
+.testimonial-portrait {
+    width: 320px;
+    height: 400px;
+    object-fit: cover;
+    object-position: top center; /* Ensures head is always visible */
+    transition: all 0.5s ease-in-out;
+    display: block;
+}
+
+.student-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    object-position: top center;
+    border-radius: 50%;
+    border: 3px solid #007bff;
+}
+
+/* Floating decorative elements */
+.floating-shape {
+    position: absolute;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+    animation: float 3s ease-in-out infinite;
+}
+
+.floating-shape.shape-1 {
+    width: 60px;
+    height: 60px;
+    top: -20px;
+    left: -20px;
+    font-size: 1.5rem;
+    animation-delay: 0s;
+}
+
+.floating-shape.shape-2 {
+    width: 45px;
+    height: 45px;
+    bottom: 30px;
+    right: -15px;
+    font-size: 1.2rem;
+    animation-delay: 1s;
+}
+
+.floating-shape.shape-3 {
+    width: 35px;
+    height: 35px;
+    top: 50%;
+    left: -15px;
+    font-size: 1rem;
+    animation-delay: 2s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Avatar placeholder for missing images */
+.avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    border: 3px solid #007bff;
+}
+
+
+.testimonial-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: auto;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.testimonial-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex: 1;
+}
+
+/* FIXED SPACING - REMOVED UNNECESSARY MARGINS */
+.testimonial-text {
+    flex: 1;
+    margin-bottom: 0; /* Remove bottom margin */
+}
+
+.testimonial-text p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    font-style: italic;
+    margin-bottom: 0; /* Remove bottom margin from paragraph */
+}
+
+.rating-stars {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.student-info {
+    margin-top: 20px; /* Consistent spacing above student info */
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0; /* Visual separation */
+}
+
+.rating-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.trust-item {
+    padding: 10px;
+}
+
+.trust-item h4 {
+    font-weight: 700;
+}
+
+.section-description {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+
+/* Smart Image Transition */
+.image-transition-enter {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.image-transition-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* MOBILE RESPONSIVE DESIGN - FIXED ORDER */
+@media (max-width: 768px) {
+    /* Mobile layout: heading first, then image, then cards */
+    .row.align-items-center {
+        flex-direction: column;
+    }
+    
+    /* Ensure proper order on mobile */
+    .col-12.d-lg-none {
+        order: 1; /* Heading first */
+    }
+    
+    .col-lg-5.mb-4.mb-lg-0 {
+        order: 2; /* Image second */
+        margin-top: 0;
+        margin-bottom: 2rem !important;
+    }
+    
+    .col-lg-7 {
+        order: 3; /* Cards third */
+    }
+    
+    .testimonial-card {
+        padding: 20px;
+        min-height: 250px;
+    }
+    
+    .testimonial-text p {
+        font-size: 1rem;
+    }
+    
+    .testimonial-portrait {
+        width: 280px;
+        height: 350px;
+        margin: 0 auto;
+    }
+    
+    .floating-shape {
+        display: none; /* Hide on mobile for better performance */
+    }
+    
+    .main-testimonial-image-container {
+        margin-bottom: 1rem;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .section-header .title {
+        font-size: 1.8rem;
+    }
+    
+    .trust-indicators {
+        margin-top: 2rem;
+    }
+    
+    .student-info {
+        margin-top: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .testimonial-portrait {
+        width: 250px;
+        height: 300px;
+    }
+    
+    .image-wrapper {
+        border-width: 3px;
+    }
+    
+    .section-header .title {
+        font-size: 1.6rem;
+    }
+    
+    .trust-item h4 {
+        font-size: 1.2rem;
+    }
+    
+    .testimonial-card {
+        min-height: 220px;
+    }
+}
+
+/* Animation for smooth transitions */
+@keyframes smoothFade {
+    from { 
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.smooth-fade {
+    animation: smoothFade 0.6s ease-out;
+}
+
+/* Ensure consistent card heights in slider */
+.swiper-slide {
+    height: auto;
+}
+
+.testimonialSwiper .swiper-wrapper {
+    align-items: stretch;
+}
+
+.testimonialSwiper .swiper-slide {
+    height: auto;
+    display: flex;
+}
+
+.testimonialSwiper .testimonial-card {
+    width: 100%;
+}
+</style>
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mainImage = document.querySelector('.active-testimonial-image');
+    const imageWrapper = document.querySelector('.image-wrapper');
+    
+    const testimonialSwiper = new Swiper('.testimonialSwiper', {
+        loop: true,
+        spaceBetween: 30,
+        autoplay: {
+            delay: 7000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+            dynamicBullets: true,
+        },
+        effect: 'slide',
+        speed: 800,
+        on: {
+            slideChangeTransitionStart: function () {
+                const activeSlide = this.slides[this.activeIndex];
+                const newImage = activeSlide.getAttribute('data-image');
+                const studentName = activeSlide.getAttribute('data-name');
+                
+                if (newImage && mainImage) {
+                    // Add smooth transition effect
+                    imageWrapper.classList.add('image-transition-enter');
+                    
+                    setTimeout(() => {
+                        // Preload image to avoid flickering
+                        const img = new Image();
+                        img.src = newImage;
+                        img.onload = function() {
+                            mainImage.src = newImage;
+                            mainImage.alt = studentName + ' - Edusetin Student';
+                            imageWrapper.classList.remove('image-transition-enter');
+                            imageWrapper.classList.add('image-transition-enter-active');
+                            
+                            setTimeout(() => {
+                                imageWrapper.classList.remove('image-transition-enter-active');
+                            }, 500);
+                        };
+                    }, 300);
+                }
+            },
+        },
+    });
+
+    // Pause autoplay on hover for better UX
+    const swiperContainer = document.querySelector('.testimonialSwiper');
+    if (swiperContainer) {
+        swiperContainer.addEventListener('mouseenter', function() {
+            testimonialSwiper.autoplay.stop();
+        });
+        
+        swiperContainer.addEventListener('mouseleave', function() {
+            testimonialSwiper.autoplay.start();
+        });
+    }
+
+    // Add loading state for images
+    if (mainImage) {
+        mainImage.addEventListener('load', function() {
+            this.style.opacity = '1';
+        });
+        
+        mainImage.addEventListener('error', function() {
+            // If image fails to load, use default
+            this.src = "{% static 'assets/img/testimonial-default.jpg' %}";
+        });
+    }
+});
+</script>
+
+
   <!-- End Testimonial -->
 
   <!--  Start Call to action 

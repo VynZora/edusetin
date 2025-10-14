@@ -33,215 +33,6 @@
   </head>
 
   <body>
-    <style>
-/* Scoped to testimonial section only */
-.testimonial-style-three-area.bg-white {
-    background-color: white !important;
-}
-
-.testimonial-style-three-area .testimonial-big-image {
-    display: none;
-    width: 100%;
-    border-radius: 10px;
-    object-fit: cover;
-}
-.testimonial-style-three-area .testimonial-big-image.active {
-    display: block;
-}
-
-/* Consistent height for all slides */
-.testimonial-style-three-area .swiper-wrapper {
-    align-items: stretch;
-}
-
-.testimonial-style-three-area .swiper-slide {
-    height: auto;
-    display: flex;
-}
-
-.testimonial-style-three-area .testimonial-style-three-item {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.testimonial-style-three-area .ratings i {
-    color: #FFD700;
-}
-
-/* Testimonial Image Styling */
-.testimonial-style-three-area .testimonial-three-thumb {
-    position: relative;
-    width: 100%;
-    height: 500px;
-    overflow: hidden;
-    border-radius: 12px;
-}
-
-.testimonial-style-three-area .testimonial-three-thumb .image-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.testimonial-style-three-area .testimonial-big-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    opacity: 0;
-    transition: opacity 0.6s ease-in-out;
-}
-
-.testimonial-style-three-area .testimonial-big-image.active {
-    opacity: 1;
-    z-index: 1;
-}
-
-/* Review Text Truncation */
-.testimonial-style-three-area .review-text {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.8;
-    max-height: 7.2em;
-    margin: 20px 0;
-    flex-grow: 1;
-}
-
-/* Ratings Styling */
-.testimonial-style-three-area .ratings {
-    display: flex;
-    gap: 4px;
-}
-
-.testimonial-style-three-area .ratings i {
-    color: #ffc107;
-    font-size: 16px;
-}
-
-/* Provider Details */
-.testimonial-style-three-area .provider-details {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-top: 25px;
-}
-
-.testimonial-style-three-area .provider-details .thumb {
-    flex-shrink: 0;
-}
-
-.testimonial-style-three-area .provider-details .thumb img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.testimonial-style-three-area .provider-details .content h4 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.testimonial-style-three-area .provider-details .content span {
-    color: #666;
-    font-size: 14px;
-}
-
-/* Top Section */
-.testimonial-style-three-area .info .top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.testimonial-style-three-area .info .top h4 {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 600;
-}
-
-/* Quote Icon */
-.testimonial-style-three-area .quote {
-    margin-bottom: 20px;
-}
-
-.testimonial-style-three-area .quote img {
-    width: 40px;
-    height: auto;
-    opacity: 0.3;
-}
-
-/* Swiper Navigation */
-.testimonial-style-three-area .testimonial-style-three-carousel {
-    position: relative;
-    padding-bottom: 50px;
-}
-
-.testimonial-style-three-area .swiper-button-next,
-.testimonial-style-three-area .swiper-button-prev {
-    color: #333;
-    width: 40px;
-    height: 40px;
-}
-
-.testimonial-style-three-area .swiper-button-next:after,
-.testimonial-style-three-area .swiper-button-prev:after {
-    font-size: 20px;
-}
-
-.testimonial-style-three-area .swiper-pagination {
-    bottom: 0;
-}
-
-.testimonial-style-three-area .swiper-pagination-bullet {
-    background: #333;
-    opacity: 0.3;
-}
-
-.testimonial-style-three-area .swiper-pagination-bullet-active {
-    opacity: 1;
-    background: #007bff;
-}
-
-/* Responsive */
-@media (max-width: 991px) {
-    .testimonial-style-three-area .testimonial-three-thumb {
-        height: 400px;
-        margin-bottom: 30px;
-    }
-
-    .testimonial-style-three-area .review-text {
-        -webkit-line-clamp: 3;
-        max-height: 5.4em;
-    }
-}
-
-@media (max-width: 767px) {
-    .testimonial-style-three-area .testimonial-three-thumb {
-        height: 300px;
-    }
-
-    .testimonial-style-three-area .info .top {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
-</style>
 
     <style>
       /* Hide default cursor */
@@ -466,54 +257,7 @@
   }
 }
    </style>    
-{% comment %} 
-    <style>
-      /* Mobile Logo Visibility Fix */
-      @media (max-width: 991px) {
-        .navbar-header {
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 0 0 15px 15px;
-          padding: 8px 15px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-      
-        .navbar-header .navbar-brand {
-          display: block !important;
-        }
-      
-        .navbar-header .logo {
-          display: block !important;
-          max-height: 40px;
-          width: auto;
-          /* Ensure logo is dark/visible on light background */
-          filter: brightness(0) saturate(100%) invert(27%) sepia(91%) saturate(7495%) hue-rotate(209deg) brightness(98%) contrast(105%);
-        }
-      }
-    </style>
- {% endcomment %}
-    {% comment %} <style>
-      /* Mobile Logo Visibility Fix */
-      @media (max-width: 991px) {
-        .navbar-header {
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 0 0 15px 15px;
-          padding: 8px 15px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-      
-        .navbar-header .navbar-brand {
-          display: block !important;
-        }
-      
-        .navbar-header .logo {
-          display: block !important;
-          max-height: 40px;
-          width: auto;
-          /* Ensure logo is dark/visible on light background */
-          filter: brightness(0) saturate(100%) invert(27%) sepia(91%) saturate(7495%) hue-rotate(209deg) brightness(98%) contrast(105%);
-        }
-      }
-    </style> {% endcomment %}
+
 
     <!--  Start Preloader 
     =============================================  -->
@@ -2639,6 +2383,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </style>
 
+<style>
+  /* Dropdown scrollable if more than 7 items */
+.navbar-nav .dropdown-menu {
+    max-height: 350px; /* Increased height for better visibility */
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 0;
+    margin: 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Apply scroll only when needed - for countries, courses, services */
+.navbar-nav .dropdown:has(li:nth-child(8)) .dropdown-menu {
+    max-height: 300px;
+    overflow-y: auto !important;
+}
+
+/* Alternative method using min-item count */
+.navbar-nav .dropdown-menu:has(> li:nth-child(8)) {
+    max-height: 300px;
+    overflow-y: auto !important;
+}
+
+/* Smooth scrollbar for modern browsers */
+.navbar-nav .dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.navbar-nav .dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.25);
+    border-radius: 3px;
+}
+
+.navbar-nav .dropdown-menu::-webkit-scrollbar-track {
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 3px;
+}
+
+/* Dropdown links - removed borders */
+.navbar-nav .dropdown-menu li a {
+    white-space: nowrap;
+    padding: 14px 20px; /* Slightly more padding for better spacing */
+    display: block;
+    font-size: 14px;
+    color: #333;
+    transition: background 0.3s ease;
+    /* Removed border-bottom */
+}
+
+.navbar-nav .dropdown-menu li a:hover {
+    background-color: #f8f9fa; /* Lighter hover color */
+    color: #007bff; /* Blue text on hover */
+}
+
+/* Ensure proper dropdown positioning */
+.navbar-nav .dropdown:hover .dropdown-menu {
+    display: block;
+}
+</style>
+
+
 
 
     <!--  Header 
@@ -2983,7 +2789,54 @@ document.addEventListener('DOMContentLoaded', function() {
     <script src="{% static 'assets/js/gsap.js' %}"></script>
     <script src="{% static 'assets/js/ScrollTrigger.min.js' %}"></script>
     <script src="{% static 'assets/js/SplitText.min.js' %}"></script>
-    <script src="{% static 'assets/js/main.js' %}"></script>
+    <script src="{% static 'assets/js/main.js' %}"></script>   
+    <script>
+(function () {
+  var e = document;
+
+  // Disable right-click
+  e.addEventListener("contextmenu", function (event) {
+    event.preventDefault();
+  });
+
+  // Disable common DevTools & view-source shortcuts
+  e.addEventListener("keydown", function (event) {
+    if (event.key === "F12") event.preventDefault();
+
+    if (event.ctrlKey && event.shiftKey && ["I", "J", "C"].includes(event.key.toUpperCase())) {
+      event.preventDefault();
+    }
+
+    if (event.ctrlKey && ["U", "S"].includes(event.key.toUpperCase())) {
+      event.preventDefault();
+    }
+  });
+
+  // Detect if DevTools are open (based on window size difference)
+  setInterval(function () {
+    if (
+      window.outerWidth - window.innerWidth > 200 ||
+      window.outerHeight - window.innerHeight > 200
+    ) {
+      document.body.innerHTML = `
+        <h1 style="text-align:center; color:red; margin-top:20%;">
+          Access Denied
+        </h1>
+      `;
+    }
+  }, 1000);
+})();
+</script>
+
+<style>
+  body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+</style> 
+
 
     {% block extra_js %}
     {% endblock %}
