@@ -22,14 +22,21 @@
         
     </div>
 
-    
+    <!-- Drag & Drop Instructions -->
+    <div class="alert alert-info mb-3">
+        <i class="fas fa-info-circle"></i> <strong>Tip:</strong> Drag and drop rows to reorder courses. Changes are saved automatically.
+    </div>
 
     <div class="custom-table-container">
         <table class="table table-striped table-hover align-middle">
             <thead class="table-light">
                 <tr>
+                    <th scope="col" width="50">
+                        <i class="fas fa-grip-vertical text-muted"></i>
+                    </th>
                     <th scope="col">Image</th>
                     <th scope="col">Course Name</th>
+                    <th scope="col">Description</th>
                     <th scope="col">University</th>
                     <th scope="col">Category</th>
                     <th scope="col">Country</th>
@@ -37,9 +44,12 @@
                     <th scope="col" class="text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="sortable-courses">
                 {% for course in courses %}
-                <tr>
+                <tr class="draggable-row" data-id="{{ course.id }}">
+                    <td class="drag-handle" style="cursor: move;">
+                        <i class="fas fa-grip-vertical"></i>
+                    </td>
                     <td>
                         {% if course.image %}
                             <img src="{{ course.image.url }}" alt="{{ course.title }}" class="img-fluid rounded" width="80" height="60" style="object-fit: cover;">
@@ -49,8 +59,11 @@
                     </td>
                     <td>
                         <strong>{{ course.title }}</strong>
-                        {% if course.description %}
-                            <p class="text-muted mb-0 small">{{ course.description|truncatechars:60|safe }}</p>
+                       
+                    </td>
+                    <td>
+                         {% if course.description %}
+                            <p class="text-muted mb-0 small">{{ course.description|truncatechars:40|safe }}</p>
                         {% endif %}
                     </td>
                     <td>{{ course.university.name }}</td>
@@ -77,7 +90,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center py-4">
+                    <td colspan="8" class="text-center py-4">
                         <p class="text-muted">No courses found. <a href="{% url 'course_add' %}">Add your first course</a></p>
                     </td>
                 </tr>
@@ -87,7 +100,7 @@
     </div>
 
     <!-- Pagination Controls -->
-    {% if courses.has_other_pages %}
+    {% comment %} {% if courses.has_other_pages %}
     <nav aria-label="Courses pagination">
         <ul class="pagination justify-content-center mt-4">
             {% if courses.has_previous %}
@@ -143,7 +156,7 @@
             {% endif %}
         </ul>
     </nav>
-    {% endif %}
+    {% endif %} {% endcomment %}
 </div>
 
 <!-- MODALS - Placed OUTSIDE the main content area -->
@@ -239,10 +252,54 @@
 </div>
 {% endfor %}
 
+<!-- SortableJS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
 <script>
+// Store CKEditor instances
+const courseEditors = new Map();
+
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Sortable for drag and drop
+    const tbody = document.getElementById('sortable-courses');
+    
+    if (tbody) {
+        const sortable = Sortable.create(tbody, {
+            handle: '.drag-handle',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: function (evt) {
+                // Get the new order of course IDs
+                const rows = tbody.querySelectorAll('tr.draggable-row');
+                const newOrder = Array.from(rows).map(row => row.dataset.id);
+                
+                // Send AJAX request to update order
+                fetch('{% url "reorder_courses" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ order: newOrder })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showToast('Courses order updated successfully!', 'success');
+                    } else {
+                        showToast('Failed to update order', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('An error occurred', 'error');
+                });
+            }
+        });
+    }
+
     // Initialize image preview functionality
     document.querySelectorAll('.course-image-input').forEach((input) => {
         input.addEventListener('change', function () {
@@ -258,42 +315,166 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Apply CKEditor to all textareas with class 'uni-description'
-    document.querySelectorAll('textarea.uni-description').forEach((textarea) => {
-        if (!textarea.classList.contains('ckeditor-applied')) {
-            ClassicEditor
-                .create(textarea, {
-                    toolbar: [
-                        'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
-                        '|', 'insertTable', 'blockQuote', 'undo', 'redo', 'imageUpload'
-                    ]
-                })
-                .then(editor => {
-                    textarea.classList.add('ckeditor-applied');
+    // Initialize CKEditor when modal is shown
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('show.bs.modal', function () {
+            setTimeout(() => {
+                const textarea = this.querySelector('textarea.uni-description');
+                if (textarea && !courseEditors.has(textarea.id)) {
+                    initializeCourseEditor(textarea);
+                }
+            }, 50);
+        });
 
-                    // Base64 image upload support
-                    editor.plugins.get('FileRepository').createUploadAdapter = loader => {
-                        return {
-                            upload: () => loader.file
-                                .then(file => new Promise((resolve, reject) => {
-                                    const reader = new FileReader();
-                                    reader.onload = () => resolve({ default: reader.result });
-                                    reader.onerror = error => reject(error);
-                                    reader.readAsDataURL(file);
-                                })),
-                            abort: () => {}
-                        };
-                    };
-                })
-                .catch(error => console.error(error));
-        }
+        modal.addEventListener('hidden.bs.modal', function () {
+            const textarea = this.querySelector('textarea.uni-description');
+            if (textarea && courseEditors.has(textarea.id)) {
+                const editor = courseEditors.get(textarea.id);
+                if (editor) {
+                    editor.destroy().then(() => {
+                        courseEditors.delete(textarea.id);
+                    }).catch(error => {
+                        console.error('Error destroying editor:', error);
+                        courseEditors.delete(textarea.id);
+                    });
+                }
+            }
+        });
     });
 });
+
+function initializeCourseEditor(textarea) {
+    ClassicEditor
+        .create(textarea, {
+            toolbar: [
+                'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
+                '|', 'insertTable', 'blockQuote', 'undo', 'redo', 'imageUpload'
+            ],
+            ui: {
+                viewportOffset: {
+                    top: 70,
+                    bottom: 70
+                }
+            }
+        })
+        .then(editor => {
+            courseEditors.set(textarea.id, editor);
+            
+            editor.plugins.get('FileRepository').createUploadAdapter = loader => {
+                return {
+                    upload: () => loader.file
+                        .then(file => new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve({ default: reader.result });
+                            reader.onerror = error => reject(error);
+                            reader.readAsDataURL(file);
+                        })),
+                    abort: () => {}
+                };
+            };
+        })
+        .catch(error => {
+            console.error('CKEditor initialization error:', error);
+        });
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} toast-notification`;
+    toast.textContent = message;
+    toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 250px;';
+    
+    document.body.appendChild(toast);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s';
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
 </script>
 {% endblock %}
 
 {% block extra_css %}
 <style>
+/* Override content-grid styles for this page */
+.content-grid {
+    display: block !important;
+    grid-template-columns: none !important;
+    gap: 0 !important;
+    overflow: visible !important;
+}
+
+/* Custom table container for horizontal scrolling */
+.custom-table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    background: white;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.custom-table-container {
+    overflow-y: hidden;
+}
+
+.custom-table-container table {
+    min-width: 800px;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+/* Drag and drop styles */
+.drag-handle {
+    cursor: move;
+    color: #6c757d;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    color: #495057;
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+    background: #f8f9fa;
+}
+
+.sortable-drag {
+    background: #ffffff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.draggable-row {
+    transition: all 0.3s ease;
+}
+
+.draggable-row:hover {
+    background-color: #f8f9fa;
+}
+
 /* Uniform course list images */
 .custom-table-container .table img {
     width: 80px;
@@ -322,46 +503,6 @@ document.addEventListener('DOMContentLoaded', function () {
     z-index: auto;
 }
 
-/* Override content-grid styles for this page */
-.content-grid {
-    display: block !important;
-    grid-template-columns: none !important;
-    gap: 0 !important;
-    overflow: visible !important;
-}
-
-/* Custom table container for horizontal scrolling */
-.custom-table-container {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    background: white;
-    margin-bottom: 1rem;
-    position: relative;
-}
-
-/* Remove vertical scrollbar */
-.custom-table-container {
-    overflow-y: hidden;
-}
-
-/* Make sure table has minimum width */
-.custom-table-container table {
-    min-width: 800px;
-    width: 100%;
-    margin-bottom: 0;
-}
-
-/* Fix description overflow */
-.description-cell {
-    max-width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 /* Visual indicator for horizontal scrolling on mobile */
 @media (max-width: 768px) {
     .custom-table-container:after {
@@ -387,14 +528,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 }
 
-/* Table styling adjustments */
 .custom-table-container .table th,
 .custom-table-container .table td {
     vertical-align: middle;
     padding: 0.75rem;
 }
 
-/* Make sure the table header stays visible during horizontal scroll */
 .custom-table-container thead th {
     position: sticky;
     top: 0;
@@ -428,18 +567,12 @@ document.addEventListener('DOMContentLoaded', function () {
         padding: 0.5rem;
     }
     
-    /* Make images smaller on very small screens */
     .custom-table-container .table img {
         max-width: 40px;
     }
-    
-    /* Adjust description cell for mobile */
-    .description-cell {
-        max-width: 150px;
-    }
 }
 
-/* Scrollbar styling for better visibility */
+/* Scrollbar styling */
 .custom-table-container::-webkit-scrollbar {
     height: 8px;
 }
@@ -458,7 +591,6 @@ document.addEventListener('DOMContentLoaded', function () {
     background: #555;
 }
 
-/* CKEditor scrollbar styling */
 .modal .ck.ck-editor__editable::-webkit-scrollbar {
     width: 8px;
 }
@@ -477,4 +609,140 @@ document.addEventListener('DOMContentLoaded', function () {
     background: #a8a8a8;
 }
 </style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("blogSearchInput");
+    const tableBody = document.querySelector("#sortable-courses");
+
+    if (!searchInput || !tableBody) return;
+
+    const rows = Array.from(tableBody.querySelectorAll("tr.draggable-row")).filter(
+        (row) => !row.id || row.id !== "noResultRow"
+    );
+
+    // Debounce: avoid lag on rapid typing
+    function debounce(fn, delay) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    // Perform the search
+    function performSearch() {
+        const searchText = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        // Reset any existing highlights
+        rows.forEach((row) => {
+            const titleCell = row.querySelector("td:nth-child(3)");
+            const universityCell = row.querySelector("td:nth-child(4)");
+            const categoryCell = row.querySelector("td:nth-child(5)");
+            const countryCell = row.querySelector("td:nth-child(6)");
+
+            [titleCell, universityCell, categoryCell, countryCell].forEach((cell) => {
+                if (cell && cell.hasAttribute("data-original-text")) {
+                    cell.innerHTML = cell.getAttribute("data-original-text");
+                }
+            });
+        });
+
+        // Search and highlight
+        rows.forEach((row) => {
+            const titleCell = row.querySelector("td:nth-child(3)");
+            const universityCell = row.querySelector("td:nth-child(4)");
+            const categoryCell = row.querySelector("td:nth-child(5)");
+            const countryCell = row.querySelector("td:nth-child(6)");
+
+            const title = titleCell ? titleCell.textContent.toLowerCase() : "";
+            const university = universityCell ? universityCell.textContent.toLowerCase() : "";
+            const category = categoryCell ? categoryCell.textContent.toLowerCase() : "";
+            const country = countryCell ? countryCell.textContent.toLowerCase() : "";
+
+            if (
+                searchText === "" ||
+                title.includes(searchText) ||
+                university.includes(searchText) ||
+                category.includes(searchText) ||
+                country.includes(searchText)
+            ) {
+                row.style.display = "";
+                visibleCount++;
+
+                // Highlight matches in visible rows
+                if (searchText !== "") {
+                    highlightMatch(titleCell, searchText);
+                    highlightMatch(universityCell, searchText);
+                    highlightMatch(categoryCell, searchText);
+                    highlightMatch(countryCell, searchText);
+                }
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        handleNoResults(visibleCount, searchText);
+    }
+
+    // Highlight matching text in a cell
+    function highlightMatch(cell, text) {
+        if (!cell) return;
+        const original = cell.textContent;
+        cell.setAttribute("data-original-text", original);
+        const regex = new RegExp(`(${escapeRegex(text)})`, "gi");
+        cell.innerHTML = original.replace(
+            regex,
+            `<mark style="background-color:#fff3cd;padding:2px 4px;border-radius:3px;">$1</mark>`
+        );
+    }
+
+    // Escape regex characters safely
+    function escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    // Show or hide "No Results" message
+    function handleNoResults(visibleCount, searchText) {
+        let noResultRow = document.getElementById("noResultRow");
+
+        if (visibleCount === 0 && searchText !== "") {
+            if (!noResultRow) {
+                noResultRow = document.createElement("tr");
+                noResultRow.id = "noResultRow";
+                tableBody.appendChild(noResultRow);
+            }
+            const colCount = rows[0]?.querySelectorAll("td").length || 8;
+
+            noResultRow.innerHTML = `
+                <td colspan="${colCount}" class="text-center py-4 text-muted">
+                    <div style="margin-bottom:0.5rem;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="opacity:0.5;margin:auto;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                    No results found for "<strong>${escapeHtml(searchText)}</strong>"
+                    <div style="font-size:0.875rem;margin-top:0.5rem;color:#adb5bd;">
+                        Try adjusting your search term
+                    </div>
+                </td>`;
+            noResultRow.style.display = "";
+        } else if (noResultRow) {
+            noResultRow.style.display = "none";
+        }
+    }
+
+    // Escape HTML for safe output
+    function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Attach event with debounce
+    searchInput.addEventListener("input", debounce(performSearch, 150));
+});
+</script>
+
 {% endblock %}

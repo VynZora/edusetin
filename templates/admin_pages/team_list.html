@@ -182,7 +182,7 @@
     </div>
 
     <!-- Pagination Controls -->
-    {% if team_members.has_other_pages %}
+    {% comment %} {% if team_members.has_other_pages %}
     <nav aria-label="Team members pagination">
         <ul class="pagination justify-content-center mt-4">
             {% if team_members.has_previous %}
@@ -238,8 +238,101 @@
             {% endif %}
         </ul>
     </nav>
-    {% endif %}
+    {% endif %} {% endcomment %}
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("blogSearchInput");
+    const tableBody = document.querySelector(".custom-table-container tbody");
+
+    if (!searchInput || !tableBody) return;
+
+    const rows = Array.from(tableBody.querySelectorAll("tr")).filter(
+        row => !row.classList.contains("no-result-row")
+    );
+
+    // Store original text to restore later
+    rows.forEach(row => {
+        row.querySelectorAll("td:nth-child(2), td:nth-child(3)").forEach(cell => {
+            cell.dataset.originalText = cell.textContent;
+        });
+    });
+
+    function debounce(fn, delay) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    function highlightText(text, search) {
+        if (!search) return text;
+        const regex = new RegExp(`(${search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, "gi");
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    function performSearch() {
+        const searchText = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const nameCell = row.querySelector("td:nth-child(2)");
+            const professionCell = row.querySelector("td:nth-child(3)");
+
+            const nameOriginal = nameCell.dataset.originalText;
+            const professionOriginal = professionCell.dataset.originalText;
+
+            const name = nameOriginal.toLowerCase();
+            const profession = professionOriginal.toLowerCase();
+
+            if (searchText === "" || name.includes(searchText) || profession.includes(searchText)) {
+                row.style.display = "";
+                visibleCount++;
+
+                // Highlight matching text
+                nameCell.innerHTML = highlightText(nameOriginal, searchText);
+                professionCell.innerHTML = highlightText(professionOriginal, searchText);
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        // Handle "No results found"
+        let noResultRow = document.getElementById("noResultRow");
+        if (visibleCount === 0 && searchText !== "") {
+            if (!noResultRow) {
+                noResultRow = document.createElement("tr");
+                noResultRow.id = "noResultRow";
+                noResultRow.classList.add("no-result-row");
+                tableBody.appendChild(noResultRow);
+            }
+            const colCount = tableBody.rows[0]?.cells.length || 5;
+            noResultRow.innerHTML = `
+                <td colspan="${colCount}" class="text-center py-4 text-muted">
+                    <i class="fas fa-users fa-2x mb-2"></i><br>
+                    No results found for "<strong>${searchText}</strong>"
+                </td>`;
+        } else if (noResultRow) {
+            noResultRow.style.display = "none";
+        }
+
+        // Remove highlight if search is empty
+        if (searchText === "") {
+            rows.forEach(row => {
+                const nameCell = row.querySelector("td:nth-child(2)");
+                const professionCell = row.querySelector("td:nth-child(3)");
+                nameCell.innerHTML = nameCell.dataset.originalText;
+                professionCell.innerHTML = professionCell.dataset.originalText;
+            });
+        }
+    }
+
+    searchInput.addEventListener("input", debounce(performSearch, 150));
+});
+</script>
+
 
 <script>
 // Image preview for team member

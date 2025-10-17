@@ -18,19 +18,30 @@
           <a href="{% url 'course_category_list_create' %}" class="btn btn-success btn-sm"> <i class="fas fa-plus"></i> New Category</a> 
     </div>
 
+    <!-- Drag & Drop Instructions -->
+    <div class="alert alert-info mb-3">
+        <i class="fas fa-info-circle"></i> <strong>Tip:</strong> Drag and drop rows to reorder categories. Changes are saved automatically.
+    </div>
+
     <div class="custom-table-container">
         <table class="table table-striped table-hover align-middle">
             <thead class="table-light">
                 <tr>
+                    <th scope="col" width="50">
+                        <i class="fas fa-grip-vertical text-muted"></i>
+                    </th>
                     <th scope="col">Image</th>
                     <th scope="col">Category Name</th>
                     <th scope="col">Description</th>
                     <th scope="col" class="text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="sortable-categories">
                 {% for category in categories %}
-                <tr>
+                <tr class="draggable-row" data-id="{{ category.id }}">
+                    <td class="drag-handle" style="cursor: move;">
+                        <i class="fas fa-grip-vertical"></i>
+                    </td>
                     <td>
                         {% if category.image %}
                             <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-fluid rounded" width="60" height="60" style="object-fit: cover;">
@@ -63,7 +74,7 @@
     </div>
 
     <!-- Pagination Controls -->
-    {% if categories.has_other_pages %}
+    {% comment %} {% if categories.has_other_pages %}
     <nav aria-label="Categories pagination" class="mt-4">
         <ul class="pagination justify-content-center">
             {% if categories.has_previous %}
@@ -91,7 +102,7 @@
             {% endif %}
         </ul>
     </nav>
-    {% endif %}
+    {% endif %} {% endcomment %}
 </div>
 
 <!-- MODALS - Placed OUTSIDE the main content area to avoid conflicts -->
@@ -163,6 +174,8 @@
 </div>
 {% endfor %}
 
+<!-- SortableJS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
 <script>
@@ -170,6 +183,45 @@
 const categoryEditors = new Map();
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Sortable for drag and drop
+    const tbody = document.getElementById('sortable-categories');
+    
+    if (tbody) {
+        const sortable = Sortable.create(tbody, {
+            handle: '.drag-handle',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: function (evt) {
+                // Get the new order of category IDs
+                const rows = tbody.querySelectorAll('tr.draggable-row');
+                const newOrder = Array.from(rows).map(row => row.dataset.id);
+                
+                // Send AJAX request to update order
+                fetch('{% url "reorder_course_categories" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ order: newOrder })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showToast('Categories order updated successfully!', 'success');
+                    } else {
+                        showToast('Failed to update order', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('An error occurred', 'error');
+                });
+            }
+        });
+    }
+
     // Initialize image preview functionality
     document.querySelectorAll('.category-image-input').forEach((input) => {
         input.addEventListener('change', function () {
@@ -253,6 +305,40 @@ function initializeCategoryEditor(textarea) {
             console.error('CKEditor initialization error:', error);
         });
 }
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} toast-notification`;
+    toast.textContent = message;
+    toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 250px;';
+    
+    document.body.appendChild(toast);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s';
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
 </script>
 {% endblock %}
 
@@ -296,6 +382,35 @@ function initializeCategoryEditor(textarea) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Drag and drop styles */
+.drag-handle {
+    cursor: move;
+    color: #6c757d;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    color: #495057;
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+    background: #f8f9fa;
+}
+
+.sortable-drag {
+    background: #ffffff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.draggable-row {
+    transition: all 0.3s ease;
+}
+
+.draggable-row:hover {
+    background-color: #f8f9fa;
 }
 
 /* CKEditor in modal fixes */
@@ -411,4 +526,118 @@ function initializeCategoryEditor(textarea) {
     background: #555;
 }
 </style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("blogSearchInput");
+    const tableBody = document.querySelector("#sortable-categories");
+
+    if (!searchInput || !tableBody) return;
+
+    const rows = Array.from(tableBody.querySelectorAll("tr.draggable-row")).filter(
+        (row) => !row.id || row.id !== "noResultRow"
+    );
+
+    // Debounce function (prevents lag during typing)
+    function debounce(fn, delay) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    // Perform search based on category name only
+    function performSearch() {
+        const searchText = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        // Reset highlights
+        rows.forEach((row) => {
+            const nameCell = row.querySelector("td:nth-child(3)");
+            if (nameCell && nameCell.hasAttribute("data-original-text")) {
+                nameCell.innerHTML = nameCell.getAttribute("data-original-text");
+            }
+        });
+
+        rows.forEach((row) => {
+            const nameCell = row.querySelector("td:nth-child(3)");
+            const nameText = nameCell ? nameCell.textContent.toLowerCase() : "";
+
+            if (searchText === "" || nameText.includes(searchText)) {
+                row.style.display = "";
+                visibleCount++;
+
+                if (searchText !== "") {
+                    highlightMatch(nameCell, searchText);
+                }
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        handleNoResults(visibleCount, searchText);
+    }
+
+    // Highlight matching text
+    function highlightMatch(cell, text) {
+        if (!cell) return;
+        const original = cell.textContent;
+        cell.setAttribute("data-original-text", original);
+        const regex = new RegExp(`(${escapeRegex(text)})`, "gi");
+        cell.innerHTML = original.replace(
+            regex,
+            `<mark style="background-color:#fff3cd;padding:2px 4px;border-radius:3px;">$1</mark>`
+        );
+    }
+
+    // Escape regex characters
+    function escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    // Handle "No Results" row
+    function handleNoResults(visibleCount, searchText) {
+        let noResultRow = document.getElementById("noResultRow");
+
+        if (visibleCount === 0 && searchText !== "") {
+            if (!noResultRow) {
+                noResultRow = document.createElement("tr");
+                noResultRow.id = "noResultRow";
+                tableBody.appendChild(noResultRow);
+            }
+
+            const colCount = rows[0]?.querySelectorAll("td").length || 5;
+
+            noResultRow.innerHTML = `
+                <td colspan="${colCount}" class="text-center py-4 text-muted">
+                    <div style="margin-bottom:0.5rem;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" 
+                             stroke="currentColor" style="opacity:0.5;margin:auto;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                    No results found for "<strong>${escapeHtml(searchText)}</strong>"
+                    <div style="font-size:0.875rem;margin-top:0.5rem;color:#adb5bd;">
+                        Try adjusting your search term
+                    </div>
+                </td>`;
+            noResultRow.style.display = "";
+        } else if (noResultRow) {
+            noResultRow.style.display = "none";
+        }
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Attach search with debounce (150ms delay)
+    searchInput.addEventListener("input", debounce(performSearch, 150));
+});
+</script>
+
 {% endblock %}

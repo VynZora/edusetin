@@ -80,7 +80,7 @@ def index(request):
     countriess = Country.objects.order_by('?')[:5]
     team_members = TeamMember.objects.all()[:6]
     universities = University.objects.all()
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
 
     footer_service = Service.objects.all()[:4]
 
@@ -108,13 +108,13 @@ def index(request):
 def country_details(request, pk):
     course_categories = CourseCategory.objects.all()
     universities = University.objects.all()[:6]
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
 
     footer_service = Service.objects.all()[:4]
 
     country = get_object_or_404(Country, pk=pk)
     # countries = Country.objects.exclude(pk=pk)
-    countries = Country.objects.all()[:6]
+    countries = Country.objects.all()
     other_countries = Country.objects.all()
 
     # Get all universities for this country
@@ -150,7 +150,7 @@ def university_detail(request, pk):
     countries = Country.objects.all()
     universities = University.objects.all()
 
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
     university = get_object_or_404(University, id=pk)
     courses = Course.objects.filter(university=university)
     # application_form = ApplicationForm.objects.last()
@@ -179,7 +179,7 @@ def about(request):
     course_categories = CourseCategory.objects.all()
     countries = Country.objects.all()
     universities = University.objects.all()[:6]
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
     blogs = Blog.objects.all()[:6]
 
     team_members = TeamMember.objects.all()[:6]
@@ -206,7 +206,7 @@ def blog_details(request, blog_id):
     course_categories = CourseCategory.objects.all()
     countries = Country.objects.all()
     universities = University.objects.all()
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
 
     footer_service = Service.objects.all()[:4]
 
@@ -251,7 +251,7 @@ def contact_submit(request):
 
 def service_detail(request, pk):
     # blog = blog.objects.all()
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
     other_services = Service.objects.all()
     course_categories = CourseCategory.objects.all()
     countries = Country.objects.all()
@@ -276,7 +276,7 @@ def gallery(request):
     blog = Blog.objects.all()
     course_categories = CourseCategory.objects.all()
     countries = Country.objects.all()
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
 
     categories = Category.objects.all()
 
@@ -328,7 +328,7 @@ def inquiry_view(request):
         form = InquiryForm()
 
     course_categories = CourseCategory.objects.all()
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
     countries = Country.objects.all()
     footer_service = Service.objects.all()[:4]
 
@@ -359,8 +359,8 @@ def apply_form(request):
     countries = Country.objects.all()
     courses = Course.objects.all()
 
-    course_categories = CourseCategory.objects.all().order_by("name")
-    services = Service.objects.all().order_by("created_at")
+    course_categories = CourseCategory.objects.all()
+    services = Service.objects.all()
     footer_service = Service.objects.all()[:4]
 
     if request.method == "POST":
@@ -389,12 +389,12 @@ def apply_form(request):
 
 
 def course_category_detail(request, category_id):
-    course_categories = CourseCategory.objects.all().order_by("name")
-    other_course_categories = CourseCategory.objects.all().order_by("name")
+    course_categories = CourseCategory.objects.all()
+    other_course_categories = CourseCategory.objects.all()
     category = get_object_or_404(CourseCategory, id=category_id)
     courses = Course.objects.filter(category=category).order_by("-id")
     countries = Country.objects.all()
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
 
     footer_service = Service.objects.all()[:4]
 
@@ -419,10 +419,10 @@ def course_category_detail(request, category_id):
 def index_blog(request):
     blogs = Blog.objects.all().order_by("-created_at")
 
-    course_categories = CourseCategory.objects.all().order_by("name")
+    course_categories = CourseCategory.objects.all()
     countries = Country.objects.all()
 
-    services = Service.objects.all().order_by("created_at")
+    services = Service.objects.all()
 
     footer_service = Service.objects.all()[:4]
     paginator = Paginator(blogs, 4)  # 2 blogs per page
@@ -604,13 +604,13 @@ def page_404(request, exception):
 
 
 @login_required(login_url="admin_login")
-def country_list(request):
-    countries_qs = Country.objects.all().order_by(Lower("name"))
-    paginator = Paginator(countries_qs, 6)
-    page_number = request.GET.get("page")
-    countries = paginator.get_page(page_number)
-    return render(request, "admin_pages/country_list.html", {"countries": countries})
-
+def countries_list(request):
+    countries = Country.objects.all().order_by('order', 'id')
+    
+    context = {
+        'countries': countries,
+    }
+    return render(request, 'admin_pages/country_list.html', context)
 
 @login_required(login_url="admin_login")
 def country_create(request):
@@ -679,19 +679,15 @@ def add_university(request):
 
 
 @login_required(login_url="admin_login")
-def university_list(request):
-    universities = University.objects.select_related("country").all().order_by(Lower("name"))
+def universities_list(request):
+    universities = University.objects.select_related('country').order_by('order', 'id')
     countries = Country.objects.all()
-
-    paginator = Paginator(universities, 6)
-    page = request.GET.get("page")
-    universities = paginator.get_page(page)
-
+    
     context = {
-        "universities": universities,
-        "countries": countries,
+        'universities': universities,
+        'countries': countries,
     }
-    return render(request, "admin_pages/university_list.html", context)
+    return render(request, 'admin_pages/university_list.html', context)
 
 
 @login_required(login_url="admin_login")
@@ -724,29 +720,19 @@ def delete_university(request, pk):
     return render(request, "admin_pages/delete_university.html", context)
 
 
+
 @login_required(login_url="admin_login")
 def course_list(request):
-    courses_qs = (
-        Course.objects.select_related("university__country").all().order_by(Lower("title"))
-    )
-      
-    # paginate (6 courses per page, you can change the number)
-    paginator = Paginator(courses_qs, 6)
-    page_number = request.GET.get("page")
-    courses = paginator.get_page(page_number)
-
+    courses = Course.objects.select_related('university', 'category', 'university__country').order_by('order', 'id')
     categories = CourseCategory.objects.all()
-    universities = University.objects.select_related("country").all()
-
-    return render(
-        request,
-        "admin_pages/course_list.html",
-        {
-            "courses": courses,  # now a Page object, works with your template
-            "universities": universities,
-            "categories":categories
-        },
-    )
+    universities = University.objects.all()
+    
+    context = {
+        'courses': courses,
+        'categories': categories,
+        'universities': universities,
+    }
+    return render(request, 'admin_pages/course_list.html', context)
 
 
 @login_required(login_url="admin_login")
@@ -939,11 +925,7 @@ def testimonial_delete(request, pk):
 # --------- Services ---------
 @login_required(login_url="admin_login")
 def service_list(request):
-    services_list = Service.objects.all().order_by(Lower("title"))
-    paginator = Paginator(services_list, 6)
-    page_number = request.GET.get("page")
-    services = paginator.get_page(page_number)  # returns a Page object
-
+    services = Service.objects.all().order_by('order', 'id')
     return render(request, "admin_pages/service_list.html", {"services": services})
 
 
@@ -1208,19 +1190,12 @@ def export_applications_excel(request):
 
 @login_required(login_url="admin_login")
 def course_category_list(request):
-    categories = CourseCategory.objects.all().order_by(Lower(
-        "name")
-    )  # order by name like in model Meta
-
-    # Pagination
-    paginator = Paginator(categories, 10)  # 10 categories per page
-    page_number = request.GET.get("page")
-    categories_page = paginator.get_page(page_number)
-
+    categories = CourseCategory.objects.all().order_by('order', 'id')
+    
     context = {
-        "categories": categories_page,
+        'categories': categories,
     }
-    return render(request, "admin_pages/course_category_list.html", context)
+    return render(request, 'admin_pages/course_category_list.html', context)
 
 
 @login_required(login_url="admin_login")
@@ -1230,7 +1205,7 @@ def course_category_update(request, pk):
         form = CourseCategoryForm(request.POST, request.FILES, instance=category)
         if form.is_valid():
             form.save()
-            messages.success(request, "✅ Category updated successfully!")
+            messages.success(request, "Category updated successfully!")
             return redirect("course_category_list")
     else:
         form = CourseCategoryForm(instance=category)
@@ -1246,7 +1221,7 @@ def course_category_delete(request, pk):
     category = get_object_or_404(CourseCategory, pk=pk)
     if request.method == "POST":
         category.delete()
-        messages.success(request, "✅ Category deleted successfully!")
+        messages.success(request, "Category deleted successfully!")
         return redirect("course_category_list")
     return render(
         request, "admin_pages/course_category_delete.html", {"category": category}
@@ -1593,3 +1568,106 @@ def export_chatbot_enquiries_excel(request):
     wb.save(response)
 
     return response
+
+
+
+
+from django.views.decorators.http import require_POST
+
+@login_required(login_url="admin_login")
+@require_POST
+def reorder_universities(request):
+    """Handle AJAX request to update university order"""
+    try:
+        data = json.loads(request.body)
+        order_data = data.get('order', [])
+        
+        # Update each university's order
+        for index, uni_id in enumerate(order_data):
+            University.objects.filter(id=uni_id).update(order=index)
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Universities reordered successfully'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)
+        
+        
+@csrf_exempt
+@require_POST
+def reorder_services(request):
+    try:
+        data = json.loads(request.body)
+        order = data.get('order', [])
+        
+        # Update the order of services
+        for index, service_id in enumerate(order):
+            service = Service.objects.get(id=service_id)
+            service.order = index  # Assuming you have an 'order' field
+            service.save()
+            
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    
+# In your views.py
+@csrf_exempt
+@require_POST
+@login_required(login_url="admin_login")
+def reorder_countries(request):
+    try:
+        data = json.loads(request.body)
+        order = data.get('order', [])
+        
+        # Update the order of countries
+        for index, country_id in enumerate(order):
+            country = Country.objects.get(id=country_id)
+            country.order = index
+            country.save()
+            
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    
+@csrf_exempt
+@require_POST
+@login_required(login_url="admin_login")
+def reorder_course_categories(request):
+    try:
+        data = json.loads(request.body)
+        order = data.get('order', [])
+        
+        # Update the order of categories
+        for index, category_id in enumerate(order):
+            category = CourseCategory.objects.get(id=category_id)
+            category.order = index
+            category.save()
+            
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    
+@csrf_exempt
+@require_POST
+@login_required(login_url="admin_login")
+def reorder_courses(request):
+    try:
+        data = json.loads(request.body)
+        order = data.get('order', [])
+        
+        # Update the order of courses
+        for index, course_id in enumerate(order):
+            course = Course.objects.get(id=course_id)
+            course.order = index
+            course.save()
+            
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})

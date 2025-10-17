@@ -31,9 +31,10 @@ class Country(models.Model):
     image = models.ImageField(upload_to="countries/images/", blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     pdf = models.FileField(upload_to="country_pdfs/", blank=True, null=True)
+    order = models.PositiveIntegerField(default=0) 
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["order","name"]
 
     def __str__(self):
         return self.name
@@ -60,12 +61,13 @@ class University(OptimizedImageModel):
     description = models.TextField(blank=True, null=True)
     pdf = models.FileField(upload_to="university_pdfs/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    order = models.IntegerField(default=0, db_index=True)
 
     # Tell base model which images to optimize
     image_fields = ["image"]
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["order","name"]
 
     def __str__(self):
         return f"{self.name} ({self.country.name})"
@@ -76,13 +78,14 @@ class CourseCategory(OptimizedImageModel):
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to="course_categories/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    order = models.PositiveIntegerField(default=0) 
 
     # Tell base model which images to optimize
     image_fields = ["image"]
 
     class Meta:
         verbose_name_plural = "Course Categories"
-        ordering = ["name"]
+        ordering = ["order","name"]
 
     def __str__(self):
         return self.name
@@ -104,12 +107,13 @@ class Course(OptimizedImageModel):
     description = models.TextField(blank=True, null=True)
     duration = models.CharField(max_length=100)  # e.g. "3 Years", "6 Months"
     created_at = models.DateTimeField(auto_now_add=True)
+    order = models.PositiveIntegerField(default=0) 
 
     # Tell base model which images to optimize
     image_fields = ["image"]
 
     class Meta:
-        ordering = ["title"]
+        ordering = ["order","id"]
 
     def __str__(self):
         return f"{self.title} ({self.university.name})"
@@ -182,12 +186,13 @@ class Service(OptimizedImageModel):
     description = models.TextField(help_text="Service description")
     created_at = models.DateTimeField(auto_now_add=True)
     pdf = models.FileField(upload_to="service_pdfs/", blank=True, null=True)
+    order = models.IntegerField(default=0, db_index=True)
 
     # Tell base model which images to optimize
     image_fields = ["image"]
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["order","-created_at"]
 
     def __str__(self):
         return self.title

@@ -62,12 +62,12 @@ urlpatterns = [
         views.delete_subscriber,
         name="delete_subscriber",
     ),
-    path("countries/", views.country_list, name="country_list"),
+    path("countries/", views.countries_list, name="country_list"),
     path("countries-create/", views.country_create, name="create_country"),
     path("countries/<int:pk>/update/", views.country_update, name="update_country"),
     path("countries/<int:pk>/delete/", views.country_delete, name="delete_country"),
     path("create-universities/", views.add_university, name="create-universities"),
-    path("uni-list/", views.university_list, name="uni-list"),
+    path("uni-list/", views.universities_list, name="uni-list"),
     path(
         "universities/update/<int:pk>/",
         views.update_university,
@@ -154,9 +154,17 @@ urlpatterns = [
     path("categories/add/", views.add_category, name="add_category"),
     path("categories/update/<int:pk>/", views.update_category, name="update_category"),
     path("categories/delete/<int:pk>/", views.delete_category, name="delete_category"),
-    path("login", views.admin_login, name="admin_login"),
+    path("login/", views.admin_login, name="admin_login"),
     path("admin-logout/", views.admin_logout, name="admin_logout"),
     path("admin-dashboard/", views.admin_dashboard, name="admin-dashboard"),
+    
+    path('universities/reorder/', views.reorder_universities, name='reorder_universities'),
+    path('reorder-services/',views.reorder_services, name='reorder_services'),
+    path('reorder-countries/', views.reorder_countries, name='reorder_countries'),
+    path('reorder-course-categories/', views.reorder_course_categories, name='reorder_course_categories'),
+    path('reorder-courses/', views.reorder_courses, name='reorder_courses'),
+    
+    
    
 ]
 if settings.DEBUG:

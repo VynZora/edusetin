@@ -1060,7 +1060,7 @@
         const value = inputs.name.value.trim()
         const regex = /^[A-Za-z\s]+$/
         if (!value) return showError(inputs.name, 'Name is required'), false
-        if (!regex.test(value)) return showError(inputs.name, 'Name can contain alphabets only'), false
+        if (!regex.test(value)) return showError(inputs.name, 'Enter a valid name'), false
         clearError(inputs.name)
         return true
       }

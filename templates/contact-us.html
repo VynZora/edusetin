@@ -308,7 +308,7 @@
         const value = fields.name.value.trim()
         const regex = /^[A-Za-z\s]+$/
         if (!value) return showError(fields.name, 'Name is required'), false
-        if (!regex.test(value)) return showError(fields.name, 'Only letters and spaces allowed'), false
+        if (!regex.test(value)) return showError(fields.name, 'Enter a valid name'), false
         clearError(fields.name)
         return true
       }
@@ -317,7 +317,7 @@
         const value = fields.email.value.trim()
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!value) return showError(fields.email, 'Email is required'), false
-        if (!regex.test(value)) return showError(fields.email, 'Invalid email format'), false
+        if (!regex.test(value)) return showError(fields.email, 'Enter a valid email'), false
         clearError(fields.email)
         return true
       }
@@ -326,7 +326,7 @@
         const value = fields.phone.value.trim()
         const regex = /^[0-9]{10,11}$/
         if (!value) return showError(fields.phone, 'Phone number is required'), false
-        if (!regex.test(value)) return showError(fields.phone, 'Phone number must be digits and 10 or 11 digits long.'), false
+        if (!regex.test(value)) return showError(fields.phone, 'Enter a valid phone number.'), false
         clearError(fields.phone)
         return true
       }

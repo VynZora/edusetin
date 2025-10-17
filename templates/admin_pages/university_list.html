@@ -5,20 +5,20 @@
 
 {% block content %}
 <div class="dashboard__form__wraper">
-    
-
-
-     <div class="create__course__title mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="create__course__title mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
         <h4 class="mb-0">Universities List</h4>
         
         <div class="d-flex align-items-center gap-2 ms-auto">
             <div class="search-box">
                 <input type="text" id="blogSearchInput" class="form-control form-control-sm" placeholder="Search...">
             </div>
-                
         </div>
         <a href="{% url 'create-universities' %}" class="btn btn-success btn-sm">New University</a> 
-        
+    </div>
+
+    <!-- Drag & Drop Instructions -->
+    <div class="alert alert-info mb-3">
+        <i class="fas fa-info-circle"></i> <strong>Tip:</strong> Drag and drop rows to reorder universities. Changes are saved automatically.
     </div>
 
     <!-- Scrollable table container -->
@@ -26,6 +26,9 @@
         <table class="table table-striped table-hover align-middle">
             <thead class="table-light">
                 <tr>
+                    <th scope="col" width="50">
+                        <i class="fas fa-grip-vertical text-muted"></i>
+                    </th>
                     <th scope="col">Logo</th>
                     <th scope="col">University</th>
                     <th scope="col">Country</th>
@@ -33,9 +36,12 @@
                     <th scope="col" class="text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="sortable-universities">
                 {% for uni in universities %}
-                <tr>
+                <tr class="draggable-row" data-id="{{ uni.id }}">
+                    <td class="drag-handle" style="cursor: move;">
+                        <i class="fas fa-grip-vertical"></i>
+                    </td>
                     <td>
                         {% if uni.image %}
                             <img src="{{ uni.image.url }}" alt="{{ uni.name }}" class="img-fluid rounded" width="60">
@@ -70,68 +76,9 @@
             </tbody>
         </table>
     </div>
-
-    <!-- Pagination Controls -->
-    {% if universities.has_other_pages %}
-    <nav aria-label="Universities pagination" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if universities.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page=1" aria-label="First">
-                    <span aria-hidden="true">&laquo;&laquo;</span>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ universities.previous_page_number }}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-            {% else %}
-            <li class="page-item disabled">
-                <span class="page-link">&laquo;&laquo;</span>
-            </li>
-            <li class="page-item disabled">
-                <span class="page-link">&laquo;</span>
-            </li>
-            {% endif %}
-            
-            {% for i in universities.paginator.page_range %}
-                {% if universities.number == i %}
-                <li class="page-item active">
-                    <span class="page-link">{{ i }}</span>
-                </li>
-                {% elif i > universities.number|add:'-3' and i < universities.number|add:'3' %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-                </li>
-                {% endif %}
-            {% endfor %}
-            
-            {% if universities.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ universities.next_page_number }}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ universities.paginator.num_pages }}" aria-label="Last">
-                    <span aria-hidden="true">&raquo;&raquo;</span>
-                </a>
-            </li>
-            {% else %}
-            <li class="page-item disabled">
-                <span class="page-link">&raquo;</span>
-            </li>
-            <li class="page-item disabled">
-                <span class="page-link">&raquo;&raquo;</span>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
 </div>
 
-<!-- MODALS - Placed OUTSIDE the main content area to avoid conflicts -->
+<!-- MODALS - Keep your existing modals here -->
 {% for uni in universities %}
 <!-- Update University Modal -->
 <div class="modal fade" id="updateUniversityModal{{ uni.id }}" tabindex="-1" aria-labelledby="updateUniversityModalLabel{{ uni.id }}" aria-hidden="true">
@@ -223,6 +170,8 @@
 </div>
 {% endfor %}
 
+<!-- SortableJS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
 <script>
@@ -230,6 +179,45 @@
 const universityEditors = new Map();
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Sortable for drag and drop
+    const tbody = document.getElementById('sortable-universities');
+    
+    if (tbody) {
+        const sortable = Sortable.create(tbody, {
+            handle: '.drag-handle',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: function (evt) {
+                // Get the new order of university IDs
+                const rows = tbody.querySelectorAll('tr.draggable-row');
+                const newOrder = Array.from(rows).map(row => row.dataset.id);
+                
+                // Send AJAX request to update order
+                fetch('{% url "reorder_universities" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ order: newOrder })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showToast('Order updated successfully!', 'success');
+                    } else {
+                        showToast('Failed to update order', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('An error occurred', 'error');
+                });
+            }
+        });
+    }
+
     // Initialize image preview functionality
     document.querySelectorAll('.uni-image-input').forEach((input) => {
         input.addEventListener('change', function () {
@@ -248,7 +236,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize CKEditor when modal is shown
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('show.bs.modal', function () {
-            // Small delay to ensure modal is fully rendered
             setTimeout(() => {
                 const textarea = this.querySelector('textarea.uni-description');
                 if (textarea && !universityEditors.has(textarea.id)) {
@@ -257,7 +244,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 50);
         });
 
-        // Clean up when modal is hidden
         modal.addEventListener('hidden.bs.modal', function () {
             const textarea = this.querySelector('textarea.uni-description');
             if (textarea && universityEditors.has(textarea.id)) {
@@ -282,7 +268,6 @@ function initializeUniversityEditor(textarea) {
                 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
                 '|', 'insertTable', 'blockQuote', 'undo', 'redo', 'imageUpload'
             ],
-            // Important configuration for modal usage
             ui: {
                 viewportOffset: {
                     top: 70,
@@ -293,7 +278,6 @@ function initializeUniversityEditor(textarea) {
         .then(editor => {
             universityEditors.set(textarea.id, editor);
             
-            // Base64 image upload support
             editor.plugins.get('FileRepository').createUploadAdapter = loader => {
                 return {
                     upload: () => loader.file
@@ -306,15 +290,166 @@ function initializeUniversityEditor(textarea) {
                     abort: () => {}
                 };
             };
-            
-            console.log('CKEditor initialized for:', textarea.id);
         })
         .catch(error => {
             console.error('CKEditor initialization error:', error);
         });
 }
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} toast-notification`;
+    toast.textContent = message;
+    toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 250px;';
+    
+    document.body.appendChild(toast);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s';
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("blogSearchInput");
+    const tableBody = document.getElementById("sortable-universities");
+
+    if (!searchInput || !tableBody) return;
+
+    function getRows() {
+        return Array.from(tableBody.querySelectorAll("tr.draggable-row")).filter(
+            (row) => !row.id || row.id !== "noResultRow"
+        );
+    }
+
+    function debounce(fn, delay) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    function escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function highlightMatch(cell, searchText) {
+        if (!cell) return;
+
+        if (!cell.hasAttribute("data-original-html")) {
+            cell.setAttribute("data-original-html", cell.innerHTML);
+        }
+
+        const originalText = cell.textContent || "";
+        const regex = new RegExp(`(${escapeRegex(searchText)})`, "gi");
+
+        cell.innerHTML = originalText.replace(
+            regex,
+            `<mark style="background-color:#fff3cd;padding:2px 4px;border-radius:3px;">$1</mark>`
+        );
+    }
+
+    function resetHighlights(rows) {
+        rows.forEach(row => {
+            const cells = [
+                row.querySelector("td:nth-child(3)"), // University name
+                row.querySelector("td:nth-child(4)")  // Country
+            ];
+            cells.forEach(cell => {
+                if (!cell) return;
+                if (cell.hasAttribute("data-original-html")) {
+                    cell.innerHTML = cell.getAttribute("data-original-html");
+                }
+            });
+        });
+    }
+
+    function handleNoResults(visibleCount, rows, searchText) {
+        let noResultRow = document.getElementById("noResultRow");
+        if (visibleCount === 0 && searchText !== "") {
+            if (!noResultRow) {
+                noResultRow = document.createElement("tr");
+                noResultRow.id = "noResultRow";
+                tableBody.appendChild(noResultRow);
+            }
+            const colCount = rows[0]?.querySelectorAll("td").length || 6;
+            noResultRow.innerHTML = `
+                <td colspan="${colCount}" class="text-center py-4 text-muted">
+                    No results found for "<strong>${escapeHtml(searchText)}</strong>"
+                </td>`;
+            noResultRow.style.display = "";
+        } else if (noResultRow) {
+            noResultRow.style.display = "none";
+        }
+    }
+
+    function performSearch() {
+        const searchText = (searchInput.value || "").toLowerCase().trim();
+        const rows = getRows();
+        resetHighlights(rows);
+
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const uniCell = row.querySelector("td:nth-child(3)");
+            const countryCell = row.querySelector("td:nth-child(4)");
+
+            const uniText = (uniCell?.textContent || "").toLowerCase();
+            const countryText = (countryCell?.textContent || "").toLowerCase();
+
+            const match =
+                searchText === "" ||
+                uniText.includes(searchText) ||
+                countryText.includes(searchText);
+
+            if (match) {
+                row.style.display = "";
+                visibleCount++;
+                if (searchText !== "") {
+                    if (uniText.includes(searchText)) highlightMatch(uniCell, searchText);
+                    if (countryText.includes(searchText)) highlightMatch(countryCell, searchText);
+                }
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        handleNoResults(visibleCount, rows, searchText);
+    }
+
+    searchInput.addEventListener("input", debounce(performSearch, 150));
+    performSearch();
+});
+</script>
 
 
 {% endblock %}
@@ -341,24 +476,50 @@ function initializeUniversityEditor(textarea) {
     position: relative;
 }
 
-/* Remove vertical scrollbar */
 .custom-table-container {
     overflow-y: hidden;
 }
 
-/* Make sure table has minimum width */
 .custom-table-container table {
     min-width: 800px;
     width: 100%;
     margin-bottom: 0;
 }
 
-/* Fix description overflow */
 .description-cell {
     max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Drag and drop styles */
+.drag-handle {
+    cursor: move;
+    color: #6c757d;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    color: #495057;
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+    background: #f8f9fa;
+}
+
+.sortable-drag {
+    background: #ffffff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.draggable-row {
+    transition: all 0.3s ease;
+}
+
+.draggable-row:hover {
+    background-color: #f8f9fa;
 }
 
 /* CKEditor in modal fixes */
@@ -372,7 +533,6 @@ function initializeUniversityEditor(textarea) {
     overflow-y: auto;
 }
 
-/* Ensure modal content is visible */
 .modal-body {
     position: relative;
     z-index: auto;
@@ -403,14 +563,12 @@ function initializeUniversityEditor(textarea) {
     }
 }
 
-/* Table styling adjustments */
 .custom-table-container .table th,
 .custom-table-container .table td {
     vertical-align: middle;
     padding: 0.75rem;
 }
 
-/* Make sure the table header stays visible during horizontal scroll */
 .custom-table-container thead th {
     position: sticky;
     top: 0;
@@ -444,18 +602,16 @@ function initializeUniversityEditor(textarea) {
         padding: 0.5rem;
     }
     
-    /* Make images smaller on very small screens */
     .custom-table-container .table img {
         max-width: 40px;
     }
     
-    /* Adjust description cell for mobile */
     .description-cell {
         max-width: 150px;
     }
 }
 
-/* Scrollbar styling for better visibility */
+/* Scrollbar styling */
 .custom-table-container::-webkit-scrollbar {
     height: 8px;
 }

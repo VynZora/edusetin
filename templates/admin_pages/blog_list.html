@@ -439,4 +439,114 @@ document.addEventListener('DOMContentLoaded', function () {
     background: #a8a8a8;
 }
 </style>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById("blogSearchInput");
+    const tableBody = document.querySelector(".custom-table-container table tbody");
+
+    if (!searchInput || !tableBody) return;
+
+    const rows = Array.from(tableBody.querySelectorAll("tr")).filter(
+        (row) => !row.id || row.id !== "noResultRow"
+    );
+
+    // Debounce helper — avoids lag on fast typing
+    function debounce(fn, delay) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    // Core search logic
+    function performSearch() {
+        const searchText = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        // Reset any previous highlights
+        rows.forEach((row) => {
+            const titleCell = row.querySelector("td:nth-child(2)");
+            if (titleCell && titleCell.hasAttribute("data-original-text")) {
+                titleCell.innerHTML = titleCell.getAttribute("data-original-text");
+            }
+        });
+
+        rows.forEach((row) => {
+            const titleCell = row.querySelector("td:nth-child(2)");
+            const title = titleCell ? titleCell.textContent.toLowerCase() : "";
+
+            if (searchText === "" || title.includes(searchText)) {
+                row.style.display = "";
+                visibleCount++;
+
+                if (searchText !== "") highlightMatch(titleCell, searchText);
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        handleNoResults(visibleCount, searchText);
+    }
+
+    // Highlight matches
+    function highlightMatch(cell, text) {
+        if (!cell) return;
+        const original = cell.textContent;
+        cell.setAttribute("data-original-text", original);
+        const regex = new RegExp(`(${escapeRegex(text)})`, "gi");
+        cell.innerHTML = original.replace(
+            regex,
+            `<mark style="background-color:#fff3cd;padding:2px 4px;border-radius:3px;">$1</mark>`
+        );
+    }
+
+    // Prevent regex injection
+    function escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    // Show or hide "no results"
+    function handleNoResults(visibleCount, searchText) {
+        let noResultRow = document.getElementById("noResultRow");
+
+        if (visibleCount === 0 && searchText !== "") {
+            if (!noResultRow) {
+                noResultRow = document.createElement("tr");
+                noResultRow.id = "noResultRow";
+                tableBody.appendChild(noResultRow);
+            }
+            const colCount = rows[0]?.querySelectorAll("td").length || 5;
+
+            noResultRow.innerHTML = `
+                <td colspan="${colCount}" class="text-center py-4 text-muted">
+                    <div style="margin-bottom:0.5rem;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="opacity:0.5;margin:auto;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                    No results found for "<strong>${escapeHtml(searchText)}</strong>"
+                    <div style="font-size:0.875rem;margin-top:0.5rem;color:#adb5bd;">
+                        Try adjusting your search term
+                    </div>
+                </td>`;
+            noResultRow.style.display = "";
+        } else if (noResultRow) {
+            noResultRow.style.display = "none";
+        }
+    }
+
+    // Prevent XSS
+    function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Attach event listeners
+    searchInput.addEventListener("input", debounce(performSearch, 150));
+});
+</script>
+
 {% endblock %}
