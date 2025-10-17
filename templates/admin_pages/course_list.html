@@ -620,7 +620,7 @@ document.addEventListener("DOMContentLoaded", function () {
         (row) => !row.id || row.id !== "noResultRow"
     );
 
-    // Debounce: avoid lag on rapid typing
+    // Debounce function
     function debounce(fn, delay) {
         let timeout;
         return (...args) => {
@@ -629,63 +629,19 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    // Perform the search
-    function performSearch() {
-        const searchText = searchInput.value.toLowerCase().trim();
-        let visibleCount = 0;
-
-        // Reset any existing highlights
-        rows.forEach((row) => {
-            const titleCell = row.querySelector("td:nth-child(3)");
-            const universityCell = row.querySelector("td:nth-child(4)");
-            const categoryCell = row.querySelector("td:nth-child(5)");
-            const countryCell = row.querySelector("td:nth-child(6)");
-
-            [titleCell, universityCell, categoryCell, countryCell].forEach((cell) => {
-                if (cell && cell.hasAttribute("data-original-text")) {
-                    cell.innerHTML = cell.getAttribute("data-original-text");
-                }
-            });
-        });
-
-        // Search and highlight
-        rows.forEach((row) => {
-            const titleCell = row.querySelector("td:nth-child(3)");
-            const universityCell = row.querySelector("td:nth-child(4)");
-            const categoryCell = row.querySelector("td:nth-child(5)");
-            const countryCell = row.querySelector("td:nth-child(6)");
-
-            const title = titleCell ? titleCell.textContent.toLowerCase() : "";
-            const university = universityCell ? universityCell.textContent.toLowerCase() : "";
-            const category = categoryCell ? categoryCell.textContent.toLowerCase() : "";
-            const country = countryCell ? countryCell.textContent.toLowerCase() : "";
-
-            if (
-                searchText === "" ||
-                title.includes(searchText) ||
-                university.includes(searchText) ||
-                category.includes(searchText) ||
-                country.includes(searchText)
-            ) {
-                row.style.display = "";
-                visibleCount++;
-
-                // Highlight matches in visible rows
-                if (searchText !== "") {
-                    highlightMatch(titleCell, searchText);
-                    highlightMatch(universityCell, searchText);
-                    highlightMatch(categoryCell, searchText);
-                    highlightMatch(countryCell, searchText);
-                }
-            } else {
-                row.style.display = "none";
-            }
-        });
-
-        handleNoResults(visibleCount, searchText);
+    // Escape regex
+    function escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
 
-    // Highlight matching text in a cell
+    // Escape HTML
+    function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Highlight match
     function highlightMatch(cell, text) {
         if (!cell) return;
         const original = cell.textContent;
@@ -697,12 +653,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    // Escape regex characters safely
-    function escapeRegex(str) {
-        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    }
-
-    // Show or hide "No Results" message
+    // Handle "No Results"
     function handleNoResults(visibleCount, searchText) {
         let noResultRow = document.getElementById("noResultRow");
 
@@ -733,16 +684,57 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Escape HTML for safe output
-    function escapeHtml(str) {
-        const div = document.createElement("div");
-        div.textContent = str;
-        return div.innerHTML;
+    // Perform search
+    function performSearch() {
+        const searchText = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        // Reset highlights
+        rows.forEach((row) => {
+            row.querySelectorAll("td").forEach((cell) => {
+                if (cell.hasAttribute("data-original-text")) {
+                    cell.innerHTML = cell.getAttribute("data-original-text");
+                }
+            });
+        });
+
+        rows.forEach((row) => {
+            // Select only the columns we want: Course Name, University, Category, Country
+            const courseNameCell = row.querySelector("td:nth-child(3)");
+            const universityCell = row.querySelector("td:nth-child(5)");
+            const categoryCell = row.querySelector("td:nth-child(6)");
+            const countryCell = row.querySelector("td:nth-child(7)");
+
+            const values = [
+                courseNameCell?.textContent.toLowerCase() || "",
+                universityCell?.textContent.toLowerCase() || "",
+                categoryCell?.textContent.toLowerCase() || "",
+                countryCell?.textContent.toLowerCase() || ""
+            ];
+
+            const match = searchText === "" || values.some(val => val.includes(searchText));
+
+            if (match) {
+                row.style.display = "";
+                visibleCount++;
+
+                if (searchText !== "") {
+                    highlightMatch(courseNameCell, searchText);
+                    highlightMatch(universityCell, searchText);
+                    highlightMatch(categoryCell, searchText);
+                    highlightMatch(countryCell, searchText);
+                }
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        handleNoResults(visibleCount, searchText);
     }
 
-    // Attach event with debounce
     searchInput.addEventListener("input", debounce(performSearch, 150));
 });
 </script>
+
 
 {% endblock %}
