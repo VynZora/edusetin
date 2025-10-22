@@ -118,7 +118,7 @@ def country_details(request, pk):
     other_countries = Country.objects.all()
 
     # Get all universities for this country
-    universities_list = country.universities.all().order_by("-created_at")
+    universities_list = country.universities.all()
 
     # Pagination - 4 universities per page
     paginator = Paginator(universities_list, 4)
