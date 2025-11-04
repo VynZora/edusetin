@@ -2,6 +2,7 @@ from django.db import models
 from PIL import Image, ImageOps
 from django.core.validators import MinValueValidator, MaxValueValidator
 from utils.image_optimizer import optimize_image, optimize_flag
+from django.utils.text import slugify
 
 
 class OptimizedImageModel(models.Model):
@@ -27,6 +28,7 @@ class OptimizedImageModel(models.Model):
 
 class Country(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
     flag = models.ImageField(upload_to="countries/flags/")
     image = models.ImageField(upload_to="countries/images/", blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -40,7 +42,9 @@ class Country(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        # First save to generate file path
+        # Auto-generate slug
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
         # --- Resize Flag (make it small like logo 40x40) ---
@@ -57,6 +61,7 @@ class University(OptimizedImageModel):
         Country, related_name="universities", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True, blank=True,null=True)
     image = models.ImageField(upload_to="universities/")
     description = models.TextField(blank=True, null=True)
     pdf = models.FileField(upload_to="university_pdfs/", blank=True, null=True)
@@ -71,10 +76,16 @@ class University(OptimizedImageModel):
 
     def __str__(self):
         return f"{self.name} ({self.country.name})"
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 class CourseCategory(OptimizedImageModel):
     name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to="course_categories/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -86,6 +97,11 @@ class CourseCategory(OptimizedImageModel):
     class Meta:
         verbose_name_plural = "Course Categories"
         ordering = ["order","name"]
+        
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -187,6 +203,13 @@ class Service(OptimizedImageModel):
     created_at = models.DateTimeField(auto_now_add=True)
     pdf = models.FileField(upload_to="service_pdfs/", blank=True, null=True)
     order = models.IntegerField(default=0, db_index=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
+    
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(Service, self).save(*args, **kwargs)
 
     # Tell base model which images to optimize
     image_fields = ["image"]
@@ -201,6 +224,7 @@ class Service(OptimizedImageModel):
 # --------- Blogs ---------
 class Blog(OptimizedImageModel):
     image = models.ImageField(upload_to="blogs/", help_text="Blog cover image")
+    slug = models.SlugField(unique=True, blank=True, null=True)
     title = models.CharField(max_length=200, help_text="Blog title")
     description = models.TextField(help_text="Blog description")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -213,6 +237,11 @@ class Blog(OptimizedImageModel):
 
     def __str__(self):
         return self.title
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
 
 class Category(models.Model):

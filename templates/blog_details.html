@@ -472,13 +472,13 @@
                   {% for recent_blog in recent_blogs %}
                     <li>
                       <div class="thumb">
-                        <a href="{% url 'blog_detail' recent_blog.id %}"><img src="{{ recent_blog.image.url }}" alt="{{ recent_blog.title }}" style="width:80px; height:80px; object-fit:cover;" /></a>
+                        <a href="{% url 'blog_detail' recent_blog.slug %}"><img src="{{ recent_blog.image.url }}" alt="{{ recent_blog.title }}" style="width:80px; height:80px; object-fit:cover;" /></a>
                       </div>
                       <div class="info">
                         <div class="meta-title">
                           <span class="post-date">{{ recent_blog.created_at|date:'M d, Y' }}</span>
                         </div>
-                        <a href="{% url 'blog_detail' recent_blog.id %}">{{ recent_blog.title|truncatewords:5 }}</a>
+                        <a href="{% url 'blog_detail' recent_blog.slug %}">{{ recent_blog.title|truncatewords:5 }}</a>
                       </div>
                     </li>
                   {% empty %}

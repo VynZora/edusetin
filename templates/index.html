@@ -258,11 +258,11 @@
                         </div>
                       </div>
                       <div class="info">
-                        <h4><a href="{% url 'service_detail' service.id %}">{{ service.title }}</a></h4>
+                        <h4><a href="{% url 'service_detail' service.slug %}">{{ service.title }}</a></h4>
                         <p class="service-desc">{{ service.description|truncatechars:155|safe }}</p>
                       </div>
                       <div class="button">
-                        <a href="{% url 'service_detail' service.id %}">
+                        <a href="{% url 'service_detail' service.slug %}">
                           <i class="fas fa-angle-right"></i>
                           <span>Know More</span>
                           <div class="shape">
@@ -325,7 +325,7 @@
                       <li>5 Years Business Visa</li>
                       <li>Apply Visa Online</li>
                     </ul>
-                    <a href="{% url 'country_detail' country.id %}" class="btn-style-one circle mt-30">Discover More <span></span></a>
+                    <a href="{% url 'country_detail' country.slug %}" class="btn-style-one circle mt-30">Discover More <span></span></a>
                   </div>
                 </div>
               </li>
@@ -531,7 +531,7 @@
                   <img src="{{ university.image.url }}" alt="{{ university.name }}" style="height: 550px; object-fit: cover;" />
 
                   <div class="overlay-title">
-                    <h4><a href="{% url 'uni_detail' university.pk %}">{{ university.name }}</a></h4>
+                    <h4><a href="{% url 'uni_detail' university.slug %}">{{ university.name }}</a></h4>
                     <div class="icon">
                       <img src="{% static 'assets/img/icon/5.png' %}" alt="Icon" />
                     </div>
@@ -541,7 +541,7 @@
                     <div class="icon">
                       <img src="{% static 'assets/img/icon/5.png' %}" alt="Icon" />
                     </div>
-                    <h4><a href="{% url 'uni_detail' university.pk %}">{{ university.name }}</a></h4>
+                    <h4><a href="{% url 'uni_detail' university.slug %}">{{ university.name }}</a></h4>
                     <p>{{ university.description|truncatewords:25|safe }}</p>
                   </div>
                 </div>
@@ -1192,12 +1192,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 </ul>
 
                 <h3 style="min-height: 70px; margin-bottom:10px; word-break:break-word;">
-                  <a href="{% url 'blog_detail' blog.id %}" style="color:#232323; text-decoration:none;">
+                  <a href="{% url 'blog_detail' blog.slug %}" style="color:#232323; text-decoration:none;">
                     {{ blog.title }}
                   </a>
                 </h3>
 
-                <a href="{% url 'blog_detail' blog.id %}" class="btn-regular" style="margin-top:auto; align-self:flex-start;">
+                <a href="{% url 'blog_detail' blog.slug %}" class="btn-regular" style="margin-top:auto; align-self:flex-start;">
                   Read More
                   <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1 17L17 1H7.8" stroke="#232323" stroke-width="2"></path>

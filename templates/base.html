@@ -2487,7 +2487,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <ul class="dropdown-menu">
                   {% for country in countries %}
                     <li>
-                      <a href="{% url 'country_detail' country.id %}">{{ country.name }}</a>
+                      <a href="{% url 'country_detail' country.slug %}">{{ country.name }}</a>
                     </li>
                   {% empty %}
                     <li>
@@ -2502,7 +2502,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <ul class="dropdown-menu">
                   {% for category in course_categories %}
                     <li>
-                      <a href="{% url 'course_category_detail' category.id %}">{{ category.name }}</a>
+                      <a href="{% url 'course_category_detail' category.slug %}">{{ category.name }}</a>
                     </li>
                   {% empty %}
                     <li>
@@ -2518,7 +2518,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <ul class="dropdown-menu">
                   {% for service in services %}
                     <li>
-                      <a href="{% url 'service_detail' service.id %}">{{ service.title }}</a>
+                      <a href="{% url 'service_detail' service.slug %}">{{ service.title }}</a>
                     </li>
                   {% empty %}
                     <li>
@@ -2726,7 +2726,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   <ul>
                     {% for service in footer_service %}
                       <li>
-                        <a href="{% url 'service_detail' service.id %}">{{ service.title }}</a>
+                        <a href="{% url 'service_detail' service.slug %}">{{ service.title }}</a>
                       </li>
                     {% empty %}
                       <li>No services available</li>

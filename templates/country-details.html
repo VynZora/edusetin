@@ -668,7 +668,7 @@
                 <ul style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
                   <!-- Selected country first -->
                   <li class="current-item">
-                    <a href="{% url 'country_detail' country.id %}">
+                    <a href="{% url 'country_detail' country.slug %}">
                       <div class="icon">
                         <img src="{{ country.flag.url }}" alt="{{ country.name }} Flag" />
                       </div>
@@ -681,7 +681,7 @@
                     {% if c.id != country.id %}
                       <!-- Exclude current country from the list -->
                       <li>
-                        <a href="{% url 'country_detail' c.id %}">
+                        <a href="{% url 'country_detail' c.slug %}">
                           <div class="icon">
                             <img src="{{ c.flag.url }}" alt="{{ c.name }} Flag" />
                           </div>
@@ -738,7 +738,7 @@
                           <img src="{{ uni.image.url }}" alt="{{ uni.name }}" />
                           <div class="image-overlay">
                             <div class="overlay-content">
-                              <a href="{% url 'uni_detail' uni.pk %}" class="view-details-btn">
+                              <a href="{% url 'uni_detail' uni.slug %}" class="view-details-btn">
                                 <i class="fas fa-eye"></i>
                                 View Details
                               </a>
@@ -748,7 +748,7 @@
 
                         <div class="university-content">
                           <div class="university-header">
-                            <h4 class="university-name"><a href="{% url 'uni_detail' uni.pk %}">{{ uni.name }}</a></h4>
+                            <h4 class="university-name"><a href="{% url 'uni_detail' uni.slug %}">{{ uni.name }}</a></h4>
                             <div class="university-location">
                               <i class="fas fa-map-marker-alt"></i>
                               {{ uni.country.name }}
@@ -760,7 +760,7 @@
                           </div>
 
                           <div class="university-footer">
-                            <a href="{% url 'uni_detail' uni.pk %}" class="read-more-btn">
+                            <a href="{% url 'uni_detail' uni.slug %}" class="read-more-btn">
                               Learn More
                               <i class="fas fa-arrow-right"></i>
                             </a>

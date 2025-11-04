@@ -825,7 +825,7 @@
                 <ul>
                   {% for c in other_course_categories|slice:':5' %}
                     <li class="{% if c.pk == category.pk %}current-item{% endif %}">
-                      <a href="{% url 'course_category_detail' c.pk %}">{{ c.name }}</a>
+                      <a href="{% url 'course_category_detail' c.slug %}">{{ c.name }}</a>
                     </li>
                   {% endfor %}
                 </ul>

@@ -1254,7 +1254,7 @@
               <ul style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
                 <!-- Current University First -->
                 <li class="current-item">
-                  <a href="{% url 'uni_detail' university.id %}">
+                  <a href="{% url 'uni_detail' university.slug %}">
                     {% if university.logo %}
                       <div class="icon">
                         <img src="{{ university.logo.url }}" alt="{{ university.name }} Logo" />
@@ -1268,7 +1268,7 @@
                 {% for u in universities %}
                   {% if u.id != university.id %}
                     <li>
-                      <a href="{% url 'uni_detail' u.id %}">
+                      <a href="{% url 'uni_detail' u.slug}">
                         {% if u.logo %}
                           <div class="icon">
                             <img src="{{ u.logo.url }}" alt="{{ u.name }} Logo" />

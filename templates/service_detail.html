@@ -369,7 +369,7 @@
               <ul>
                 {% for s in other_services %}
                   <li class="{% if s.pk == service.pk %}current-item{% endif %}">
-                    <a href="{% url 'service_detail' s.pk %}">{{ s.title }}</a>
+                    <a href="{% url 'service_detail' s.slug %}">{{ s.title }}</a>
                   </li>
                 {% endfor %}
               </ul>

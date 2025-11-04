@@ -25,8 +25,9 @@ urlpatterns = [
     # userviews >>>>>>>>>
     path("", views.index, name="index"),
     path("about/", views.about, name="about"),
-    path("country/<int:pk>/", views.country_details, name="country_detail"),
-    path("university-detail/<int:pk>/", views.university_detail, name="uni_detail"),
+    # path("country/<int:pk>/", views.country_details, name="country_detail"),
+    path("country/<slug:slug>/", views.country_details, name="country_detail"),
+    path("university-detail/<slug:slug>/", views.university_detail, name="uni_detail"),
     path("gallery/", views.gallery, name="gallery"),
     path("add-team/", views.create_team, name="team_add"),
     path("team/", views.list_team, name="team_list"),
@@ -51,7 +52,8 @@ urlpatterns = [
         name="export_applications_excel",
     ),
     # blogs
-    path("blog/<int:blog_id>/", views.blog_details, name="blog_detail"),
+    path("blog/<slug:slug>/", views.blog_details, name="blog_detail"),
+
     path("view-blogs/", views.index_blog, name="index_blog"),
     path("country-details/", views.country_details, name="country-details"),
     # adminviews >>
@@ -96,7 +98,8 @@ urlpatterns = [
     path("courses/<int:pk>/edit/", views.course_update, name="update_course"),
     path("courses/<int:pk>/delete/", views.course_delete, name="course_delete"),
     # Services
-    path("service-detail/<int:pk>/", views.service_detail, name="service_detail"),
+    path('service/<slug:slug>/', views.service_detail, name='service_detail'),
+
     path("services/", views.service_list, name="service_list"),
     path("add-services", views.service_create, name="service_create"),
     path("services/<int:pk>/edit/", views.service_update, name="service_update"),
@@ -140,11 +143,7 @@ urlpatterns = [
         views.course_category_delete,
         name="course_category_delete",
     ),
-    path(
-        "course-categories/<int:category_id>/",
-        views.course_category_detail,
-        name="course_category_detail",
-    ),
+    path("course-categories/<slug:slug>/", views.course_category_detail, name="course_category_detail"),
     path(
         "export-inquiries-excel/",
         views.export_inquiries_excel,

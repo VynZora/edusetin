@@ -105,14 +105,16 @@ def index(request):
     )
 
 
-def country_details(request, pk):
+def country_details(request, slug):
     course_categories = CourseCategory.objects.all()
     universities = University.objects.all()[:6]
     services = Service.objects.all()
 
     footer_service = Service.objects.all()[:4]
 
-    country = get_object_or_404(Country, pk=pk)
+    # country = get_object_or_404(Country, pk=pk)
+    country = get_object_or_404(Country, slug=slug)
+
     # countries = Country.objects.exclude(pk=pk)
     countries = Country.objects.all()
     other_countries = Country.objects.all()
@@ -145,13 +147,14 @@ def country_details(request, pk):
     return render(request, "country-details.html", context)
 
 
-def university_detail(request, pk):
+def university_detail(request, slug):
     course_categories = CourseCategory.objects.all()
     countries = Country.objects.all()
     universities = University.objects.all()
 
     services = Service.objects.all()
-    university = get_object_or_404(University, id=pk)
+    # university = get_object_or_404(University, id=pk)
+    university = get_object_or_404(University, slug=slug)
     courses = Course.objects.filter(university=university)
     # application_form = ApplicationForm.objects.last()
 
@@ -201,7 +204,7 @@ def about(request):
     return render(request, "about.html", context)
 
 
-def blog_details(request, blog_id):
+def blog_details(request, slug):
 
     course_categories = CourseCategory.objects.all()
     countries = Country.objects.all()
@@ -211,13 +214,14 @@ def blog_details(request, blog_id):
     footer_service = Service.objects.all()[:4]
 
     # Get the current blog post
-    blog = get_object_or_404(Blog, id=blog_id)
+    # blog = get_object_or_404(Blog, id=blog_id)
+    blog = get_object_or_404(Blog, slug=slug)
 
     # Get recent blogs for sidebar (excluding current blog)
-    recent_blogs = Blog.objects.exclude(id=blog_id).order_by("-created_at")[:5]
+    recent_blogs = Blog.objects.exclude(id=blog.id).order_by("-created_at")[:5]
 
     # optional >>>>>>>..
-    related_blogs = Blog.objects.exclude(id=blog_id).order_by("-created_at")[:3]
+    related_blogs = Blog.objects.exclude(id=blog.id).order_by("-created_at")[:3]
 
     context = {
         "blog": blog,
@@ -249,13 +253,14 @@ def contact_submit(request):
     return render(request, "university_detail.html", {"form": form})
 
 
-def service_detail(request, pk):
+def service_detail(request, slug):
     # blog = blog.objects.all()
     services = Service.objects.all()
     other_services = Service.objects.all()
     course_categories = CourseCategory.objects.all()
     countries = Country.objects.all()
-    service = get_object_or_404(Service, pk=pk)
+    # service = get_object_or_404(Service, pk=pk)
+    service = get_object_or_404(Service, slug=slug)
 
     footer_service = Service.objects.all()[:4]
 
@@ -388,10 +393,11 @@ def apply_form(request):
     return render(request, "apply-form.html", context)
 
 
-def course_category_detail(request, category_id):
+def course_category_detail(request, slug):
     course_categories = CourseCategory.objects.all()
     other_course_categories = CourseCategory.objects.all()
-    category = get_object_or_404(CourseCategory, id=category_id)
+    # category = get_object_or_404(CourseCategory, id=category_id)
+    category = get_object_or_404(CourseCategory, slug=slug)
     courses = Course.objects.filter(category=category).order_by("-id")
     countries = Country.objects.all()
     services = Service.objects.all()
@@ -1093,7 +1099,7 @@ def application_list(request):
         },
     )
 
-
+@login_required(login_url="admin_login")
 def delete_application(request, app_id):
     app = get_object_or_404(Application, id=app_id)
     if request.method == "POST":
