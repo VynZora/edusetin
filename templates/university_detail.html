@@ -1268,7 +1268,8 @@
                 {% for u in universities %}
                   {% if u.id != university.id %}
                     <li>
-                      <a href="{% url 'uni_detail' u.slug}">
+                      <a href="{% url 'uni_detail' u.slug %}">
+
                         {% if u.logo %}
                           <div class="icon">
                             <img src="{{ u.logo.url }}" alt="{{ u.name }} Logo" />
