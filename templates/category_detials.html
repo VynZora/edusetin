@@ -823,7 +823,7 @@
               <h4>Course Categories</h4>
               <div class="content" style="max-height: 300px; overflow-y: auto;">
                 <ul>
-                  {% for c in other_course_categories|slice:':5' %}
+                  {% for c in other_course_categories %}
                     <li class="{% if c.pk == category.pk %}current-item{% endif %}">
                       <a href="{% url 'course_category_detail' c.slug %}">{{ c.name }}</a>
                     </li>
