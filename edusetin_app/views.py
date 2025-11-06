@@ -105,46 +105,68 @@ def index(request):
     )
 
 
+
+
 def country_details(request, slug):
     course_categories = CourseCategory.objects.all()
-    universities = University.objects.all()[:6]
     services = Service.objects.all()
-
     footer_service = Service.objects.all()[:4]
-
-    # country = get_object_or_404(Country, pk=pk)
+    
     country = get_object_or_404(Country, slug=slug)
-
-    # countries = Country.objects.exclude(pk=pk)
     countries = Country.objects.all()
     other_countries = Country.objects.all()
-
+    
     # Get all universities for this country
     universities_list = country.universities.all()
-
+    
     # Pagination - 4 universities per page
     paginator = Paginator(universities_list, 4)
-    page = request.GET.get("page")
-
+    page = request.GET.get("page", 1)
+    
     try:
-        universities = paginator.page(page)
+        universities_page = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page
-        universities = paginator.page(1)
+        universities_page = paginator.page(1)
     except EmptyPage:
-        # If page is out of range, deliver last page of results
-        universities = paginator.page(paginator.num_pages)
-
+        universities_page = paginator.page(paginator.num_pages)
+    
+    # AJAX request - return JSON with university data
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        universities_data = []
+        for uni in universities_page:
+            universities_data.append({
+                'name': uni.name,
+                'slug': uni.slug,
+                'image_url': uni.image.url if uni.image else '',
+                'country_name': uni.country.name,
+                'description': uni.description[:150] + '...' if len(uni.description) > 150 else uni.description,
+            })
+        
+        return JsonResponse({
+            'universities': universities_data,
+            'has_previous': universities_page.has_previous(),
+            'has_next': universities_page.has_next(),
+            'current_page': universities_page.number,
+            'total_pages': paginator.num_pages,
+            'start_index': universities_page.start_index(),
+            'end_index': universities_page.end_index(),
+            'total_count': paginator.count,
+            'previous_page': universities_page.previous_page_number() if universities_page.has_previous() else None,
+            'next_page': universities_page.next_page_number() if universities_page.has_next() else None,
+        })
+    
     context = {
         "country": country,
         "countries": countries,
-        "universities": universities,
+        "universities": universities_page,
         "course_categories": course_categories,
         "services": services,
         "footer_service": footer_service,
         "other_countries": other_countries,
     }
     return render(request, "country-details.html", context)
+
+
 
 
 def university_detail(request, slug):
