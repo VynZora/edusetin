@@ -692,7 +692,7 @@
     grid-template-columns: repeat(2, 1fr) !important;
   }
 }
-</style>
+</style> 
 {% endblock %}
 
 {% block content %}
@@ -1011,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <img src="${uni.image_url}" alt="${uni.name}" />
                         <div class="image-overlay">
                             <div class="overlay-content">
-                                <a href="/university/${uni.slug}/" class="view-details-btn">
+                                <a href="/university-detail/${uni.slug}/" class="view-details-btn">
                                     <i class="fas fa-eye"></i>
                                     View Details
                                 </a>
@@ -1021,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="university-content">
                         <div class="university-header">
                             <h4 class="university-name">
-                                <a href="/university/${uni.slug}/">${uni.name}</a>
+                                <a href="/university-detail/${uni.slug}/">${uni.name}</a>
                             </h4>
                             <div class="university-location">
                                 <i class="fas fa-map-marker-alt"></i>
@@ -1032,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <p>${uni.description}</p>
                         </div>
                         <div class="university-footer">
-                            <a href="/university/${uni.slug}/" class="read-more-btn">
+                            <a href="/university-detail/${uni.slug}/" class="read-more-btn">
                                 Learn More
                                 <i class="fas fa-arrow-right"></i>
                             </a>

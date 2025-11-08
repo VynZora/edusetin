@@ -15,6 +15,10 @@
     <!-- ========== Favicon Icon ========== -->
     <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}" type="image/x-icon" />
 
+    <!-- Swiper CSS -->
+
+
+
     <!-- ========== Start Stylesheet ========== -->
     <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" />
     <link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet" />
@@ -27,6 +31,15 @@
     <link href="{% static 'assets/css/unit-test.css' %}" rel="stylesheet" />
     <link href="{% static 'assets/css/style.css' %}" rel="stylesheet" />
     <link href="{% static 'style.css' %}" rel="stylesheet" />
+
+
+      <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+/>
+
+     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
 
     {% block extra_css %}
     {% endblock %}
@@ -2790,7 +2803,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <script src="{% static 'assets/js/ScrollTrigger.min.js' %}"></script>
     <script src="{% static 'assets/js/SplitText.min.js' %}"></script>
     <script src="{% static 'assets/js/main.js' %}"></script>   
-    <script>
+    {% comment %} <script>
 (function () {
   var e = document;
 
@@ -2835,7 +2848,7 @@ document.addEventListener('DOMContentLoaded', function() {
     -ms-user-select: none;
     user-select: none;
   }
-</style> 
+</style>  {% endcomment %}
 
 
     {% block extra_js %}

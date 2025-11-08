@@ -80,6 +80,7 @@ def index(request):
     countriess = Country.objects.order_by('?')[:5]
     team_members = TeamMember.objects.all()[:6]
     universities = University.objects.all()
+    
     services = Service.objects.all()
 
     footer_service = Service.objects.all()[:4]
@@ -88,6 +89,7 @@ def index(request):
     testimonials = Testimonial.objects.all()
     blogs = Blog.objects.all().order_by("-created_at")[:2]
     print(">>>>>>>>>>>>>>>>>>>>.Countries in index:", countries)
+    print(universities)
     return render(
         request,
         "index.html",

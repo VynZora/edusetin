@@ -945,9 +945,9 @@
       flex-direction: column;
     }
     
-    .course-header {
+    {% comment %} .course-header {
       margin-bottom: 20px;
-    }
+    } {% endcomment %}
     
     .course-title {
       font-size: 22px;
@@ -1000,7 +1000,7 @@
     /* Footer */
     .course-footer {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;  /* my own adjustment */
       align-items: center;
       margin-top: auto;
       padding-top: 20px;
@@ -1116,7 +1116,7 @@
       .course-footer {
         flex-direction: column;
         gap: 15px;
-        align-items: flex-start;
+        align-items: flex-start;  /* my own adjustment */
       }
     
       .modern-btn {
