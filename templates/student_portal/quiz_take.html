@@ -1,5 +1,6 @@
 {% extends 'student_portal/base.html' %}
 {% load static %}
+{% load exam_extras %}
 
 {% block content %}
 <style>
@@ -104,19 +105,36 @@
   font-size: 1.1rem; font-weight: 600; line-height: 1.6;
   color: var(--admio-heading-color,#111); margin-bottom: 22px;
 }
+
+/* Question image */
+.quiz-q-image-wrap {
+  border: 1px solid var(--admio-border-color,#e5e7eb);
+  border-radius: 14px;
+  background: #fff;
+  padding: 8px;
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 18px;
+  line-height: 0;
+}
 .quiz-q-image {
   display: block;
-  max-width: 360px; max-height: 240px;
+  max-width: 100%;
+  max-height: 420px;
   width: auto; height: auto;
   object-fit: contain;
-  margin: 0 auto 16px;
-  border-radius: 10px;
+  border-radius: 8px;
+  cursor: zoom-in;
+  transition: transform .2s ease;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
+.quiz-q-image:hover { transform: scale(1.015); }
 
 /* Options */
 .quiz-options { display: flex; flex-direction: column; gap: 11px; }
 .quiz-option {
-  display: flex; align-items: center; gap: 14px;
+  display: flex; align-items: flex-start; gap: 14px;
   padding: 14px 18px;
   border: 2px solid var(--admio-border-color,#e5e7eb);
   border-radius: 13px;
@@ -135,11 +153,73 @@
   font-size: 0.88rem; font-weight: 800;
   color: #6b7280; background: var(--admio-input-bg,#f9fafb);
   flex-shrink: 0; transition: all .12s;
+  margin-top: 1px;
 }
+.quiz-option-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.quiz-option-body.has-image {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.quiz-option-image-wrap {
+  flex-shrink: 0;
+  border: 1px solid var(--admio-border-color,#e5e7eb);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f9fafb;
+  line-height: 0;
+  transition: border-color .2s ease;
+}
+.quiz-option-image {
+  display: block;
+  max-height: 130px;
+  max-width: 220px;
+  width: auto; height: auto;
+  object-fit: contain;
+  cursor: zoom-in;
+  transition: transform .2s ease;
+}
+.quiz-option-image:hover { transform: scale(1.03); }
+.quiz-option-body.has-image .quiz-option-text { width: 100%; }
 .quiz-option-text {
   font-size: 1rem; font-weight: 500;
   color: var(--admio-text-color,#374151);
 }
+@media (max-width: 575px){
+  .quiz-option-image{ max-width:150px; max-height:110px; }
+  .quiz-q-image{ max-height:280px; }
+}
+
+/* Image lightbox */
+.img-lightbox{
+  position: fixed; inset: 0; z-index: 20000;
+  background: rgba(0,0,0,.85);
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 30px;
+  cursor: zoom-out;
+}
+.img-lightbox.show{ display: flex; }
+.img-lightbox img{
+  max-width: 100%; max-height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.img-lightbox-close{
+  position: absolute; top: 20px; right: 24px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,.12); color: #fff;
+  border: none; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.img-lightbox-close:hover{ background: rgba(255,255,255,.22); }
 
 /* Locked states */
 .quiz-options.locked .quiz-option { cursor: default; }
@@ -298,6 +378,7 @@
   border-color: var(--admio-border-color);
 }
 [data-theme="dark"] .quiz-q-text { color: #f3f4f6; }
+[data-theme="dark"] .quiz-q-image-wrap { background: #1e1e2d; border-color: var(--admio-border-color); }
 
 [data-theme="dark"] .quiz-option {
   background: var(--admio-card-bg);
@@ -313,6 +394,7 @@
   color: #9ca3af;
 }
 [data-theme="dark"] .quiz-option-text { color: #d1d5db; }
+[data-theme="dark"] .quiz-option-image-wrap { background: #1e1e2d; border-color: #374151; }
 
 [data-theme="dark"] .quiz-options.locked .quiz-option:hover {
   border-color: var(--admio-border-color);
@@ -352,7 +434,6 @@
   .quiz-question-card { padding: 22px 18px; }
   .quiz-nav-btn { padding: 10px 16px; font-size: .88rem; }
   .quiz-timer-track { display: none; }
-  .quiz-q-image { max-width: 100%; max-height: 200px; }
   .quiz-leave-toast { top: 12px; padding: 14px 16px; }
 }
 </style>
@@ -427,41 +508,100 @@
 
       <div class="quiz-q-number">Question {{ forloop.counter }} of {{ questions|length }}</div>
 
-      {% for media in q.media_files.all %}
-        {% if media.media_type == 'QUESTION' %}
-          <img src="{{ media.effective_image.url }}" alt="Question image" class="quiz-q-image">
+      {% with q_media=q.media_files.all|get_option_media:"QUESTION" %}
+        {% if q_media %}
+        <div class="quiz-q-image-wrap">
+          <img src="{{ q_media.effective_image.url }}" alt="Question image" class="quiz-q-image js-zoomable">
+        </div>
         {% endif %}
-      {% endfor %}
+      {% endwith %}
 
       <div class="quiz-q-text">{{ q.question_text }}</div>
 
       <div class="quiz-options" id="opts-{{ forloop.counter0 }}">
+        {% with media_a=q.media_files.all|get_option_media:"OPTION_A" %}
         <label class="quiz-option" id="opt-{{ forloop.counter0 }}-A" data-key="A">
           <input type="radio" name="q_{{ q.id }}" value="A" onchange="selectOption({{ forloop.counter0 }}, this)">
           <span class="quiz-option-key">A</span>
-          <span class="quiz-option-text">{{ q.option_a }}</span>
+          <div class="quiz-option-body{% if media_a %} has-image{% endif %}">
+            {% if media_a %}
+            <div class="quiz-option-image-wrap">
+              <img src="{{ media_a.effective_image.url }}" alt="Option A" class="quiz-option-image js-zoomable">
+            </div>
+            {% endif %}
+            {% if q.option_a %}
+            <span class="quiz-option-text">{{ q.option_a }}</span>
+            {% endif %}
+          </div>
         </label>
+        {% endwith %}
+
+        {% with media_b=q.media_files.all|get_option_media:"OPTION_B" %}
         <label class="quiz-option" id="opt-{{ forloop.counter0 }}-B" data-key="B">
           <input type="radio" name="q_{{ q.id }}" value="B" onchange="selectOption({{ forloop.counter0 }}, this)">
           <span class="quiz-option-key">B</span>
-          <span class="quiz-option-text">{{ q.option_b }}</span>
+          <div class="quiz-option-body{% if media_b %} has-image{% endif %}">
+            {% if media_b %}
+            <div class="quiz-option-image-wrap">
+              <img src="{{ media_b.effective_image.url }}" alt="Option B" class="quiz-option-image js-zoomable">
+            </div>
+            {% endif %}
+            {% if q.option_b %}
+            <span class="quiz-option-text">{{ q.option_b }}</span>
+            {% endif %}
+          </div>
         </label>
+        {% endwith %}
+
+        {% with media_c=q.media_files.all|get_option_media:"OPTION_C" %}
         <label class="quiz-option" id="opt-{{ forloop.counter0 }}-C" data-key="C">
           <input type="radio" name="q_{{ q.id }}" value="C" onchange="selectOption({{ forloop.counter0 }}, this)">
           <span class="quiz-option-key">C</span>
-          <span class="quiz-option-text">{{ q.option_c }}</span>
+          <div class="quiz-option-body{% if media_c %} has-image{% endif %}">
+            {% if media_c %}
+            <div class="quiz-option-image-wrap">
+              <img src="{{ media_c.effective_image.url }}" alt="Option C" class="quiz-option-image js-zoomable">
+            </div>
+            {% endif %}
+            {% if q.option_c %}
+            <span class="quiz-option-text">{{ q.option_c }}</span>
+            {% endif %}
+          </div>
         </label>
+        {% endwith %}
+
+        {% with media_d=q.media_files.all|get_option_media:"OPTION_D" %}
         <label class="quiz-option" id="opt-{{ forloop.counter0 }}-D" data-key="D">
           <input type="radio" name="q_{{ q.id }}" value="D" onchange="selectOption({{ forloop.counter0 }}, this)">
           <span class="quiz-option-key">D</span>
-          <span class="quiz-option-text">{{ q.option_d }}</span>
+          <div class="quiz-option-body{% if media_d %} has-image{% endif %}">
+            {% if media_d %}
+            <div class="quiz-option-image-wrap">
+              <img src="{{ media_d.effective_image.url }}" alt="Option D" class="quiz-option-image js-zoomable">
+            </div>
+            {% endif %}
+            {% if q.option_d %}
+            <span class="quiz-option-text">{{ q.option_d }}</span>
+            {% endif %}
+          </div>
         </label>
+        {% endwith %}
+
         {% if q.option_e %}
+        {% with media_e=q.media_files.all|get_option_media:"OPTION_E" %}
         <label class="quiz-option" id="opt-{{ forloop.counter0 }}-E" data-key="E">
           <input type="radio" name="q_{{ q.id }}" value="E" onchange="selectOption({{ forloop.counter0 }}, this)">
           <span class="quiz-option-key">E</span>
-          <span class="quiz-option-text">{{ q.option_e }}</span>
+          <div class="quiz-option-body{% if media_e %} has-image{% endif %}">
+            {% if media_e %}
+            <div class="quiz-option-image-wrap">
+              <img src="{{ media_e.effective_image.url }}" alt="Option E" class="quiz-option-image js-zoomable">
+            </div>
+            {% endif %}
+            <span class="quiz-option-text">{{ q.option_e }}</span>
+          </div>
         </label>
+        {% endwith %}
         {% endif %}
       </div>
 
@@ -490,6 +630,12 @@
     <div class="quiz-spinner"></div>
     <div class="quiz-finishing-text" id="finishingText">Calculating your results…</div>
   </div>
+</div>
+
+<!-- Image Lightbox -->
+<div class="img-lightbox" id="imgLightbox">
+  <button type="button" class="img-lightbox-close" id="imgLightboxClose">&times;</button>
+  <img src="" alt="Zoomed image" id="imgLightboxImg">
 </div>
 
 <!-- Leave toast -->
@@ -521,6 +667,32 @@ let wrongCount   = 0;
 let skippedCount = 0;
 let pendingLeaveHref = null;
 const answeredKeys = {};
+
+// ── Image lightbox (click any question/option image to zoom) ──
+const lightbox    = document.getElementById('imgLightbox');
+const lightboxImg = document.getElementById('imgLightboxImg');
+
+function openLightbox(src, alt) {
+  lightboxImg.src = src;
+  lightboxImg.alt = alt || '';
+  lightbox.classList.add('show');
+}
+function closeLightbox() {
+  lightbox.classList.remove('show');
+  lightboxImg.src = '';
+}
+document.addEventListener('click', function (e) {
+  const img = e.target.closest('.js-zoomable');
+  if (img) {
+    e.preventDefault();
+    e.stopPropagation();
+    openLightbox(img.src, img.alt);
+  }
+});
+document.getElementById('imgLightboxClose').addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', function (e) {
+  if (e.target === lightbox) closeLightbox();
+});
 
 // Push twice to create a trap entry behind current page
 history.pushState(null, '', window.location.href);
@@ -708,6 +880,10 @@ window.addEventListener('popstate', function () {
 // Keyboard shortcuts
 document.addEventListener('keydown', function (e) {
   if (document.getElementById('finishingOverlay').classList.contains('open')) return;
+  if (lightbox.classList.contains('show')) {
+    if (e.key === 'Escape') closeLightbox();
+    return;
+  }
   if (document.getElementById('leaveToast').classList.contains('show')) {
     if (e.key === 'Escape') hideLeaveToast();
     return;

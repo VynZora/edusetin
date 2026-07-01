@@ -47,7 +47,12 @@
     align-items: center;
     gap: 14px;
     flex-wrap: wrap;
-  }
+}
+.option-content.has-image{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
   .option-image-wrap{
     flex-shrink: 0;
     border: 1px solid var(--admio-border-color,#e5e7eb);
@@ -71,8 +76,8 @@
     transform: scale(1.03);
   }
   .option-content.has-image .option-text{
-    flex: 1;
-    min-width: 140px;
+    width: 100%;
+
   }
   .question-image-wrap{
     margin-top: 14px;
