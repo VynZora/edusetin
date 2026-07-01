@@ -1,0 +1,292 @@
+{% extends "student_management/base.html" %}
+
+{% block title %}Upload Media — Question #{{ question.id }} | Student Management{% endblock %}
+
+{% block extra_css %}
+<style>
+.media-slot {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+    background: #fafafa;
+    transition: border-color 0.2s;
+}
+.media-slot:hover { border-color: #2563eb; }
+.media-slot-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.slot-label { font-weight: 600; font-size: 14px; color: #374151; }
+.slot-status-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+.img-preview { max-height:180px; max-width:100%; object-fit:contain; border-radius:6px; border:1px solid #e5e7eb; display:block; margin-bottom:10px; }
+.placeholder-box { height:100px; border:2px dashed #d1d5db; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:13px; margin-bottom:10px; }
+.required-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+/* ─── Library picker (reuse from edit) ─── */
+.media-method-tabs .nav-link { font-size:11px; padding:3px 10px; border-radius:6px; color:#6b7280; border:1px solid #e5e7eb; margin-right:4px; }
+.media-method-tabs .nav-link.active { background:#1d4ed8; color:#fff; border-color:#1d4ed8; }
+.lib-picker-selected { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:8px; background:#ede9fe; border:1px solid #c4b5fd; margin-top:6px; }
+.lib-picker-selected img { height:32px; width:45px; object-fit:cover; border-radius:4px; }
+.lib-picker-selected .name { font-size:11px; font-weight:600; color:#4c1d95; }
+.lib-picker-selected .clear-btn { margin-left:auto; font-size:11px; color:#6b7280; cursor:pointer; background:none; border:none; padding:0; }
+.picker-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; max-height:400px; overflow-y:auto; }
+.picker-item { border:2px solid #e5e7eb; border-radius:8px; overflow:hidden; cursor:pointer; transition:border-color .15s,transform .12s; }
+.picker-item:hover { border-color:#1d4ed8; transform:scale(1.03); }
+.picker-item img { width:100%; height:75px; object-fit:cover; background:#f3f4f6; }
+.picker-item .picker-name { font-size:10px; padding:4px 5px; text-align:center; color:#374151; font-weight:500; word-break:break-word; }
+.expected-name-pill { font-size:10px; padding:2px 8px; border-radius:12px; background:#fef3c7; color:#92400e; font-weight:600; border:1px solid #fde68a; display:inline-flex; align-items:center; gap:3px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard__form__wraper">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'student_management:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'student_management:media_pending' %}">Pending Media</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Question #{{ question.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <h4 class="mb-1">Upload Media — Question #{{ question.id }}</h4>
+            <p class="text-muted mb-0">{{ question.subject.name }}</p>
+        </div>
+        {% if required_count > 0 %}
+        <div class="text-end">
+            <div class="fw-semibold">
+                {% if uploaded_count == required_count %}
+                    <span class="text-success">✓ All media uploaded</span>
+                {% else %}
+                    <span class="text-warning">{{ uploaded_count }} / {{ required_count }} uploaded</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Question preview -->
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom pt-3 pb-2">
+                    <h6 class="mb-0 fw-semibold">Question Text</h6>
+                </div>
+                <div class="card-body p-4">
+                    <p style="line-height:1.7;font-size:14px;">{{ question.question_text }}</p>
+                    <hr class="my-3">
+                    <ul class="list-unstyled mb-0 small">
+                        <li class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Subject</span>
+                            <span class="fw-medium">{{ question.subject.name }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Answer</span>
+                            <span class="badge bg-success">{{ question.correct_answer }}</span>
+                        </li>
+                        {% if question.source %}
+                        <li class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Source</span>
+                            <span class="fw-medium">{{ question.source }}</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-3">
+                    <a href="{% url 'student_management:media_pending' %}" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                        <i class="fas fa-list me-1"></i> Back to Pending List
+                    </a>
+                    <a href="{% url 'student_management:question_detail' question.id %}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="fas fa-eye me-1"></i> View Question
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Media slots -->
+        <div class="col-12 col-lg-8">
+            <form method="post" action="{% url 'student_management:media_upload' question.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-3 mb-4">
+                    {% for slot in slots %}
+                    <div class="col-12 col-md-6">
+                        <div class="media-slot">
+                            <div class="media-slot-header">
+                                <div class="required-dot"
+                                     style="background:{% if slot.required %}{% if slot.uploaded %}#10b981{% else %}#f59e0b{% endif %}{% else %}#d1d5db{% endif %};"></div>
+                                <span class="slot-label">{{ slot.label }}</span>
+                                {% if slot.required %}
+                                    {% if slot.uploaded %}
+                                        <span class="slot-status-badge ms-auto" style="background:#d1fae5;color:#065f46;">Uploaded</span>
+                                    {% else %}
+                                        <span class="slot-status-badge ms-auto" style="background:#fef9c3;color:#92400e;">Pending</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="slot-status-badge ms-auto" style="background:#f3f4f6;color:#6b7280;">Optional</span>
+                                {% endif %}
+                            </div>
+
+                            {% if slot.pending_ref and not slot.uploaded %}
+                            <div class="mb-2">
+                                <span class="expected-name-pill">
+                                    <i class="fas fa-tag" style="font-size:9px;"></i>
+                                    Expected: {{ slot.pending_ref.expected_media_name }}
+                                </span>
+                            </div>
+                            {% endif %}
+
+                            {% if slot.media %}
+                            <!-- Existing image -->
+                            <img src="{{ slot.media.effective_image.url }}" alt="{{ slot.label }}" class="img-preview">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox"
+                                       id="clear_{{ slot.media_type|lower }}"
+                                       name="clear_{{ slot.media_type|lower }}">
+                                <label class="form-check-label text-danger small" for="clear_{{ slot.media_type|lower }}">
+                                    Remove this image
+                                </label>
+                            </div>
+                            {% else %}
+                            <div class="placeholder-box">
+                                <span><i class="fas fa-image me-1"></i> No image uploaded</span>
+                            </div>
+                            {% endif %}
+
+                            <!-- Upload / Library tabs -->
+                            <div class="d-flex mb-2 media-method-tabs mt-1">
+                                <button type="button" class="nav-link active" id="tab-up-{{ slot.media_type }}"
+                                        onclick="swTab('{{ slot.media_type }}','upload')"><i class="fas fa-upload" style="font-size:10px;"></i> Upload</button>
+                                <button type="button" class="nav-link" id="tab-lib-{{ slot.media_type }}"
+                                        onclick="swTab('{{ slot.media_type }}','library')"><i class="fas fa-folder-open" style="font-size:10px;"></i> Library</button>
+                            </div>
+
+                            <div id="pane-up-{{ slot.media_type }}">
+                                {% if slot.media_type == 'QUESTION' %}
+                                <input type="file" id="file_{{ slot.media_type }}" name="question_image" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp">
+                                {% elif slot.media_type == 'OPTION_A' %}
+                                <input type="file" id="file_{{ slot.media_type }}" name="option_a_image" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp">
+                                {% elif slot.media_type == 'OPTION_B' %}
+                                <input type="file" id="file_{{ slot.media_type }}" name="option_b_image" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp">
+                                {% elif slot.media_type == 'OPTION_C' %}
+                                <input type="file" id="file_{{ slot.media_type }}" name="option_c_image" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp">
+                                {% elif slot.media_type == 'OPTION_D' %}
+                                <input type="file" id="file_{{ slot.media_type }}" name="option_d_image" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp">
+                                {% elif slot.media_type == 'OPTION_E' %}
+                                <input type="file" id="file_{{ slot.media_type }}" name="option_e_image" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp">
+                                {% endif %}
+                            </div>
+
+                            <div id="pane-lib-{{ slot.media_type }}" style="display:none;">
+                                <input type="hidden" id="input_{{ slot.media_type }}_library_id"
+                                       name="{% if slot.media_type == 'QUESTION' %}question_library_id{% elif slot.media_type == 'OPTION_A' %}option_a_library_id{% elif slot.media_type == 'OPTION_B' %}option_b_library_id{% elif slot.media_type == 'OPTION_C' %}option_c_library_id{% elif slot.media_type == 'OPTION_D' %}option_d_library_id{% elif slot.media_type == 'OPTION_E' %}option_e_library_id{% endif %}" value="">
+                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                        onclick="openLibraryPicker('{{ slot.media_type }}')">
+                                    <i class="fas fa-search me-1"></i> Browse Library
+                                </button>
+                                <div id="lib_selected_{{ slot.media_type }}" class="lib-picker-selected" style="display:none;">
+                                    <img src="" alt="" class="lib-img">
+                                    <span class="name lib-name"></span>
+                                    <button type="button" class="clear-btn" onclick="clearLibrarySelection('{{ slot.media_type }}')">
+                                        <i class="fas fa-times-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Action buttons -->
+                <div class="d-flex gap-3 justify-content-end">
+                    <button type="submit" name="action" value="save" class="btn btn-outline-primary px-4">
+                        <i class="fas fa-save me-1"></i> Save
+                    </button>
+                    <button type="submit" name="action" value="save_next" class="btn btn-primary px-4">
+                        <i class="fas fa-forward me-1"></i>
+                        {% if next_question %}
+                            Save &amp; Next
+                        {% else %}
+                            Save &amp; Finish
+                        {% endif %}
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include "student_management/_library_picker_modal.html" %}
+
+<script>
+(function(){
+    const API_URL = "{% url 'student_management:media_assets_api' %}";
+    let currentSlot = null;
+
+    window.openLibraryPicker = function(slot) {
+        currentSlot = slot;
+        document.getElementById('pickerSearchInput').value = '';
+        loadAssets('');
+        new bootstrap.Modal(document.getElementById('libraryPickerModal')).show();
+    };
+
+    document.getElementById('pickerSearchInput').addEventListener('input', function(){
+        loadAssets(this.value.trim());
+    });
+
+    function loadAssets(q) {
+        const grid = document.getElementById('pickerGrid');
+        grid.innerHTML = '<div class="text-center text-muted py-4" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i></div>';
+        fetch(API_URL + '?q=' + encodeURIComponent(q))
+            .then(r => r.json())
+            .then(data => {
+                if (!data.results.length) { grid.innerHTML = '<div class="text-center text-muted py-4" style="grid-column:1/-1;">No assets found.</div>'; return; }
+                grid.innerHTML = '';
+                data.results.forEach(a => {
+                    const d = document.createElement('div'); d.className = 'picker-item';
+                    d.innerHTML = '<img src="' + a.image_url + '" alt="' + a.name + '"><div class="picker-name">' + a.name + '</div>';
+                    d.addEventListener('click', () => selectAsset(a.id, a.name, a.image_url));
+                    grid.appendChild(d);
+                });
+            })
+            .catch(() => { grid.innerHTML = '<div class="text-center text-danger py-4" style="grid-column:1/-1;">Failed.</div>'; });
+    }
+
+    function selectAsset(id, name, url) {
+        if (!currentSlot) return;
+        document.getElementById('input_' + currentSlot + '_library_id').value = id;
+        const d = document.getElementById('lib_selected_' + currentSlot);
+        d.querySelector('.lib-name').textContent = name;
+        d.querySelector('.lib-img').src = url;
+        d.style.display = 'flex';
+        const fi = document.getElementById('file_' + currentSlot); if (fi) fi.value = '';
+        bootstrap.Modal.getInstance(document.getElementById('libraryPickerModal')).hide();
+    }
+
+    window.clearLibrarySelection = function(slot) {
+        document.getElementById('input_' + slot + '_library_id').value = '';
+        document.getElementById('lib_selected_' + slot).style.display = 'none';
+    };
+
+    window.swTab = function(slot, mode) {
+        const up = document.getElementById('pane-up-' + slot);
+        const lib = document.getElementById('pane-lib-' + slot);
+        const tabUp = document.getElementById('tab-up-' + slot);
+        const tabLib = document.getElementById('tab-lib-' + slot);
+        if (mode === 'upload') {
+            up.style.display = ''; lib.style.display = 'none';
+            tabUp.classList.add('active'); tabLib.classList.remove('active');
+            document.getElementById('input_' + slot + '_library_id').value = '';
+            document.getElementById('lib_selected_' + slot).style.display = 'none';
+        } else {
+            up.style.display = 'none'; lib.style.display = '';
+            tabUp.classList.remove('active'); tabLib.classList.add('active');
+            const fi = document.getElementById('file_' + slot); if (fi) fi.value = '';
+        }
+    };
+})();
+</script>
+{% endblock %}

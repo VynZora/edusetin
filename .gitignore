@@ -3,10 +3,7 @@
 *.pot
 *.pyc
 **/__pycache__
-db.sqlite3
-media
-mediafiles
-staticfiles
+
 
 # Python # 
 *.py[cod] 
@@ -33,3 +30,6 @@ venv/
 
 #Others
 certbot/
+
+student_admin_implementation_details.txt
+edusetin/student_admin_implementation_details.txt

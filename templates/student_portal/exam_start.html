@@ -1,0 +1,628 @@
+{% extends "student_portal/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  .option-card{
+    border:2px solid var(--admio-border-color,#e5e7eb);
+    border-radius:14px;
+    padding:18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    transition:all 0.2s ease;
+  }
+  .option-card:hover{
+    border-color:#7c3aed;
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(124,58,237,.08);
+  }
+  .option-card input{
+    width:20px;
+    height:20px;
+    accent-color:#7c3aed;
+    flex-shrink:0;
+  }
+  .option-card.selected{
+    border-color:#7c3aed;
+    background: rgba(124,58,237,.06);
+  }
+  .option-text{
+    font-weight:500;
+  }
+  .q-slide{ display:none; }
+  .q-slide.active{ display:block; }
+
+  .qp-btn{
+    width:42px; height:42px;
+    border-radius:10px;
+    border:1px solid var(--admio-border-color,#e5e7eb);
+    background: var(--admio-card-bg,#fff);
+    color: var(--admio-text-color,#374151);
+    font-weight:600; font-size:14px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all .15s;
+  }
+  .qp-btn:hover{ border-color:#7c3aed; color:#7c3aed; }
+  .qp-btn.current{ border-color:#7c3aed; background:#7c3aed; color:#fff; }
+  .qp-btn.answered{ background:#22c55e; border-color:#22c55e; color:#fff; }
+  .qp-btn.marked{ background:#f59e0b; border-color:#f59e0b; color:#fff; }
+  .qp-btn.answered.marked{
+    background: linear-gradient(135deg, #22c55e 50%, #f59e0b 50%);
+    border-color:#f59e0b; color:#fff;
+  }
+
+  .legend-swatch{
+    width:14px; height:14px; border-radius:4px; display:inline-block; flex-shrink:0;
+  }
+  /* Leave toast */
+.quiz-leave-toast {
+  position: fixed;
+  top: 20px; left: 50%;
+  transform: translateX(-50%) translateY(-16px);
+  z-index: 10000;
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--admio-card-bg,#fff);
+  border: 1px solid var(--admio-border-color,#e5e7eb);
+  border-radius: 16px;
+  padding: 16px 18px;
+  max-width: 400px; width: calc(100% - 32px);
+  box-shadow: 0 16px 40px rgba(0,0,0,.16);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.quiz-leave-toast.show {
+  opacity: 1; pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.quiz-leave-toast-top { display: flex; align-items: flex-start; gap: 12px; }
+.quiz-leave-toast-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  background: rgba(245,158,11,.12); color: #f59e0b;
+  display: flex; align-items: center; justify-content: center; font-size: 17px;
+}
+.quiz-leave-toast-body  { flex: 1; min-width: 0; }
+.quiz-leave-toast-title {
+  font-weight: 800; font-size: .96rem;
+  color: var(--admio-heading-color,#111); margin-bottom: 3px;
+}
+.quiz-leave-toast-text  { font-size: .84rem; color: #9ca3af; line-height: 1.4; }
+.quiz-leave-toast-actions { display: flex; gap: 8px; }
+.quiz-leave-toast-btn {
+  flex: 1; padding: 9px 14px; border-radius: 10px; border: none;
+  font-size: .85rem; font-weight: 700; cursor: pointer;
+  transition: opacity .12s, transform .1s;
+}
+.quiz-leave-toast-btn:hover { opacity: .88; transform: translateY(-1px); }
+.quiz-leave-toast-btn.stay  {
+  background: var(--admio-border-color,#e5e7eb);
+  color: var(--admio-text-color,#374151);
+}
+.quiz-leave-toast-btn.leave { background: linear-gradient(135deg,#ef4444,#dc2626); color: #fff; }
+
+  @media (max-width: 991px){
+    .qp-sticky{ position: static !important; }
+  }
+  .qp-sticky{ position: sticky; top: 90px; }
+</style>
+
+<!-- Exam Header -->
+<div class="admio-card mb-4">
+    <div class="admio-card-body">
+        <div class="row align-items-center">
+
+            <div class="col-lg-8">
+                <h2 class="fw-700 mb-1">
+                    {{ exam.custom_name|default:exam.title }}
+                </h2>
+
+                <p class="text-secondary-c mb-0">
+                    Total Questions: {{ total_questions }} • Duration: {{ exam.duration_minutes }} Minutes
+                    • Marks/Q: {{ exam.marks_per_question }}{% if exam.negative_marks %} • Negative: -{{ exam.negative_marks }}{% endif %}
+                </p>
+            </div>
+
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <div class="badge-admio badge-red px-4 py-3 fs-6">
+                    <i class="icon-clock me-2"></i>
+                    Time Left:
+                    <span id="timer">--:--</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<form id="examForm" method="post" action="{% url 'student_portal:exam_submit' exam_uid=exam.uid %}">
+    {% csrf_token %}
+    <input type="hidden" name="attempt_id" value="{{ attempt.id }}">
+    <input type="hidden" name="time_taken" id="timeTakenInput" value="0">
+    <input type="hidden" name="tab_switches" id="tabSwitchesInput" value="0">
+
+    <div class="row">
+
+        <!-- Questions -->
+        <div class="col-lg-9">
+
+            <!-- Progress -->
+            <div class="admio-card mb-4">
+                <div class="admio-card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span id="progressLabel">Question 1 of {{ total_questions }}</span>
+                        <span id="progressPct">0% Completed</span>
+                    </div>
+                    <div class="progress" style="height:10px;">
+                        <div class="progress-bar" id="progressBar" style="width:0%; background:#7c3aed;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Slides -->
+            {% for question in questions %}
+            <div class="q-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" data-qid="{{ question.id }}">
+                <div class="admio-card">
+                    <div class="admio-card-body">
+
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                                <span class="badge-admio badge-purple">
+                                    Question {{ forloop.counter }}
+                                </span>
+                                {% if question.subject %}
+                                <span class="badge-admio badge-gray">{{ question.subject.name }}</span>
+                                {% endif %}
+                            </div>
+
+                            <h4 class="fw-700">
+    {{ question.question_text }}
+</h4>
+
+                            {% for media in question.media_files.all %}
+                                {% if media.file_type == 'image' %}
+                                <img src="{{ media.file.url }}" alt="Question media" class="img-fluid rounded mt-3" style="max-height:300px;">
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex flex-column gap-3">
+
+                            <label class="option-card" data-option="A">
+                                <input type="radio" name="q_{{ question.id }}" value="A">
+                                <span class="option-text">{{ question.option_a }}</span>
+                            </label>
+
+                            <label class="option-card" data-option="B">
+                                <input type="radio" name="q_{{ question.id }}" value="B">
+                                <span class="option-text">{{ question.option_b }}</span>
+                            </label>
+
+                            <label class="option-card" data-option="C">
+                                <input type="radio" name="q_{{ question.id }}" value="C">
+                                <span class="option-text">{{ question.option_c }}</span>
+                            </label>
+
+                            <label class="option-card" data-option="D">
+                                <input type="radio" name="q_{{ question.id }}" value="D">
+                                <span class="option-text">{{ question.option_d }}</span>
+                            </label>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="d-flex justify-content-between mt-4 flex-wrap gap-2">
+
+                    <button type="button" class="btn-admio btn-white nav-prev-btn">
+                        <i class="icon-arrow-left"></i> Previous
+                    </button>
+
+                    <div class="d-flex gap-2 flex-wrap">
+
+                        <button type="button" class="btn-admio btn-outline mark-review-btn">
+                            <i class="icon-flag"></i> Mark for Review
+                        </button>
+
+                        <button type="button" class="btn-admio btn-white nav-next-btn">
+                            Save &amp; Next <i class="icon-arrow-right"></i>
+                        </button>
+
+                        <button type="button" class="btn-admio btn-ai" data-bs-toggle="modal" data-bs-target="#submitExamModal">
+                            Submit Exam
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- Question Palette -->
+        <div class="col-lg-3">
+            <div class="admio-card qp-sticky">
+                <div class="admio-card-body">
+
+                    <h5 class="fw-700 mb-4">Questions</h5>
+
+                    <div class="d-flex flex-wrap gap-2" id="questionPalette">
+                        {% for question in questions %}
+                        <button type="button" class="qp-btn {% if forloop.first %}current{% endif %}" data-index="{{ forloop.counter0 }}">
+                            {{ forloop.counter }}
+                        </button>
+                        {% endfor %}
+                    </div>
+
+                    <hr>
+
+                    <div class="small d-flex flex-column gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="legend-swatch" style="background:#22c55e;"></span> Answered
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="legend-swatch" style="background:#f59e0b;"></span> Marked for Review
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="legend-swatch" style="background:#7c3aed;"></span> Current
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="legend-swatch" style="border:1px solid var(--admio-border-color,#e5e7eb); background:transparent;"></span> Unanswered
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <button type="button" class="btn-admio btn-ai w-100" data-bs-toggle="modal" data-bs-target="#submitExamModal">
+                        <i class="icon-send"></i> Submit Exam
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<!-- Submit Confirmation Modal -->
+<div class="modal fade" id="submitExamModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-700"><i class="icon-triangle-alert me-2"></i> Submit Exam?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Are you sure you want to submit this exam? You won't be able to change your answers afterwards.</p>
+                <div class="row g-2 text-sm">
+                    <div class="col-4"><span class="text-secondary-c">Answered:</span> <span class="fw-700" id="summaryAnswered">0</span></div>
+                    <div class="col-4"><span class="text-secondary-c">Marked:</span> <span class="fw-700" id="summaryMarked">0</span></div>
+                    <div class="col-4"><span class="text-secondary-c">Unanswered:</span> <span class="fw-700" id="summaryUnanswered">{{ total_questions }}</span></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-admio btn-white btn-sm" data-bs-dismiss="modal">Continue Exam</button>
+                <button type="button" class="btn-admio btn-ai btn-sm" id="confirmSubmitBtn">
+                    <i class="icon-send"></i> Yes, Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Leave toast -->
+<!-- Leave toast -->
+<div class="quiz-leave-toast" id="leaveToast">
+  <div class="quiz-leave-toast-top">
+    <div class="quiz-leave-toast-icon"><i class="icon-alert-triangle"></i></div>
+    <div class="quiz-leave-toast-body">
+      <div class="quiz-leave-toast-title" id="leaveToastTitle">Leave the exam?</div>
+      <div class="quiz-leave-toast-text"  id="leaveToastText">Your progress will be auto-saved, but you won't be able to resume.</div>
+    </div>
+  </div>
+  <div class="quiz-leave-toast-actions">
+    <button type="button" class="quiz-leave-toast-btn stay"  id="leaveToastStay">Stay</button>
+    <button type="button" class="quiz-leave-toast-btn leave" id="leaveToastLeave">Leave anyway</button>
+  </div>
+</div>
+
+
+<script>
+    
+const RESULT_URL    = "{% url 'student_portal:exam_result' attempt_slug=attempt.slug %}";
+const EXAM_LIST_URL = "{% url 'student_portal:exam_list' %}";
+const ATTEMPT_KEY   = 'submitted_attempt_{{ attempt.id }}';
+
+if (sessionStorage.getItem(ATTEMPT_KEY) === 'submitted') {
+    window.location.replace(RESULT_URL);
+}
+
+window.addEventListener('pageshow', function (e) {
+    if (e.persisted || sessionStorage.getItem(ATTEMPT_KEY) === 'submitted') {
+        window.location.replace(RESULT_URL);
+    }
+});
+
+(function () {
+    const totalQuestions = {{ total_questions }};
+    let durationSeconds  = {{ duration_seconds }};
+    let currentIndex     = 0;
+    let tabSwitches      = 0;
+    let examSubmitted    = false;
+    let warnedOnce       = false;
+    let pendingLeaveHref = null;
+
+    // ── Two history entries: replaceState (floor) + pushState (ceiling)
+    // Back button pops the pushState entry → popstate fires → toast shows
+    // Without pushState there is nothing to pop so the page just unloads
+    history.replaceState({ examActive: true }, '');
+    history.pushState({ examActive: true }, '');
+
+    const existingResponses = JSON.parse('{{ existing_responses|escapejs }}' || '{}');
+
+    const slides = document.querySelectorAll('.q-slide');
+    const qpBtns = document.querySelectorAll('.qp-btn');
+    const form   = document.getElementById('examForm');
+
+    const answered = new Set();
+    const marked   = new Set();
+
+    Object.keys(existingResponses).forEach(function (qid) {
+        const data = existingResponses[qid];
+        if (data.selected_answer) {
+            const input = form.querySelector(`input[name="q_${qid}"][value="${data.selected_answer}"]`);
+            if (input) {
+                input.checked = true;
+                answered.add(qid);
+                input.closest('.option-card').classList.add('selected');
+            }
+        }
+        if (data.is_marked) {
+            marked.add(qid);
+        }
+    });
+
+    function showSlide(index) {
+        slides.forEach(function (s, i) { s.classList.toggle('active', i === index); });
+        qpBtns.forEach(function (b, i) { b.classList.toggle('current', i === index); });
+        currentIndex = index;
+        updateProgress();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateProgress() {
+        document.getElementById('progressLabel').textContent =
+            `Question ${currentIndex + 1} of ${totalQuestions}`;
+        const pct = Math.round((answered.size / totalQuestions) * 100);
+        document.getElementById('progressPct').textContent = `${pct}% Completed`;
+        document.getElementById('progressBar').style.width = pct + '%';
+    }
+
+    function refreshPaletteButton(index, qid) {
+        const btn = qpBtns[index];
+        btn.classList.remove('answered', 'marked');
+        if (answered.has(String(qid)) || answered.has(qid)) btn.classList.add('answered');
+        if (marked.has(String(qid))   || marked.has(qid))   btn.classList.add('marked');
+    }
+
+    slides.forEach(function (slide, i) { refreshPaletteButton(i, slide.dataset.qid); });
+    updateProgress();
+
+    document.querySelectorAll('.option-card').forEach(function (card) {
+        card.addEventListener('click', function () {
+            const slide = card.closest('.q-slide');
+            const qid   = slide.dataset.qid;
+            const index = parseInt(slide.dataset.index, 10);
+            slide.querySelectorAll('.option-card').forEach(function (c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+            answered.add(qid);
+            refreshPaletteButton(index, qid);
+            updateProgress();
+            autosave();
+        });
+    });
+
+    document.querySelectorAll('.mark-review-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const slide = btn.closest('.q-slide');
+            const qid   = slide.dataset.qid;
+            const index = parseInt(slide.dataset.index, 10);
+            if (marked.has(qid)) { marked.delete(qid); } else { marked.add(qid); }
+            refreshPaletteButton(index, qid);
+            autosave();
+        });
+    });
+
+    document.querySelectorAll('.nav-prev-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () { if (currentIndex > 0) showSlide(currentIndex - 1); });
+    });
+    document.querySelectorAll('.nav-next-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () { if (currentIndex < slides.length - 1) showSlide(currentIndex + 1); });
+    });
+    qpBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () { showSlide(parseInt(btn.dataset.index, 10)); });
+    });
+
+    function refreshNavButtons() {
+        document.querySelectorAll('.nav-prev-btn').forEach(function (b) { b.disabled = (currentIndex === 0); });
+        document.querySelectorAll('.nav-next-btn').forEach(function (b) { b.disabled = (currentIndex === slides.length - 1); });
+    }
+    const origShowSlide = showSlide;
+    showSlide = function (i) { origShowSlide(i); refreshNavButtons(); };
+    refreshNavButtons();
+
+    const timerEl        = document.getElementById('timer');
+    const timeTakenInput = document.getElementById('timeTakenInput');
+    const startWallTime  = Date.now();
+    const endWallTime    = startWallTime + durationSeconds * 1000;
+    const alreadyElapsed = ({{ exam.duration_minutes }} * 60) - durationSeconds;
+
+    function tick() {
+        const now       = Date.now();
+        const remaining = Math.max(0, Math.round((endWallTime - now) / 1000));
+        const elapsed   = Math.round((now - startWallTime) / 1000) + alreadyElapsed;
+        const minutes   = Math.floor(remaining / 60);
+        const seconds   = remaining % 60;
+        timerEl.textContent = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+        if (remaining <= 300) timerEl.style.color = '#ef4444';
+        timeTakenInput.value = elapsed;
+        if (remaining <= 0) {
+            clearInterval(timerInterval);
+            submitExam('timeout');
+        }
+    }
+    tick();
+    const timerInterval = setInterval(tick, 1000);
+
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            tabSwitches++;
+            document.getElementById('tabSwitchesInput').value = tabSwitches;
+            if (!warnedOnce) {
+                warnedOnce = true;
+                document.addEventListener('visibilitychange', function showWarning() {
+                    if (!document.hidden) {
+                        document.removeEventListener('visibilitychange', showWarning);
+                        showTabWarning();
+                    }
+                });
+            } else {
+                submitExam('tabswitch');
+            }
+        }
+    });
+
+    function beforeUnloadHandler(e) {
+        if (examSubmitted) return;
+        sessionStorage.setItem(ATTEMPT_KEY, 'submitted');
+        const fd = new FormData(form);
+        fd.set('time_taken', timeTakenInput.value);
+        fd.set('tab_switches', tabSwitches);
+        navigator.sendBeacon("{% url 'student_portal:exam_submit' exam_uid=exam.uid %}", fd);
+    }
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+
+    let autosaveTimeout = null;
+    function autosave() {
+        if (autosaveTimeout) clearTimeout(autosaveTimeout);
+        autosaveTimeout = setTimeout(function () {
+            const answersObj = {};
+            const markedObj  = {};
+            form.querySelectorAll('input[type="radio"]:checked').forEach(function (input) {
+                answersObj[input.name.replace('q_', '')] = input.value;
+            });
+            marked.forEach(function (qid) { markedObj[qid] = true; });
+            fetch("{% url 'student_portal:exam_autosave' attempt.id %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: answersObj, marked: markedObj, tab_switches: tabSwitches }),
+            }).catch(function () {});
+        }, 600);
+    }
+
+    document.getElementById('confirmSubmitBtn').addEventListener('click', function () {
+        submitExam('manual');
+    });
+
+    function submitExam(reason) {
+        if (examSubmitted) return;
+        examSubmitted = true;
+        clearInterval(timerInterval);
+        document.getElementById('tabSwitchesInput').value = tabSwitches;
+
+        if (reason === 'timeout') {
+            alert("⏰ Time's up! Your exam is being submitted.");
+        } else if (reason === 'tabswitch') {
+            alert('🚫 You switched tabs a second time. Your exam is being submitted automatically.');
+        }
+
+        sessionStorage.setItem(ATTEMPT_KEY, 'submitted');
+        window.removeEventListener('beforeunload', beforeUnloadHandler);
+        history.replaceState({ examDone: true }, '', RESULT_URL);
+        form.submit();
+    }
+
+    document.getElementById('submitExamModal').addEventListener('show.bs.modal', function () {
+        document.getElementById('summaryAnswered').textContent   = answered.size;
+        document.getElementById('summaryMarked').textContent     = marked.size;
+        document.getElementById('summaryUnanswered').textContent = totalQuestions - answered.size;
+    });
+
+    function resetLeaveToast() {
+        document.getElementById('leaveToastTitle').textContent = 'Leave the exam?';
+        document.getElementById('leaveToastText').textContent  =
+            'Your progress will be auto-saved, but you won\'t be able to resume.';
+        document.getElementById('leaveToastLeave').style.display = '';
+        document.getElementById('leaveToastStay').textContent = 'Stay';
+    }
+
+    function showLeaveToast(href) {
+        pendingLeaveHref = href;
+        resetLeaveToast();
+        document.getElementById('leaveToast').classList.add('show');
+    }
+
+    function hideLeaveToast() {
+        document.getElementById('leaveToast').classList.remove('show');
+        pendingLeaveHref = null;
+    }
+
+    function showTabWarning() {
+        const toast = document.getElementById('leaveToast');
+        document.getElementById('leaveToastTitle').textContent = '⚠️ Tab switch detected!';
+        document.getElementById('leaveToastText').textContent  =
+            'Do not switch tabs again — your exam will be submitted automatically.';
+        document.getElementById('leaveToastLeave').style.display = 'none';
+        document.getElementById('leaveToastStay').textContent = 'Got it';
+        toast.classList.add('show');
+        setTimeout(function () {
+            toast.classList.remove('show');
+            resetLeaveToast();
+        }, 6000);
+    }
+
+    document.getElementById('leaveToastStay').addEventListener('click', hideLeaveToast);
+
+    document.getElementById('leaveToastLeave').addEventListener('click', function () {
+        const href = pendingLeaveHref;
+        examSubmitted = true;
+        window.removeEventListener('beforeunload', beforeUnloadHandler);
+        hideLeaveToast();
+        if (href) window.location.href = href;
+    });
+
+    document.addEventListener('click', function (e) {
+        if (examSubmitted) return;
+        const link = e.target.closest('a[href]');
+        if (!link || link.target === '_blank') return;
+        const href = link.getAttribute('href');
+        if (!href
+            || href.startsWith('#')
+            || href.startsWith('javascript:')
+            || href.startsWith('mailto:')
+            || href.startsWith('tel:')) return;
+        e.preventDefault();
+        showLeaveToast(link.href);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && pendingLeaveHref) hideLeaveToast();
+    });
+
+    // ── popstate — always last so all functions above are defined ──
+    window.addEventListener('popstate', function (e) {
+        if (sessionStorage.getItem(ATTEMPT_KEY) === 'submitted' || examSubmitted) {
+            window.location.replace(RESULT_URL);
+            return;
+        }
+        // Re-push so back button still works if user dismisses the toast
+        history.pushState({ examActive: true }, '');
+        showLeaveToast(EXAM_LIST_URL);
+    });
+
+})();
+</script>
+{% endblock %}

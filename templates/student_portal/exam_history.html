@@ -1,0 +1,696 @@
+{% extends "student_portal/base.html" %}
+{% load static %}
+
+{% block title %}Exam History - Dashboard Quiz{% endblock %}
+
+{% block content %}
+
+<!-- Background Animation Canvas -->
+<canvas id="imat-bg-canvas" aria-hidden="true"></canvas>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Exam History</h1>
+        <p class="page-subtitle">All your completed exam attempts</p>
+    </div>
+    <div class="page-header-actions">
+        <select id="perPageSelect" class="btn-admio btn-white btn-sm" style="cursor:pointer;">
+            <option value="5">5 per page</option>
+            <option value="10" selected>10 per page</option>
+            <option value="20">20 per page</option>
+            <option value="50">50 per page</option>
+        </select>
+        <a href="{% url 'student_portal:exam_list' %}" class="btn-admio btn-ai btn-sm">
+            <i class="icon-list"></i> All Exams
+        </a>
+    </div>
+</div>
+
+{% if not attempts %}
+<div class="admio-card">
+    <div class="admio-card-body text-center py-5">
+        <i class="icon-clipboard-list" style="font-size:3rem; color:var(--admio-text-secondary,#9ca3af);"></i>
+        <h3 class="mt-3 fw-700">No attempts yet</h3>
+        <p class="text-secondary-c">Start an exam to see your history here.</p>
+        <a href="{% url 'student_portal:exam_list' %}" class="btn-admio btn-ai btn-sm mt-2">Browse Exams</a>
+    </div>
+</div>
+
+{% else %}
+
+<div class="admio-card">
+    <div class="admio-card-body p-0">
+
+        <!-- Desktop Table -->
+        <div class="table-responsive d-none d-lg-block">
+            <table class="exam-table">
+                <thead>
+                    <tr>
+                        <th>SUBJECT / SUBMODULE</th>
+                        <th>SCORE</th>
+                        <th>CORRECT / WRONG / SKIP</th>
+                        <th>GRADE</th>
+                        <th>DATE</th>
+                        <th class="text-end">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody id="attemptList">
+                    {% for attempt in attempts %}
+                    <tr class="attempt-row">
+                        <td>
+                            <div class="fw-700">{{ attempt.exam.custom_name|default:attempt.exam.title }}</div>
+                            <div class="text-secondary-c text-sm">{{ attempt.exam.subject|default:"General" }}</div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="score-badge {% if attempt.percentage >= 70 %}score-high{% elif attempt.percentage >= 40 %}score-medium{% else %}score-low{% endif %}">
+                                    {{ attempt.percentage }}%
+                                </span>
+                                <span class="text-secondary-c text-sm">{{ attempt.marks_earned }}/{{ attempt.total_marks }} marks</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-3">
+                                <span class="text-success"><i class="icon-check-check"></i> {{ attempt.correct_count }}</span>
+                                <span class="text-danger"><i class="icon-x"></i> {{ attempt.wrong_count }}</span>
+                                <span class="text-muted"><i class="icon-minus-circle"></i> {{ attempt.skipped_count }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="grade-badge {% if attempt.percentage >= 70 %}grade-excellent{% elif attempt.percentage >= 40 %}grade-average{% else %}grade-poor{% endif %}">
+                                {% if attempt.percentage >= 70 %}Excellent{% elif attempt.percentage >= 40 %}Average{% else %}Needs Improvement{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div>{{ attempt.submitted_at|date:"M d, Y" }}</div>
+                            <div class="text-secondary-c text-sm">{{ attempt.submitted_at|date:"h:i A" }}</div>
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'student_portal:exam_result' attempt_slug=attempt.slug %}" class="btn-admio btn-ai btn-sm">
+                                <i class="icon-eye"></i> Review
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile/Tablet View -->
+        <div class="d-lg-none">
+            <div class="p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-secondary-c text-sm" id="resultCountMobile"></span>
+                </div>
+                {% for attempt in attempts %}
+                <div class="mobile-attempt-card mb-3">
+                    <div class="d-flex align-items-start gap-3">
+                        <span class="score-badge-mobile {% if attempt.percentage >= 70 %}score-high{% elif attempt.percentage >= 40 %}score-medium{% else %}score-low{% endif %}">
+                            {{ attempt.percentage }}%
+                        </span>
+                        <div class="flex-grow-1">
+                            <div class="fw-700">{{ attempt.exam.custom_name|default:attempt.exam.title }}</div>
+                            <div class="text-secondary-c text-sm d-flex flex-wrap gap-3 mt-1">
+                                <span><i class="icon-calendar me-1"></i>{{ attempt.submitted_at|date:"d M Y, H:i" }}</span>
+                                <span><i class="icon-check-check me-1"></i>{{ attempt.correct_count }} correct</span>
+                                <span><i class="icon-x me-1"></i>{{ attempt.wrong_count }} wrong</span>
+                                <span><i class="icon-minus-circle me-1"></i>{{ attempt.skipped_count }} skipped</span>
+                                <span><i class="icon-file-text me-1"></i>{{ attempt.marks_earned }}/{{ attempt.total_marks }} marks</span>
+                            </div>
+                            <div class="mt-2">
+                                <span class="grade-badge-mobile {% if attempt.percentage >= 70 %}grade-excellent{% elif attempt.percentage >= 40 %}grade-average{% else %}grade-poor{% endif %}">
+                                    {% if attempt.percentage >= 70 %}Excellent{% elif attempt.percentage >= 40 %}Average{% else %}Needs Improvement{% endif %}
+                                </span>
+                                {% if attempt.status == attempt.STATUS_TIMED_OUT %}
+                                <span class="badge-admio badge-orange badge-dot">Timed Out</span>
+                                {% else %}
+                                <span class="badge-admio badge-green badge-dot">Submitted</span>
+                                {% endif %}
+                                <a href="{% url 'student_portal:exam_result' attempt_slug=attempt.slug %}" class="btn-admio btn-ai btn-sm">
+                                    <i class="icon-eye"></i> Review
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Pagination controls -->
+<div class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap" id="pagination"></div>
+
+{% endif %}
+
+<style>
+    /* ─── Background Canvas ─── */
+    #imat-bg-canvas {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Ensure content appears above background */
+    .page-header,
+    .admio-card,
+    #pagination {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ─── Desktop Table ─── */
+    .exam-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+    .exam-table thead {
+        background: #f8f9fa;
+        border-bottom: 2px solid var(--admio-border-color, #e5e7eb);
+    }
+    .exam-table thead th {
+        padding: 16px 20px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--admio-text-secondary, #6b7280);
+    }
+    .exam-table thead th.text-end { text-align: right; }
+    .exam-table tbody tr {
+        border-bottom: 1px solid var(--admio-border-color, #f0f0f0);
+        transition: background-color 0.15s ease;
+    }
+    .exam-table tbody tr:hover { background-color: #f0f6ff; }
+    .exam-table tbody td {
+        padding: 14px 20px;
+        vertical-align: middle;
+    }
+    .exam-table tbody td.text-end { text-align: right; }
+
+    [data-theme="dark"] .exam-table tbody tr:hover { background-color: rgba(255,255,255,0.05); }
+    [data-theme="dark"] .exam-table thead { background: #1a1a2e; }
+
+    /* ─── Score Badges ─── */
+    .score-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        min-width: 50px;
+        text-align: center;
+    }
+    .score-high   { background: #dcfce7; color: #15803d; }
+    .score-medium { background: #fef9c3; color: #854d0e; }
+    .score-low    { background: #fee2e2; color: #b91c1c; }
+
+    [data-theme="dark"] .score-high   { background: rgba(16,185,129,0.2); color: #34d399; }
+    [data-theme="dark"] .score-medium { background: rgba(251,191,36,0.2);  color: #fbbf24; }
+    [data-theme="dark"] .score-low    { background: rgba(239,68,68,0.2);   color: #f87171; }
+
+    /* ─── Grade Badges ─── */
+    .grade-badge {
+        display: inline-block;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+    .grade-excellent { background: #dcfce7; color: #15803d; }
+    .grade-average   { background: #fef9c3; color: #854d0e; }
+    .grade-poor      { background: #fee2e2; color: #b91c1c; }
+
+    [data-theme="dark"] .grade-excellent { background: rgba(16,185,129,0.2); color: #34d399; }
+    [data-theme="dark"] .grade-average   { background: rgba(251,191,36,0.2);  color: #fbbf24; }
+    [data-theme="dark"] .grade-poor      { background: rgba(239,68,68,0.2);   color: #f87171; }
+
+    /* ─── Mobile Cards ─── */
+    .score-badge-mobile {
+        display: inline-block;
+        min-width: 50px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    .grade-badge-mobile {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.7rem;
+    }
+    .mobile-attempt-card {
+        border: 1px solid var(--admio-border-color, #e5e7eb);
+        border-radius: 12px;
+        padding: 14px 16px;
+        background: #ffffff;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    [data-theme="dark"] .mobile-attempt-card {
+        background: #1a1a2e;
+        border-color: #2d2d44;
+    }
+    .mobile-attempt-card:hover {
+        border-color: rgba(0,102,245,0.25);
+        box-shadow: 0 2px 12px rgba(0,102,245,0.08);
+    }
+    [data-theme="dark"] .mobile-attempt-card:hover {
+        border-color: rgba(59,130,246,0.3);
+        box-shadow: 0 2px 12px rgba(59,130,246,0.1);
+    }
+
+    /* ─── Status Badges ─── */
+    .badge-admio {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-weight: 600;
+        border-radius: 20px;
+        padding: 0.3rem 0.75rem;
+        font-size: 0.7rem;
+        line-height: 1.4;
+    }
+    .badge-green  { background: #dcfce7; color: #15803d; }
+    .badge-orange { background: #fef3c7; color: #92400e; }
+    [data-theme="dark"] .badge-green  { background: rgba(16,185,129,0.2); color: #34d399; }
+    [data-theme="dark"] .badge-orange { background: rgba(251,191,36,0.2);  color: #fbbf24; }
+    .badge-dot::before {
+        content: '';
+        display: inline-block;
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        margin-right: 0.35rem;
+        background: currentColor;
+    }
+
+    /* ─── Page Header ─── */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        background: var(--admio-card-bg, #ffffff);
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        position: relative;
+        z-index: 1;
+    }
+    [data-theme="dark"] .page-header {
+        background: #1a1a2e;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    [data-theme="dark"] .page-title { color: #e2e8f0; }
+    .page-subtitle {
+        font-size: 0.95rem;
+        margin: 0.25rem 0 0 0;
+        color: var(--admio-text-secondary, #6b7280);
+    }
+    .page-header-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    /* ─── Buttons ─── */
+    .btn-admio {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1.5px solid transparent;
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+    .btn-white {
+        background: var(--admio-card-bg, #ffffff);
+        border-color: var(--admio-border-color, #e5e7eb);
+        color: var(--admio-text-color, #374151);
+    }
+    [data-theme="dark"] .btn-white {
+        background: #1a1a2e;
+        border-color: #2d2d44;
+        color: #e2e8f0;
+    }
+    .btn-white:hover {
+        background: var(--admio-bg-hover, #f0f6ff);
+        border-color: #0066f5;
+        color: #0066f5;
+    }
+    [data-theme="dark"] .btn-white:hover {
+        background: rgba(59,130,246,0.1);
+        border-color: #3b82f6;
+        color: #60a5fa;
+    }
+    .btn-ai {
+        background: linear-gradient(135deg, #0066f5 0%, #4ea5ff 100%);
+        color: #ffffff;
+        border-color: transparent;
+        box-shadow: 0 2px 8px rgba(0,102,245,0.25);
+    }
+    .btn-ai:hover {
+        background: linear-gradient(135deg, #0052cc 0%, #0066f5 100%);
+        border-color: transparent;
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(0,102,245,0.35);
+        transform: translateY(-1px);
+    }
+    .btn-ai:active { transform: translateY(0); }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8125rem; }
+    .btn-white:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Utilities ─── */
+    .text-success    { color: #15803d; }
+    .text-danger     { color: #b91c1c; }
+    .text-muted      { color: #6b7280; }
+    .fw-700          { font-weight: 700; }
+    .text-secondary-c{ color: var(--admio-text-secondary, #6b7280); }
+    .text-sm         { font-size: 0.875rem; }
+    .text-end        { text-align: right; }
+    .text-center     { text-align: center; }
+    .p-0  { padding: 0; }
+    .p-3  { padding: 1rem; }
+    .py-5 { padding-top: 3rem; padding-bottom: 3rem; }
+    .d-flex          { display: flex; }
+    .flex-column     { flex-direction: column; }
+    .flex-grow-1     { flex-grow: 1; }
+    .flex-shrink-0   { flex-shrink: 0; }
+    .flex-wrap       { flex-wrap: wrap; }
+    .align-items-center  { align-items: center; }
+    .align-items-start   { align-items: flex-start; }
+    .justify-content-between { justify-content: space-between; }
+    .justify-content-center  { justify-content: center; }
+    .gap-3 { gap: 0.75rem; }
+    .mt-1  { margin-top: 0.25rem; }
+    .mt-2  { margin-top: 0.5rem; }
+    .mt-3  { margin-top: 1rem; }
+    .mt-4  { margin-top: 1.5rem; }
+    .mb-3  { margin-bottom: 1rem; }
+    .ms-2  { margin-left: 0.5rem; }
+    .me-1  { margin-right: 0.25rem; }
+
+    /* ─── Admio Card ─── */
+    .admio-card {
+        background: var(--admio-card-bg, #ffffff);
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+    }
+    [data-theme="dark"] .admio-card {
+        background: #1a1a2e;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .admio-card-body { padding: 1.5rem; }
+
+    /* ─── Table Responsive ─── */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ─── Pagination ─── */
+    #pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    #pagination button,
+    #pagination span {
+        min-width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    #pagination .btn-admio {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 991px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+        }
+        .page-header-actions { width: 100%; justify-content: flex-start; }
+    }
+    @media (max-width: 767px) {
+        .page-header { padding: 1rem; margin-bottom: 1rem; }
+        .page-title  { font-size: 1.25rem; }
+        .page-subtitle { font-size: 0.85rem; }
+        .page-header-actions { flex-wrap: wrap; }
+        #pagination button,
+        #pagination span { min-width: 32px; height: 32px; font-size: 0.8rem; }
+        #pagination .btn-admio { padding: 0.35rem 0.85rem; font-size: 0.8rem; }
+    }
+
+    /* ─── Responsive show/hide ─── */
+    .d-none     { display: none !important; }
+    .d-lg-block { display: none !important; }
+    .d-lg-none  { display: block !important; }
+    @media (min-width: 992px) {
+        .d-lg-block { display: block !important; }
+        .d-lg-none  { display: none !important; }
+    }
+</style>
+
+<script>
+/* ── PAGINATION ── */
+(function () {
+    var rows        = Array.from(document.querySelectorAll('.attempt-row'));
+    var perSelect   = document.getElementById('perPageSelect');
+    var pageWrap    = document.getElementById('pagination');
+    var countElMob  = document.getElementById('resultCountMobile');
+    var total       = rows.length;
+    var currentPage = 1;
+    var perPage     = parseInt(perSelect.value);
+
+    function render() {
+        var totalPages = Math.ceil(total / perPage);
+        if (currentPage > totalPages) currentPage = totalPages;
+        var start = (currentPage - 1) * perPage;
+        var end   = start + perPage;
+
+        rows.forEach(function (row, i) {
+            row.style.display = (i >= start && i < end) ? '' : 'none';
+        });
+
+        var mobileCards = document.querySelectorAll('.mobile-attempt-card');
+        mobileCards.forEach(function (card, i) {
+            card.style.display = (i >= start && i < end) ? '' : 'none';
+        });
+
+        var countText = 'Showing ' + (start + 1) + '\u2013' + Math.min(end, total) + ' of ' + total + ' attempts';
+        if (countElMob) countElMob.textContent = countText;
+
+        pageWrap.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        /* Previous */
+        var prev = makeBtn(currentPage === 1, function () { currentPage--; render(); });
+        prev.innerHTML = '<i class="icon-arrow-left"></i> Previous';
+        prev.className = 'btn-admio btn-white btn-sm';
+        pageWrap.appendChild(prev);
+
+        /* Page numbers */
+        for (var i = 1; i <= totalPages; i++) {
+            if (i < currentPage - 2 || i > currentPage + 2) continue;
+            var btn = document.createElement(i === currentPage ? 'span' : 'button');
+            btn.textContent = i;
+            if (i === currentPage) {
+                btn.style.cssText = 'min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:linear-gradient(135deg,#0066f5,#4ea5ff);color:#fff;font-weight:700;font-size:.9rem;';
+            } else {
+                btn.style.cssText = 'min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1.5px solid var(--admio-border-color,#e5e7eb);font-weight:600;font-size:.9rem;color:var(--admio-text-color,#374151);background:none;cursor:pointer;';
+                btn.addEventListener('click', (function (p) {
+                    return function () { currentPage = p; render(); };
+                })(i));
+            }
+            pageWrap.appendChild(btn);
+        }
+
+        /* Next */
+        var next = makeBtn(currentPage === totalPages, function () { currentPage++; render(); });
+        next.innerHTML = 'Next <i class="icon-arrow-right"></i>';
+        next.className = 'btn-admio btn-white btn-sm';
+        pageWrap.appendChild(next);
+
+        /* Page info */
+        var info = document.createElement('span');
+        info.className = 'text-secondary-c text-sm ms-2';
+        info.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+        pageWrap.appendChild(info);
+    }
+
+    function makeBtn(disabled, onClick) {
+        var btn = document.createElement('button');
+        btn.disabled = disabled;
+        if (!disabled) btn.addEventListener('click', onClick);
+        return btn;
+    }
+
+    perSelect.addEventListener('change', function () {
+        perPage     = parseInt(this.value);
+        currentPage = 1;
+        render();
+    });
+
+    render();
+})();
+
+/* ── ANIMATED BACKGROUND ── */
+(function(){
+    var canvas = document.getElementById('imat-bg-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var TAU = Math.PI * 2;
+    var W, H;
+    var DARK = function() { return document.documentElement.getAttribute('data-theme') === 'dark'; };
+    var PAL = {
+        bio:   function() { return DARK() ? 'rgba(16,185,129,'  : 'rgba(5,150,105,'; },
+        chem:  function() { return DARK() ? 'rgba(139,92,246,'  : 'rgba(124,58,237,'; },
+        phys:  function() { return DARK() ? 'rgba(59,130,246,'  : 'rgba(26,86,219,'; },
+        math:  function() { return DARK() ? 'rgba(245,158,11,'  : 'rgba(217,119,6,'; },
+        logic: function() { return DARK() ? 'rgba(236,72,153,'  : 'rgba(219,39,119,'; },
+        grid:  function() { return DARK() ? 'rgba(91,141,238,'  : 'rgba(26,86,219,'; },
+    };
+
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    var rng = function(s) { var x = Math.sin(s*9301+49297)*233280; return x - Math.floor(x); };
+
+    function drawGrid(t) {
+        var gs = 36, pulse = 0.04 + 0.02 * Math.sin(t * 0.0005);
+        ctx.save(); ctx.globalAlpha = pulse; ctx.fillStyle = PAL.grid() + '1)';
+        for (var x = 0; x < W; x += gs) {
+            for (var y = 0; y < H; y += gs) {
+                var r = 1.3 + 0.4 * Math.sin(t * 0.001 + x * 0.05 + y * 0.04);
+                ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+            }
+        }
+        ctx.restore();
+    }
+
+    var helixData = [
+        { x: W * 0.06, y0: 0, y1: H, speed: 0.006, cA: '#10b981', cB: '#3b82f6', t: 0 },
+        { x: W * 0.94, y0: 0, y1: H, speed: 0.005, cA: '#8b5cf6', cB: '#ec4899', t: 0 }
+    ];
+
+    function drawHelix(h) {
+        h.t += h.speed;
+        var amp = 26, freq = 0.042, steps = 80, segH = (h.y1 - h.y0) / steps;
+        ctx.save();
+        for (var i = 0; i <= steps; i++) {
+            var y = h.y0 + i * segH, ph = h.t + i * freq * TAU;
+            var x1 = h.x + Math.sin(ph) * amp, x2 = h.x + Math.sin(ph + Math.PI) * amp;
+            if (i > 0) {
+                var py = h.y0 + (i - 1) * segH;
+                var px1 = h.x + Math.sin(h.t + (i - 1) * freq * TAU) * amp;
+                var px2 = h.x + Math.sin(h.t + Math.PI + (i - 1) * freq * TAU) * amp;
+                ctx.globalAlpha = DARK() ? 0.22 : 0.14;
+                ctx.beginPath(); ctx.moveTo(px1, py); ctx.lineTo(x1, y); ctx.strokeStyle = h.cA; ctx.lineWidth = 1.6; ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(px2, py); ctx.lineTo(x2, y); ctx.strokeStyle = h.cB; ctx.lineWidth = 1.6; ctx.stroke();
+            }
+            if (i % 5 === 0) {
+                ctx.globalAlpha = DARK() ? 0.3 : 0.18;
+                ctx.beginPath(); ctx.arc(x1, y, 2.5, 0, TAU); ctx.fillStyle = h.cA; ctx.fill();
+                ctx.beginPath(); ctx.arc(x2, y, 2.5, 0, TAU); ctx.fillStyle = h.cB; ctx.fill();
+            }
+        }
+        ctx.restore();
+    }
+
+    var SYMS = ['Σ','∫','π','λ','α','β','γ','H₂O','CO₂','ATP','DNA','E=mc²','F=ma','pH','A','B','C','D','?','✓'];
+    var SYM_COLS = [PAL.bio, PAL.chem, PAL.phys, PAL.math, PAL.logic];
+    var floatSyms = [];
+    for (var _i = 0; _i < 30; _i++) {
+        floatSyms.push({
+            x: rng(_i * 3) * (window.innerWidth || 1200),
+            y: rng(_i * 7) * (window.innerHeight || 900),
+            vy: -(0.12 + rng(_i * 5) * 0.28),
+            vx: (rng(_i * 9) - 0.5) * 0.18,
+            life: Math.floor(rng(_i * 11) * 400),
+            maxLife: 280 + rng(_i * 17) * 500,
+            text: SYMS[Math.floor(rng(_i * 19) * SYMS.length)],
+            size: 11 + rng(_i * 23) * 9,
+            palIdx: Math.floor(rng(_i * 29) * 5),
+            maxA: 0.08 + rng(_i * 13) * 0.12
+        });
+    }
+
+    function drawSyms() {
+        ctx.save();
+        floatSyms.forEach(function(s, i) {
+            s.x += s.vx; s.y += s.vy; s.life++;
+            if (s.life > s.maxLife) { s.x = rng(s.life * 3 + i) * W; s.y = H + 20; s.life = 0; s.text = SYMS[Math.floor(rng(s.life + i * 7) * SYMS.length)]; }
+            var tv = s.life / s.maxLife;
+            var a = tv < 0.1 ? s.maxA * (tv / 0.1) : tv > 0.82 ? s.maxA * (1 - (tv - 0.82) / 0.18) : s.maxA;
+            ctx.globalAlpha = a;
+            ctx.font = s.size + "px 'JetBrains Mono',monospace";
+            ctx.fillStyle = SYM_COLS[s.palIdx]() + '1)';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(s.text, s.x, s.y);
+        });
+        ctx.restore();
+    }
+
+    var scanY = -40;
+    function drawScan() {
+        scanY += 0.6; if (scanY > H + 40) scanY = -40;
+        ctx.save(); ctx.globalAlpha = DARK() ? 0.05 : 0.03;
+        ctx.beginPath(); ctx.moveTo(0, scanY); ctx.lineTo(W, scanY);
+        ctx.strokeStyle = '#5b9cf6'; ctx.lineWidth = 1.8; ctx.stroke(); ctx.restore();
+    }
+
+    var frame = 0;
+    function tick() {
+        frame++;
+        ctx.clearRect(0, 0, W, H);
+        drawGrid(frame);
+        helixData.forEach(drawHelix);
+        drawSyms();
+        drawScan();
+        requestAnimationFrame(tick);
+    }
+    tick();
+})();
+</script>
+
+{% endblock %}

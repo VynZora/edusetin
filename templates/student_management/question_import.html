@@ -1,0 +1,323 @@
+{% extends "student_management/base.html" %}
+
+{% block title %}Import Questions | Student Management{% endblock %}
+
+{% block content %}
+<div class="dashboard__form__wraper">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'student_management:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'student_management:question_list' %}">Question Bank</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Import Questions</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Left Column: Info and Instructions -->
+        <div class="col-12 col-lg-7">
+            <!-- Info Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3 fw-bold">Import Questions</h5>
+                    <p class="card-text text-muted mb-4">
+                        Bulk import questions into the Question Bank using an Excel file.
+                        Download the sample template below and use the exact format before importing.
+                    </p>
+                    <a href="{% url 'student_management:download_question_template' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i> Download Sample Template
+                    </a>
+                </div>
+            </div>
+
+            <!-- Instructions Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom pt-3 pb-2">
+                    <h6 class="mb-0 fw-semibold">Important Guidelines</h6>
+                </div>
+                <div class="card-body p-4">
+                        <ul class="list-group list-group-flush text-muted">
+                            <li class="list-group-item px-0 border-0 py-2"><i class="fas fa-check-circle text-success me-2"></i> Subject must already exist in the system.</li>
+                            <li class="list-group-item px-0 border-0 py-2"><i class="fas fa-check-circle text-success me-2"></i> Correct Answer must be: <strong>A, B, C, D, or E</strong></li>
+                            <li class="list-group-item px-0 border-0 py-2"><i class="fas fa-check-circle text-success me-2"></i> Allowed Source values: <strong>PYQ, EDUSETIN, OTHER</strong></li>
+                            <li class="list-group-item px-0 border-0 py-2"><i class="fas fa-check-circle text-success me-2"></i> Year is required only when Source = PYQ.</li>
+                            <li class="list-group-item px-0 border-0 py-2"><i class="fas fa-check-circle text-success me-2"></i> One question per row.</li>
+                            <li class="list-group-item px-0 border-0 py-2"><i class="fas fa-exclamation-circle text-warning me-2"></i> Do not modify column names.</li>
+                            <li class="list-group-item px-0 border-0 py-2"><i class="fas fa-exclamation-circle text-warning me-2"></i> Use the provided sample template.</li>
+                            <li class="list-group-item px-0 border-0 py-2"><i class="fas fa-info-circle text-primary me-2"></i> <strong>New:</strong> Use <em>Question Image Name</em>, <em>Option A Image Name</em> … columns to auto-attach images from the Media Library by exact filename. If the asset is not found, the question is still imported and shown in Media Pending.</li>
+                        </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Upload Form + Recent Questions -->
+        <div class="col-12 col-lg-5">
+
+            <!-- Upload Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom pt-3 pb-2">
+                    <h6 class="mb-0 fw-semibold">Upload Excel File</h6>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="{% url 'student_management:question_import' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="excel_file" class="form-label fw-semibold">Excel File <span class="text-danger">*</span></label>
+                            <input type="file" id="excel_file" name="excel_file" class="form-control" accept=".xlsx,.xls" required>
+                            <div class="form-text mt-2">Accepted formats: .xlsx, .xls</div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary py-2">
+                                <i class="fas fa-cloud-upload-alt me-2"></i> Import Questions
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Recent Questions Widget -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom pt-3 pb-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold">Recent Questions</h6>
+                    <a href="{% url 'student_management:question_list' %}" class="small text-primary text-decoration-none">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush" style="max-height:340px;overflow-y:auto;">
+                        {% for q in recent_questions %}
+                        <li class="list-group-item px-3 py-3">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon -->
+                                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10"
+                                     style="width:36px;height:36px;">
+                                    <i class="fas fa-question text-danger" style="font-size:13px;"></i>
+                                </div>
+                                <!-- Text -->
+                                <div class="flex-grow-1" style="min-width:0;">
+                                    <div>
+                                        <span class="fw-bold text-dark">{{ q.subject.name }}</span>
+                                        <span class="text-muted fw-normal"> — {{ q.question_text|truncatechars:45 }}</span>
+                                    </div>
+                                    <div class="text-muted mt-1 small">
+                                        {{ q.created_at|timesince }} ago
+                                        {% if q.source %} · <span class="text-uppercase">{{ q.source }}</span>{% endif %}
+                                    </div>
+                                </div>
+                                <!-- Date -->
+                                <div class="flex-shrink-0 text-end fw-medium small text-secondary" style="white-space:nowrap;">
+                                    {{ q.created_at|date:"M j, Y" }}
+                                </div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center text-muted py-4">
+                            No recent questions.
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     Import Report Modal — auto-opens after a successful file processing
+     ═══════════════════════════════════════════════════════════════════ -->
+{% if import_report %}
+<div class="modal fade" id="importReportModal" tabindex="-1" aria-labelledby="importReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold" id="importReportModalLabel">
+                    <i class="fas fa-file-import me-2 text-primary"></i> Import Report
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body pt-3">
+
+                <!-- ── Summary Cards ── -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 bg-light text-center py-3 px-2 h-100">
+                            <div class="fs-4 fw-bold text-dark">{{ import_report.total_rows }}</div>
+                            <div class="small text-muted mt-1">Total Rows</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 text-center py-3 px-2 h-100" style="background:#d1fae5;">
+                            <div class="fs-4 fw-bold text-success">{{ import_report.imported }}</div>
+                            <div class="small text-muted mt-1">Imported</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 text-center py-3 px-2 h-100" style="background:#fef9c3;">
+                            <div class="fs-4 fw-bold text-warning">{{ import_report.duplicates }}</div>
+                            <div class="small text-muted mt-1">Duplicates</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 text-center py-3 px-2 h-100" style="background:#fee2e2;">
+                            <div class="fs-4 fw-bold text-danger">{{ import_report.failed }}</div>
+                            <div class="small text-muted mt-1">Failed</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if import_report.media_pending > 0 %}
+                <div class="alert d-flex align-items-center justify-content-between gap-3 mb-4"
+                     style="background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:16px 20px;">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="fas fa-images text-warning"></i>
+                            <strong class="text-warning-emphasis">Media Pending: {{ import_report.media_pending }} Question{{ import_report.media_pending|pluralize }}</strong>
+                        </div>
+                        <div class="small text-muted">These questions require images that have not been uploaded yet.</div>
+                    </div>
+                    <a href="{% url 'student_management:media_pending' %}" class="btn btn-warning btn-sm flex-shrink-0">
+                        <i class="fas fa-upload me-1"></i> Manage Media
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Media Missing Rows (detailed) -->
+                {% if import_report.media_missing_rows %}
+                <div class="mb-4">
+                    <h6 class="fw-semibold mb-2" style="color:#92400e;">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Media Asset Lookup Failures ({{ import_report.media_missing_rows|length }} slot{{ import_report.media_missing_rows|length|pluralize }})
+                    </h6>
+                    <div class="small text-muted mb-2">The following image names were not found in the Media Library. Questions were still imported. Upload the missing assets to the Media Library, then use the Media Upload page to attach them.</div>
+                    <div class="table-responsive" style="max-height:260px; overflow-y:auto;">
+                        <table class="table table-sm table-bordered align-middle mb-0">
+                            <thead class="table-light" style="position:sticky;top:0;z-index:1;">
+                                <tr>
+                                    <th style="width:80px;">Row</th>
+                                    <th style="width:180px;">Column</th>
+                                    <th>Image Name (Value)</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in import_report.media_missing_rows %}
+                                <tr>
+                                    <td class="fw-bold text-center">{{ m.row }}</td>
+                                    <td class="fw-medium small">{{ m.column }}</td>
+                                    <td class="font-monospace small text-muted">{{ m.value }}</td>
+                                    <td class="small text-danger">{{ m.message }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ── No errors: success state ── -->
+                {% if not import_report.errors and not import_report.duplicate_rows and not import_report.media_missing_rows %}
+                    <div class="alert alert-success d-flex align-items-center gap-2 mb-0">
+                        <i class="fas fa-check-circle fs-5"></i>
+                        <div>
+                            <strong>Import completed successfully.</strong><br>
+                            <span class="small">No validation errors found.</span>
+                        </div>
+                    </div>
+
+                {% else %}
+
+                    <!-- ── Failed Rows Table ── -->
+                    {% if import_report.errors %}
+                    <div class="mb-4">
+                        <h6 class="fw-semibold mb-2 text-danger">
+                            <i class="fas fa-times-circle me-1"></i> Validation Errors ({{ import_report.errors|length }} issue{{ import_report.errors|length|pluralize }})
+                        </h6>
+                        <div class="table-responsive" style="max-height:260px; overflow-y:auto;">
+                            <table class="table table-sm table-bordered align-middle mb-0">
+                                <thead class="table-light" style="position:sticky;top:0;z-index:1;">
+                                    <tr>
+                                        <th style="width:80px;">Row</th>
+                                        <th style="width:130px;">Column</th>
+                                        <th>Value</th>
+                                        <th>Error</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for err in import_report.errors %}
+                                    <tr>
+                                        <td class="fw-bold text-center text-danger">{{ err.row }}</td>
+                                        <td class="fw-medium">{{ err.column }}</td>
+                                        <td class="text-muted font-monospace small">{{ err.value }}</td>
+                                        <td class="text-danger small">{{ err.message }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- ── Duplicates Section ── -->
+                    {% if import_report.duplicate_rows %}
+                    <div class="mb-0">
+                        <h6 class="fw-semibold mb-2 text-warning">
+                            <i class="fas fa-copy me-1"></i> Duplicates Skipped ({{ import_report.duplicate_rows|length }})
+                        </h6>
+                        <div class="table-responsive" style="max-height:200px; overflow-y:auto;">
+                            <table class="table table-sm table-bordered align-middle mb-0">
+                                <thead class="table-light" style="position:sticky;top:0;z-index:1;">
+                                    <tr>
+                                        <th style="width:80px;">Row</th>
+                                        <th>Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for dup in import_report.duplicate_rows %}
+                                    <tr>
+                                        <td class="fw-bold text-center text-secondary">{{ dup.row }}</td>
+                                        <td class="text-muted small">{{ dup.message }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                {% endif %}
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {% if import_report.imported > 0 %}
+                <a href="{% url 'student_management:question_list' %}" class="btn btn-primary">
+                    <i class="fas fa-list me-1"></i> View Question Bank
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Auto-open the modal immediately after the POST result is rendered -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var modalEl = document.getElementById('importReportModal');
+        if (modalEl) {
+            var modal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+            modal.show();
+        }
+    });
+
+
+
+</script>
+{% endif %}
+
+{% endblock %}

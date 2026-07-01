@@ -40,15 +40,18 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "edusetin_app",
-    
+    "student_management",
+    "student_portal",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    'student_portal.middleware.SingleSessionMiddleware',
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "edusetin_app.middleware.no_cache_middleware.NoCacheMiddleware",
@@ -129,6 +132,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # production
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 MEDIA_URL = '/media/' 
@@ -139,5 +143,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'msvishnu673@gmail.com'
+EMAIL_HOST_PASSWORD = 'sjcf tyva aldr ashi' 
+DEFAULT_FROM_EMAIL = 'EduSetin <msvishnu673@gmail.com>'
+RAZORPAY_KEY_ID = "rzp_live_T6g0mKf9I9cZV9"
+RAZORPAY_KEY_SECRET = "LsITc6tgyzTiBBv9dyf6hEjH"
 
 
