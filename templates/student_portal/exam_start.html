@@ -1,5 +1,6 @@
 {% extends "student_portal/base.html" %}
 {% load static %}
+{% load exam_extras %}
 
 {% block content %}
 
@@ -7,12 +8,13 @@
   .option-card{
     border:2px solid var(--admio-border-color,#e5e7eb);
     border-radius:14px;
-    padding:18px;
+    padding:16px 18px;
     cursor:pointer;
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     gap:15px;
     transition:all 0.2s ease;
+    background: var(--admio-card-bg,#fff);
   }
   .option-card:hover{
     border-color:#7c3aed;
@@ -24,14 +26,109 @@
     height:20px;
     accent-color:#7c3aed;
     flex-shrink:0;
+    margin-top:2px;
   }
   .option-card.selected{
     border-color:#7c3aed;
     background: rgba(124,58,237,.06);
   }
+  .option-card.selected .option-image-wrap{
+    border-color:#7c3aed;
+  }
   .option-text{
     font-weight:500;
+    line-height:1.5;
+    padding-top:2px;
   }
+  .option-content{
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .option-image-wrap{
+    flex-shrink: 0;
+    border: 1px solid var(--admio-border-color,#e5e7eb);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f9fafb;
+    line-height: 0;
+    transition: border-color .2s ease;
+  }
+  .option-image{
+    display:block;
+    max-height:130px;
+    max-width:220px;
+    width:auto;
+    height:auto;
+    object-fit: contain;
+    cursor: zoom-in;
+    transition: transform .2s ease;
+  }
+  .option-image:hover{
+    transform: scale(1.03);
+  }
+  .option-content.has-image .option-text{
+    flex: 1;
+    min-width: 140px;
+  }
+  .question-image-wrap{
+    margin-top: 14px;
+    border: 1px solid var(--admio-border-color,#e5e7eb);
+    border-radius: 12px;
+    overflow: hidden;
+    display: inline-block;
+    max-width: 100%;
+    background: #fff;
+    line-height: 0;
+    padding: 6px;
+  }
+  .question-image{
+    display:block;
+    max-height:460px;
+    max-width:100%;
+    width:auto;
+    object-fit: contain;
+    cursor: zoom-in;
+    transition: transform .2s ease;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    border-radius: 6px;
+  }
+  .question-image:hover{
+    transform: scale(1.015);
+  }
+  @media (max-width: 575px){
+    .option-image{ max-width:150px; max-height:110px; }
+    .question-image{ max-height:320px; }
+  }
+
+  /* Image lightbox */
+  .img-lightbox{
+    position: fixed; inset: 0; z-index: 20000;
+    background: rgba(0,0,0,.85);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 30px;
+    cursor: zoom-out;
+  }
+  .img-lightbox.show{ display: flex; }
+  .img-lightbox img{
+    max-width: 100%; max-height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .img-lightbox-close{
+    position: absolute; top: 20px; right: 24px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,.12); color: #fff;
+    border: none; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .img-lightbox-close:hover{ background: rgba(255,255,255,.22); }
+
   .q-slide{ display:none; }
   .q-slide.active{ display:block; }
 
@@ -177,37 +274,99 @@
                             </div>
 
                             <h4 class="fw-700">
-    {{ question.question_text }}
-</h4>
+                                {{ question.question_text }}
+                            </h4>
 
-                            {% for media in question.media_files.all %}
-                                {% if media.file_type == 'image' %}
-                                <img src="{{ media.file.url }}" alt="Question media" class="img-fluid rounded mt-3" style="max-height:300px;">
+                            {% with q_media=question.media_files.all|get_option_media:"QUESTION" %}
+                                {% if q_media %}
+                                <div class="question-image-wrap">
+                                    <img src="{{ q_media.effective_image.url }}" alt="Question media" class="question-image js-zoomable">
+                                </div>
                                 {% endif %}
-                            {% endfor %}
+                            {% endwith %}
                         </div>
 
                         <div class="d-flex flex-column gap-3">
 
                             <label class="option-card" data-option="A">
                                 <input type="radio" name="q_{{ question.id }}" value="A">
-                                <span class="option-text">{{ question.option_a }}</span>
+                                {% with media=question.media_files.all|get_option_media:"OPTION_A" %}
+                                <div class="option-content{% if media %} has-image{% endif %}">
+                                    {% if media %}
+                                    <div class="option-image-wrap">
+                                        <img src="{{ media.effective_image.url }}" alt="Option A" class="option-image js-zoomable">
+                                    </div>
+                                    {% endif %}
+                                    {% if question.option_a %}
+                                    <span class="option-text">{{ question.option_a }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endwith %}
                             </label>
 
                             <label class="option-card" data-option="B">
                                 <input type="radio" name="q_{{ question.id }}" value="B">
-                                <span class="option-text">{{ question.option_b }}</span>
+                                {% with media=question.media_files.all|get_option_media:"OPTION_B" %}
+                                <div class="option-content{% if media %} has-image{% endif %}">
+                                    {% if media %}
+                                    <div class="option-image-wrap">
+                                        <img src="{{ media.effective_image.url }}" alt="Option B" class="option-image js-zoomable">
+                                    </div>
+                                    {% endif %}
+                                    {% if question.option_b %}
+                                    <span class="option-text">{{ question.option_b }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endwith %}
                             </label>
 
                             <label class="option-card" data-option="C">
                                 <input type="radio" name="q_{{ question.id }}" value="C">
-                                <span class="option-text">{{ question.option_c }}</span>
+                                {% with media=question.media_files.all|get_option_media:"OPTION_C" %}
+                                <div class="option-content{% if media %} has-image{% endif %}">
+                                    {% if media %}
+                                    <div class="option-image-wrap">
+                                        <img src="{{ media.effective_image.url }}" alt="Option C" class="option-image js-zoomable">
+                                    </div>
+                                    {% endif %}
+                                    {% if question.option_c %}
+                                    <span class="option-text">{{ question.option_c }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endwith %}
                             </label>
 
                             <label class="option-card" data-option="D">
                                 <input type="radio" name="q_{{ question.id }}" value="D">
-                                <span class="option-text">{{ question.option_d }}</span>
+                                {% with media=question.media_files.all|get_option_media:"OPTION_D" %}
+                                <div class="option-content{% if media %} has-image{% endif %}">
+                                    {% if media %}
+                                    <div class="option-image-wrap">
+                                        <img src="{{ media.effective_image.url }}" alt="Option D" class="option-image js-zoomable">
+                                    </div>
+                                    {% endif %}
+                                    {% if question.option_d %}
+                                    <span class="option-text">{{ question.option_d }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endwith %}
                             </label>
+
+                            {% if question.option_e %}
+                            <label class="option-card" data-option="E">
+                                <input type="radio" name="q_{{ question.id }}" value="E">
+                                {% with media=question.media_files.all|get_option_media:"OPTION_E" %}
+                                <div class="option-content{% if media %} has-image{% endif %}">
+                                    {% if media %}
+                                    <div class="option-image-wrap">
+                                        <img src="{{ media.effective_image.url }}" alt="Option E" class="option-image js-zoomable">
+                                    </div>
+                                    {% endif %}
+                                    <span class="option-text">{{ question.option_e }}</span>
+                                </div>
+                                {% endwith %}
+                            </label>
+                            {% endif %}
 
                         </div>
 
@@ -313,7 +472,14 @@
         </div>
     </div>
 </div>
-<!-- Leave toast -->
+<!-- Image Lightbox -->
+<div class="img-lightbox" id="imgLightbox">
+    <button type="button" class="img-lightbox-close" id="imgLightboxClose">
+        <i class="icon-x"></i>&times;
+    </button>
+    <img src="" alt="Zoomed image" id="imgLightboxImg">
+</div>
+
 <!-- Leave toast -->
 <div class="quiz-leave-toast" id="leaveToast">
   <div class="quiz-leave-toast-top">
@@ -366,6 +532,36 @@ window.addEventListener('pageshow', function (e) {
     const slides = document.querySelectorAll('.q-slide');
     const qpBtns = document.querySelectorAll('.qp-btn');
     const form   = document.getElementById('examForm');
+
+    // ── Image lightbox (click any question/option image to zoom) ──
+    const lightbox    = document.getElementById('imgLightbox');
+    const lightboxImg = document.getElementById('imgLightboxImg');
+
+    function openLightbox(src, alt) {
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || '';
+        lightbox.classList.add('show');
+    }
+    function closeLightbox() {
+        lightbox.classList.remove('show');
+        lightboxImg.src = '';
+    }
+
+    document.addEventListener('click', function (e) {
+        const img = e.target.closest('.js-zoomable');
+        if (img) {
+            e.preventDefault();
+            e.stopPropagation();
+            openLightbox(img.src, img.alt);
+        }
+    });
+    document.getElementById('imgLightboxClose').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', function (e) {
+        if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && lightbox.classList.contains('show')) closeLightbox();
+    });
 
     const answered = new Set();
     const marked   = new Set();
