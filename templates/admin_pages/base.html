@@ -967,10 +967,9 @@
 
         <div class="header-right">
            
-   
-
-
-            
+           <a href="{% url 'student_management:dashboard' %}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+               <i class="icofont-users-alt-3"></i> <span class="d-none d-sm-inline">Student Management</span>
+           </a>
 
            <div class="user-profile-dropdown">
     <div class="user-profile-toggle">
@@ -1170,8 +1169,8 @@
             </div>
 
             <!-- Content Area -->
+            {% block content %}
             <div class="content-grid">
-                {% block content %}
                 <!-- Content will be overridden by child templates -->
                 <div class="content-card">
                     <div class="card-header">
@@ -1180,8 +1179,8 @@
                     </div>
                     <p>This is your main content area. Content from child templates will appear here.</p>
                 </div>
-                {% endblock %}
             </div>
+            {% endblock %}
         </div>
     </main>
 
@@ -1432,52 +1431,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script> {% endcomment %}
-<script>
-(function () {
-  var e = document;
-
-  // Disable right-click
-  e.addEventListener("contextmenu", function (event) {
-    event.preventDefault();
-  });
-
-  // Disable common DevTools & view-source shortcuts
-  e.addEventListener("keydown", function (event) {
-    if (event.key === "F12") event.preventDefault();
-
-    if (event.ctrlKey && event.shiftKey && ["I", "J", "C"].includes(event.key.toUpperCase())) {
-      event.preventDefault();
-    }
-
-    if (event.ctrlKey && ["U", "S"].includes(event.key.toUpperCase())) {
-      event.preventDefault();
-    }
-  });
-
-  // Detect if DevTools are open (based on window size difference)
-  setInterval(function () {
-    if (
-      window.outerWidth - window.innerWidth > 200 ||
-      window.outerHeight - window.innerHeight > 200
-    ) {
-      document.body.innerHTML = `
-        <h1 style="text-align:center; color:red; margin-top:20%;">
-          Access Denied
-        </h1>
-      `;
-    }
-  }, 1000);
-})();
-</script>
-
-<style>
-  body {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-</style> 
+ 
 
 
     {% block extra_js %}{% endblock %}

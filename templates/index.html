@@ -108,6 +108,31 @@
             </div>
           </div>
         </div>
+        <!-- Single Item (Exam Prep) -->
+<div class="swiper-slide banner-style-three shadow-left">
+  <div class="item bg-cover" style="background: url('{% static 'assets/img/banner/edu.jpeg' %}');">
+    <div class="banner-syle-thee-shape">
+      <img src="{% static 'assets/img/shape/3.png' %}" alt="Image Not Found" />
+      <img src="{% static 'assets/img/shape/4.png' %}" alt="Image Not Found" />
+    </div>
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-xl-7">
+          <div class="content">
+            <h2>Crack IMAT with Edusetin</h2>
+            <h3 class="tagline">Beyond Your Quest</h3>
+            <p>Prepare for IMAT with full-length mock tests, subject-wise quizzes, and previous year questions. Track your accuracy and boost your rank with real-time performance analytics.</p>
+            <div class="button">
+              <a href="{% url 'student_portal:login' %}" class="btn-style-one circle">Start IMAT Mock Test<span></span></a>
+              <a href="{% url 'student_portal:home' %}" class="btn-style-one circle btn-alt">Explore Plans<span></span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Single Item -->
         <!-- End Single Item -->
       </div>
 
@@ -181,10 +206,89 @@
     </div>
   </div>
   <!-- End About -->
+<!-- Start IMAT Mock Exam Promo
+============================================= -->
+<div id="imat-exam" class="imat-exam-area default-padding bg-cover" style="background-image: url('{% static 'assets/img/shape/20.png' %}');">
+  <div class="imat-exam-shape">
+    <img src="{% static 'assets/img/shape/pat.jpeg' %}" alt="Pattern Background" class="pattern-full-bg" />
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-xl-8 col-lg-10">
+        <div class="site-heading text-center">
+          <h4 class="sub-title">IMAT Exam Preparation</h4>
+          <h2 class="title split-text">Crack IMAT with Edusetin's Mock Test Platform</h2>
+        </div>
+        <p class="text-center wow fadeInUp">
+          Get exam-ready with full-length IMAT mock tests, subject-wise quizzes, and previous year questions —
+          designed to simulate the real exam experience. Track your accuracy, compare your rank with other
+          aspirants, and identify weak areas with detailed performance analytics.
+        </p>
+        <ul class="list-card wow fadeInUp" data-wow-delay="100ms">
+          <li>
+            <div class="top">
+              <img src="{% static 'assets/img/icon/16.png' %}" alt="IMAT Mock Tests" />
+              <h4>Full-Length IMAT Mock Tests</h4>
+            </div>
+            <p>Timed, syllabus-aligned mock exams that mirror the real IMAT format and difficulty level.</p>
+          </li>
+          <li>
+            <div class="top">
+              <img src="{% static 'assets/img/icon/17.png' %}" alt="Performance Analytics" />
+              <h4>Detailed Performance Analytics</h4>
+            </div>
+            <p>Subject-wise breakdowns, accuracy trends, and platform rank comparison after every attempt.</p>
+          </li>
+        </ul>
 
+        <div class="button d-flex flex-wrap justify-content-center gap-3 mt-30 wow fadeInUp" data-wow-delay="200ms">
+          <a href="{% url 'student_portal:home' %}" class="btn-style-one circle">
+            Discover More<span></span>
+          </a>
+          <a href="{% url 'student_portal:login' %}" class="btn-style-one circle btn-alt">
+            Start Mock Exam <span></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End IMAT Mock Exam Promo -->
+
+<style>
+.imat-exam-area {
+  position: relative;
+  overflow: hidden; /* keeps the full-cover image from spilling outside rounded corners etc. */
+}
+
+.imat-exam-shape {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.imat-exam-shape .pattern-full-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* fills the section, cropping as needed */
+  object-position: center;
+  opacity: 1;
+}
+
+.imat-exam-area .container {
+  position: relative;
+  z-index: 2; /* text/content stays above the pattern image */
+}
+</style>
 
 <style>
 /* === Scoped only to Services Section === */
+
 #services .visa-cat-style-one {
   display: flex;
   flex-direction: column;

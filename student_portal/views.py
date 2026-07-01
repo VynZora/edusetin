@@ -24,14 +24,20 @@ def _generate_otp():
     return str(secrets.randbelow(900000) + 100000)
 
 
-def _send_otp_email(email, otp):
+def _send_otp_email(email, otp, full_name=""):
     """Send the OTP verification email."""
-    subject = "Verify Your Edusetin Account"
+    subject = "One last step! Verify your email to unlock Edusetin"
+    greeting = f"Hi {full_name}," if full_name else "Hi,"
     body = (
+        f"{greeting}\n\n"
+        f"You're almost there! There's just one quick step left: verify your email "
+        f"to unlock full access to Edusetin.\n\n"
         f"Your verification code is:\n\n"
-        f"{otp}\n\n"
+        f"    {otp}\n\n"
         f"This code expires in 10 minutes.\n\n"
-        f"If you did not request this registration, please ignore this email."
+        f"If you didn't sign up, please ignore this email.\n\n"
+        f"Thanks,\n"
+        f"The Edusetin Team"
     )
     send_mail(
         subject=subject,
@@ -40,7 +46,6 @@ def _send_otp_email(email, otp):
         recipient_list=[email],
         fail_silently=False,
     )
-
 
 def _clear_registration_session(request):
     """Remove all OTP / registration keys from the session."""
