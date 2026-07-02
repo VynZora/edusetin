@@ -1151,29 +1151,49 @@
 }
 /* ── Kill the horizontal carousel/drag-lock on any touch-width screen,
      not just ≤768px — this is what was freezing vertical scroll ── */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .about-cards-row {
+    display: flex;
     flex-direction: column;
     overflow-x: visible;
     overflow-y: visible;
     cursor: default;
-    gap: 20px;
+    gap: 16px;
+    padding: 40px 20px 24px;
     touch-action: auto;
-    overscroll-behavior: auto;
-    contain: none;
+    scroll-snap-type: none;
     -webkit-overflow-scrolling: auto;
+    contain: none;
   }
-  .about-cards-row.is-dragging {
-    cursor: default;
-  }
+  .about-cards-row::-webkit-scrollbar { display: none; }
+  .about-cards-row.is-dragging { cursor: default; }
+
   .about-feat-card {
     flex: 1 1 auto;
     width: 100%;
+    max-width: 100%;
     min-width: 0;
+    scroll-snap-align: none;
+    padding: 28px 24px;
+    box-shadow: none;
+    align-items: flex-start;
+    text-align: left;
   }
-  .about-feat-card[aria-hidden="true"] {
-    display: none;
+  .about-feat-icon {
+    position: static;
+    transform: none;
+    width: 54px; height: 54px;
+    border-radius: 12px;
+    background: #1565C0;
+    border: none; box-shadow: none;
+    margin-bottom: 16px;
   }
+  .about-feat-icon svg { width: 24px; height: 24px; }
+  .about-feat-title { font-size: 1.35rem; margin-bottom: 9px; }
+  .about-feat-desc  { font-size: 1.1rem; line-height: 1.58; text-align: left; }
+
+  /* hide duplicate cards used only for desktop infinite-loop */
+  .about-feat-card[aria-hidden="true"] { display: none; }
 }
 /* ══════════════════════════════════════════
    MOBILE FONT-SIZE FIXES (all sections)
@@ -1236,6 +1256,14 @@
     contain: none;
      -webkit-overflow-scrolling: auto;
   }
+  .about-cards-clip {
+  overflow: hidden;
+  width: 100%;
+}
+.about-cards-row {
+  padding-bottom: 32px;      /* your existing bottom padding */
+  margin-bottom: -17px;      /* clips the native scrollbar track */
+}
   .about-cards-row.is-dragging {
     cursor: default;
   }
@@ -1373,6 +1401,19 @@
   .about-feat-title { font-size: 1.25rem; }
   .why-card h3      { font-size: 1.25rem; }
   .how-step h3      { font-size: 1.3rem; }
+}
+@media (max-width: 1024px) {
+  .about-cards-row {
+    overflow: visible !important;
+    touch-action: pan-y !important;
+    overscroll-behavior: auto !important;
+    -webkit-overflow-scrolling: auto !important;
+    contain: none !important;
+    cursor: default !important;
+  }
+  .about-section {
+    overscroll-behavior-y: auto !important;
+  }
 }
 </style>
 
@@ -1512,55 +1553,57 @@
       <h2 class="section-h sr sr-up d1">Trusted by Future <span>Medical Students</span></h2>
       <p class="section-desc sr sr-up d2" style="color:rgba(255,255,255,.70);margin:0 auto;">Edusetin is built for students who aspire to study medicine in Italy. Our platform provides structured practice, realistic mock exams, and comprehensive progress tracking to help you prepare effectively for the IMAT.</p>
     </div>
-    <div class="about-cards-row">
-      <div class="about-feat-card">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Topic-wise Practice</div><div class="about-feat-desc">Organized questions by subject — Biology, Chemistry, Physics, Mathematics, Reading Skills, and Logical Reasoning.</div></div>
-      </div>
-      <div class="about-feat-card">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Full-Length Mock Tests</div><div class="about-feat-desc">IMAT-pattern mock exams with live timer, negative marking, and automatic submission.</div></div>
-      </div>
-      <div class="about-feat-card">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Previous Year Papers</div><div class="about-feat-desc">Authentic IMAT papers from previous years with detailed answer explanations.</div></div>
-      </div>
-      <div class="about-feat-card">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Performance Reports</div><div class="about-feat-desc">Subject-wise progress, readiness scores, and exam history — all in one dashboard.</div></div>
-      </div>
-      <div class="about-feat-card">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Timed Exams</div><div class="about-feat-desc">Practice under real exam conditions with live countdown timers and automatic submission.</div></div>
-      </div>
-      <div class="about-feat-card">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">All Devices</div><div class="about-feat-desc">Continue preparation seamlessly across desktop, tablet and mobile. Progress syncs automatically.</div></div>
-      </div>
-      <!-- DUPLICATES for infinite scroll -->
-      <div class="about-feat-card" aria-hidden="true">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Topic-wise Practice</div><div class="about-feat-desc">Organized questions by subject — Biology, Chemistry, Physics, Mathematics, Reading Skills, and Logical Reasoning.</div></div>
-      </div>
-      <div class="about-feat-card" aria-hidden="true">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Full-Length Mock Tests</div><div class="about-feat-desc">IMAT-pattern mock exams with live timer, negative marking, and automatic submission.</div></div>
-      </div>
-      <div class="about-feat-card" aria-hidden="true">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Previous Year Papers</div><div class="about-feat-desc">Authentic IMAT papers from previous years with detailed answer explanations.</div></div>
-      </div>
-      <div class="about-feat-card" aria-hidden="true">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Performance Reports</div><div class="about-feat-desc">Subject-wise progress, readiness scores, and exam history — all in one dashboard.</div></div>
-      </div>
-      <div class="about-feat-card" aria-hidden="true">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">Timed Exams</div><div class="about-feat-desc">Practice under real exam conditions with live countdown timers and automatic submission.</div></div>
-      </div>
-      <div class="about-feat-card" aria-hidden="true">
-        <div class="about-feat-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
-        <div class="about-feat-text"><div class="about-feat-title">All Devices</div><div class="about-feat-desc">Continue preparation seamlessly across desktop, tablet and mobile. Progress syncs automatically.</div></div>
+    <div class="about-cards-clip">
+      <div class="about-cards-row">
+        <div class="about-feat-card">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Topic-wise Practice</div><div class="about-feat-desc">Organized questions by subject — Biology, Chemistry, Physics, Mathematics, Reading Skills, and Logical Reasoning.</div></div>
+        </div>
+        <div class="about-feat-card">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Full-Length Mock Tests</div><div class="about-feat-desc">IMAT-pattern mock exams with live timer, negative marking, and automatic submission.</div></div>
+        </div>
+        <div class="about-feat-card">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Previous Year Papers</div><div class="about-feat-desc">Authentic IMAT papers from previous years with detailed answer explanations.</div></div>
+        </div>
+        <div class="about-feat-card">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Performance Reports</div><div class="about-feat-desc">Subject-wise progress, readiness scores, and exam history — all in one dashboard.</div></div>
+        </div>
+        <div class="about-feat-card">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Timed Exams</div><div class="about-feat-desc">Practice under real exam conditions with live countdown timers and automatic submission.</div></div>
+        </div>
+        <div class="about-feat-card">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">All Devices</div><div class="about-feat-desc">Continue preparation seamlessly across desktop, tablet and mobile. Progress syncs automatically.</div></div>
+        </div>
+        <!-- DUPLICATES for infinite scroll -->
+        <div class="about-feat-card" aria-hidden="true">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Topic-wise Practice</div><div class="about-feat-desc">Organized questions by subject — Biology, Chemistry, Physics, Mathematics, Reading Skills, and Logical Reasoning.</div></div>
+        </div>
+        <div class="about-feat-card" aria-hidden="true">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Full-Length Mock Tests</div><div class="about-feat-desc">IMAT-pattern mock exams with live timer, negative marking, and automatic submission.</div></div>
+        </div>
+        <div class="about-feat-card" aria-hidden="true">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Previous Year Papers</div><div class="about-feat-desc">Authentic IMAT papers from previous years with detailed answer explanations.</div></div>
+        </div>
+        <div class="about-feat-card" aria-hidden="true">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Performance Reports</div><div class="about-feat-desc">Subject-wise progress, readiness scores, and exam history — all in one dashboard.</div></div>
+        </div>
+        <div class="about-feat-card" aria-hidden="true">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">Timed Exams</div><div class="about-feat-desc">Practice under real exam conditions with live countdown timers and automatic submission.</div></div>
+        </div>
+        <div class="about-feat-card" aria-hidden="true">
+          <div class="about-feat-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <div class="about-feat-text"><div class="about-feat-title">All Devices</div><div class="about-feat-desc">Continue preparation seamlessly across desktop, tablet and mobile. Progress syncs automatically.</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -2295,12 +2338,12 @@ srEls.forEach(function(el){ obs.observe(el); });
   sections.forEach(function(s){ secObs.observe(s); });
 
   /* ── ABOUT CARDS AUTO-SCROLL ── */
-  /* ── ABOUT CARDS: desktop auto-scroll carousel, mobile static stack ── */
-  (function(){
+/* ── ABOUT CARDS: desktop auto-scroll carousel, mobile static stack ── */
+(function(){
     var row = document.querySelector('.about-cards-row');
     if(!row) return;
 
-    var mql = window.matchMedia('(max-width: 900px)');
+    var mql = window.matchMedia('(max-width: 1024px)');
     var speed = 0.6;
     var isDragging = false;
     var dragConfirmed = false;
@@ -2333,6 +2376,7 @@ srEls.forEach(function(el){ obs.observe(el); });
     function onMouseLeave(){ isDragging = false; }
 
     function onTouchStart(e){
+      if (mql.matches) return; // never drag-scroll on mobile — page scroll only
       startX = e.touches[0].pageX - row.offsetLeft;
       startY = e.touches[0].pageY;
       scrollLeft = row.scrollLeft;
@@ -2340,6 +2384,7 @@ srEls.forEach(function(el){ obs.observe(el); });
       isDragging = false;
     }
     function onTouchMove(e){
+      if (mql.matches) return; // never drag-scroll on mobile — page scroll only
       var dx = (e.touches[0].pageX - row.offsetLeft) - startX;
       var dy = e.touches[0].pageY - startY;
       if(!dragConfirmed){
