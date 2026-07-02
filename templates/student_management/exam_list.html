@@ -42,6 +42,15 @@
                 <option value="inactive">Inactive</option>
             </select>
         </div>
+        <div class="col-12 col-md-3 col-lg-3">
+            <label class="form-label small fw-semibold mb-1">Plan</label>
+            <select id="planFilter" class="form-select form-select-sm">
+                <option value="">All Plans</option>
+                {% for plan in plans %}
+                <option value="{{ plan.name|lower }}">{{ plan.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="col-auto">
             <label class="form-label small fw-semibold mb-1">Rows</label>
             <select id="pageSizeSelect" class="form-select form-select-sm" style="width:auto;">
@@ -87,6 +96,7 @@
                     data-title="{{ exam.title|lower }}"
                     data-examtype="{{ exam.exam_type.name|lower|default:'' }}"
                     data-status="{% if exam.is_active %}active{% else %}inactive{% endif %}"
+                    data-plans="{% for plan in exam.subscription_plans.all %}{{ plan.name|lower }}{% if not forloop.last %},{% endif %}{% endfor %}"
                 >
                     <td class="ps-3 text-center text-muted small">{{ forloop.counter }}</td>
                     <td>
@@ -162,6 +172,16 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
+                    <div class="text-muted small fw-semibold mb-1">Plans</div>
+                    <div>
+                        {% for plan in exam.subscription_plans.all %}
+                            <span class="badge bg-info-subtle text-info me-1 mb-1">{{ plan.name }}</span>
+                        {% empty %}
+                            <span class="text-muted small">—</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="mb-3">
                     <div class="text-muted small fw-semibold mb-1">Subjects</div>
                     <div>
                         {% for subject in exam.subjects.all %}
@@ -229,6 +249,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const searchInput    = document.getElementById("searchInput");
     const statusFilter   = document.getElementById("statusFilter");
+    const planFilter      = document.getElementById("planFilter");
     const pageSizeSelect = document.getElementById("pageSizeSelect");
     const applyFilterBtn = document.getElementById("applyFilterBtn");
     const clearFiltersBtn= document.getElementById("clearFiltersBtn");
@@ -244,6 +265,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let pageSize     = parseInt(pageSizeSelect.value);
     let activeSearch = "";
     let activeStatus = "";
+    let activePlan   = "";
 
     const allRows = Array.from(tableBody.querySelectorAll("tr[data-title]"));
 
@@ -274,10 +296,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const title    = row.dataset.title    || "";
             const examtype = row.dataset.examtype || "";
             const status   = row.dataset.status   || "";
+            const plans    = (row.dataset.plans   || "").split(",").filter(Boolean);
 
             const okSearch = !activeSearch || title.includes(activeSearch) || examtype.includes(activeSearch);
             const okStatus = !activeStatus || status === activeStatus;
-            return okSearch && okStatus;
+            const okPlan   = !activePlan   || plans.includes(activePlan);
+            return okSearch && okStatus && okPlan;
         });
     }
 
@@ -285,6 +309,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const parts = [];
         if (activeSearch) parts.push(`Search: "${escapeHtml(activeSearch)}"`);
         if (activeStatus) parts.push(`Status: ${activeStatus === "active" ? "Active" : "Inactive"}`);
+        if (activePlan)   parts.push(`Plan: ${escapeHtml(planFilter.options[planFilter.selectedIndex].text)}`);
 
         if (parts.length) {
             filterBadgeText.innerHTML = `<i class="fas fa-filter me-1"></i>${parts.join(" · ")}`;
@@ -375,6 +400,7 @@ document.addEventListener("DOMContentLoaded", function () {
     applyFilterBtn.addEventListener("click", () => {
         activeSearch = searchInput.value.toLowerCase().trim();
         activeStatus = statusFilter.value;
+        activePlan   = planFilter.value;
         currentPage  = 1;
         render();
     });
@@ -382,8 +408,8 @@ document.addEventListener("DOMContentLoaded", function () {
     searchInput.addEventListener("keydown", e => { if (e.key === "Enter") applyFilterBtn.click(); });
 
     clearFiltersBtn.addEventListener("click", () => {
-        searchInput.value = statusFilter.value = "";
-        activeSearch = activeStatus = "";
+        searchInput.value = statusFilter.value = planFilter.value = "";
+        activeSearch = activeStatus = activePlan = "";
         currentPage  = 1;
         render();
     });

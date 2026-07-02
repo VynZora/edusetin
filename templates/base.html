@@ -2455,6 +2455,32 @@ document.addEventListener('DOMContentLoaded', function() {
 .navbar-nav .dropdown:hover .dropdown-menu {
     display: block;
 }
+#navbar-menu .mobile-imat-btn { display: none !important; }
+  @media (max-width: 991px) {
+    #navbar-menu .mobile-imat-btn {
+      display: block !important;
+      text-align: center;
+      margin: 15px 20px !important;
+    }
+    #navbar-menu .mobile-imat-btn .btn-style-one {
+      display: block !important;
+      width: 100%;
+      text-align: center;
+      background-color: #1447b3 !important;
+      border-color: #1447b3 !important;
+      color: #fff !important;
+      padding: 14px 20px !important;
+      border-radius: 8px !important;
+      box-sizing: border-box;
+    }
+    #navbar-menu .mobile-imat-btn .btn-style-one:hover {
+      background-color: #0a2a6e !important;
+    }
+    #navbar-menu .mobile-imat-btn .btn-style-one span {
+      display: none !important;
+    }
+  }
+
 </style>
 
 
@@ -2558,7 +2584,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 </ul>
               </li>
 
-              <li></li>
+              <li class="mobile-imat-btn">
+                <a href="{% url 'student_portal:home' %}" class="btn-style-one" style="display:inline-block;margin:15px 20px;">Start IMAT Preparation<span></span></a>
+              </li>
             </ul>
           </div>
           <!-- /.navbar-collapse -->
@@ -2598,8 +2626,8 @@ document.addEventListener('DOMContentLoaded', function() {
                   </div>
                 </li>
 
-                <li>
-                  <a href="https://edusetinglobalcareers.com/" target="_blank" rel="noopener noreferrer" class="btn-style-one">Get Your Job Visa <span></span></a>
+                <li style="margin-left: 15px;">
+                  <a href="{% url 'student_portal:home' %}" class="btn-style-one">Start IMAT Preparation<span></span></a>
                 </li>
               </ul>
             </div>

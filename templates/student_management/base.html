@@ -1346,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check for Django messages
         {% if messages %}
             {% for message in messages %}
-                showGlobalToast("{{ message }}", "{{ message.tags }}");
+                showGlobalToast("{{ message|escapejs }}", "{{ message.tags|escapejs }}");
             {% endfor %}
         {% endif %}
     });

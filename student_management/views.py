@@ -1958,7 +1958,7 @@ def examtype_list(request):
 
 @admin_login_required
 def exam_list(request):
-    exams = Exam.objects.select_related('exam_type').prefetch_related('subjects', 'submodules')
+    exams = Exam.objects.select_related('exam_type').prefetch_related('subjects', 'submodules','subscription_plans')
 
     if request.method == 'POST' and request.POST.get('action') == 'delete':
         pk = request.POST.get('pk')
@@ -1966,8 +1966,9 @@ def exam_list(request):
         exam.delete()
         messages.success(request, 'Exam deleted.')
         return redirect('student_management:exam_list')
+    plan = SubscriptionPlan.objects.all().order_by('name')
 
-    return render(request, 'student_management/exam_list.html', {'exams': exams})
+    return render(request, 'student_management/exam_list.html', {'exams': exams,'plans':plan})
 @admin_login_required
 def exam_add(request):
     form = ExamForm(request.POST or None, request.FILES or None)

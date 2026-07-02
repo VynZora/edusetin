@@ -9,8 +9,7 @@
   <link rel="icon" type="image/x-icon" href="{% static 'student_portal/assets/img/edu.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Work+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
-<style>
+  <style>
     :root {
       --blue:       #1565C0;
       --blue-dark:  #0D47A1;
@@ -125,8 +124,8 @@
     }
     .nav-links a:hover, .nav-links a.active { background: #e8effe; color: #1447b3; }
     .nav-cta { display: flex; align-items: center; gap: 12px; margin-left: auto; flex-shrink: 0; }
-    .btn-login { padding: 11px 24px; border-radius: 8px; border: 2px solid #1447b3; color: #1447b3; font-size: 15px; font-weight: 700; font-family: var(--font-display); transition: all .18s; white-space: nowrap; display: inline-flex; align-items: center; }
-    .btn-login:hover { background: #1447b3; color: #fff; }
+    .btn-login { padding: 11px 24px; border-radius: 8px; border: 2px solid #1447b3; background: #1447b3; color: #fff; font-size: 15px; font-weight: 700; font-family: var(--font-display); transition: all .18s; white-space: nowrap; display: inline-flex; align-items: center; }
+.btn-login:hover { background: #0a2a6e; border-color: #0a2a6e; }
     .btn-start { padding: 11px 26px; border-radius: 8px; background: #1447b3; color: #fff; font-size: 15px; font-weight: 700; font-family: var(--font-display); border: 2px solid #1447b3; display: inline-flex; align-items: center; gap: 8px; transition: all .18s; white-space: nowrap; }
     .btn-start:hover { background: #0a2a6e; border-color: #0a2a6e; transform: translateY(-1px); }
     .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; flex-direction: column; gap: 5px; border-radius: 8px; margin-left: auto; }
@@ -327,12 +326,10 @@
       background: linear-gradient(135deg, var(--navy) 0%, #0d2144 60%, #0a2a6e 100%);
       position: relative; overflow: visible;
     }
-    .about-section::before {
-      content: ''; position: absolute;
-      top: -120px; right: -80px; width: 500px; height: 500px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(21,101,192,.18) 0%, transparent 70%);
-      pointer-events: none;
-    }
+  .about-section {
+  background: linear-gradient(135deg, var(--navy) 0%, #0d2144 60%, #0a2a6e 100%);
+  position: relative; overflow: visible;
+}
     .about-section .section-desc { font-size: 1.1rem; max-width: 700px; color: rgba(255,255,255,.72); }
     .about-section .lbl {
       background: transparent; border: 1.5px solid #64B5F6; color: #64B5F6;
@@ -340,20 +337,31 @@
       letter-spacing: 2px; display: inline-block; margin-bottom: 20px; font-family: var(--font-display);
     }
     .about-cards-row {
-      display: flex; flex-direction: row; gap: 18px;
-      overflow-x: auto; overflow-y: visible; padding: 60px 4px 32px;
-      scrollbar-width: none; -ms-overflow-style: none; cursor: grab;
-    }
+  display: flex; flex-direction: row; gap: 18px;
+  overflow-x: auto; overflow-y: visible; padding: 60px 4px 32px;
+  scrollbar-width: none; -ms-overflow-style: none; cursor: grab;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  contain: layout paint;
+}
     .about-cards-row::-webkit-scrollbar { display: none; }
     .about-cards-row.is-dragging { cursor: grabbing; }
     .about-feat-card {
-      background: #ffffff; border: none; border-radius: 22px; padding: 64px 32px 48px;
-      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0;
-      position: relative; overflow: visible; flex: 0 0 290px; min-width: 290px; min-height: 320px;
-      transition: transform 0.38s cubic-bezier(0.22,1,0.36,1), box-shadow 0.38s cubic-bezier(0.22,1,0.36,1);
-    }
-    .about-feat-card:hover { transform: translateY(-14px) scale(1.03); box-shadow: 0 32px 72px rgba(10,30,80,.28); z-index: 10; }
-    .about-feat-card:active { transform: translateY(-7px) scale(1.01); box-shadow: 0 14px 36px rgba(10,30,80,.16); }
+  background: #ffffff; border: none; border-radius: 22px; padding: 64px 32px 48px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0;
+  position: relative; overflow: visible; flex: 0 0 290px; min-width: 290px; min-height: 320px;
+  transition: transform 0.38s cubic-bezier(0.22,1,0.36,1), box-shadow 0.38s cubic-bezier(0.22,1,0.36,1);
+  will-change: transform, opacity;
+  touch-action: pan-y;
+}
+   @media (hover: hover) and (pointer: fine) {
+  .about-feat-card:hover { transform: translateY(-14px) scale(1.03); box-shadow: 0 32px 72px rgba(10,30,80,.28); z-index: 10; }
+  .about-feat-card:active { transform: translateY(-7px) scale(1.01); box-shadow: 0 14px 36px rgba(10,30,80,.16); }
+}
+@media (hover: none), (pointer: coarse) {
+  .about-feat-card:active { opacity: 0.94; }
+}
     .about-feat-icon {
       position: absolute; top: -44px; left: 50%; transform: translateX(-50%);
       width: 88px; height: 88px; border-radius: 50%;
@@ -1141,6 +1149,32 @@
     transform: none !important;
   }
 }
+/* ── Kill the horizontal carousel/drag-lock on any touch-width screen,
+     not just ≤768px — this is what was freezing vertical scroll ── */
+@media (max-width: 900px) {
+  .about-cards-row {
+    flex-direction: column;
+    overflow-x: visible;
+    overflow-y: visible;
+    cursor: default;
+    gap: 20px;
+    touch-action: auto;
+    overscroll-behavior: auto;
+    contain: none;
+    -webkit-overflow-scrolling: auto;
+  }
+  .about-cards-row.is-dragging {
+    cursor: default;
+  }
+  .about-feat-card {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+  .about-feat-card[aria-hidden="true"] {
+    display: none;
+  }
+}
 /* ══════════════════════════════════════════
    MOBILE FONT-SIZE FIXES (all sections)
 ══════════════════════════════════════════ */
@@ -1189,10 +1223,68 @@
   .hero-content-wrap { max-width: 100%; box-sizing: border-box; }
   .hero-actions { flex-wrap: wrap; }
 
-  /* ── About feature cards ── */
-  .about-feat-title { font-size: 1.35rem; margin-bottom: 9px; }
-  .about-feat-desc  { font-size: 1.1rem; line-height: 1.58; }
+  /* ── About feature cards: mobile = vertical stack, no horizontal scroll ── */
+  .about-cards-row {
+    flex-direction: column;
+    overflow-x: visible;
+    overflow-y: visible;
+    cursor: default;
+    padding: 40px 4px 8px;
+    gap: 20px;
+    touch-action: auto;
+    overscroll-behavior: auto;
+    contain: none;
+     -webkit-overflow-scrolling: auto;
+  }
+  .about-cards-row.is-dragging {
+    cursor: default;
+  }
+  .about-feat-card {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    will-change: auto;
+    /* FIX: no more absolute-positioned overflowing icon, so drop the big top padding
+       and the shadow/overflow that made this card expensive to paint on mobile */
+    padding: 28px 24px;
+    overflow: hidden;
+    box-shadow: none;
+    align-items: flex-start;
+    text-align: left;
+  }
 
+  /* FIX: icon becomes a normal flat square in-flow, like .why-icon —
+     no absolute position, no overflow bump, no gradient, no shadow */
+  .about-feat-icon {
+    position: static;
+    transform: none;
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    background: #1565C0;
+    border: none;
+    box-shadow: none;
+    margin-bottom: 16px;
+  }
+  .about-feat-card:hover .about-feat-icon {
+    transform: none; /* hover doesn't apply on mobile anyway, kept for clarity */
+  }
+  .about-feat-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  .about-feat-text {
+    text-align: left;
+  }
+
+  /* duplicates existed only to fake the infinite horizontal loop — hide them stacked */
+  .about-feat-card[aria-hidden="true"] {
+    display: none;
+  }
+  .about-feat-title { font-size: 1.35rem; margin-bottom: 9px; }
+  .about-feat-desc  { font-size: 1.1rem; line-height: 1.58; text-align: left; }
+
+  
   /* ── Why-choose cards ── */
   .why-card h3 { font-size: 1.35rem; word-wrap: break-word; }
   .why-card p  { font-size: 1.1rem; line-height: 1.58; }
@@ -1282,7 +1374,8 @@
   .why-card h3      { font-size: 1.25rem; }
   .how-step h3      { font-size: 1.3rem; }
 }
-  </style>
+</style>
+
 </head>
 <body>
 
@@ -1296,14 +1389,13 @@
   <div class="top-bar-inner">
     <div class="top-bar-left">
       <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>support@edusetin.com</span>
-      <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Working Hours: 09:00 AM – 06:00 PM</span>
+     
     </div>
     <div class="top-bar-right">
-      <a href="#" aria-label="WhatsApp"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.962-1.304A9.956 9.956 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></a>
-      <a href="#" aria-label="Facebook"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
-      <a href="#" aria-label="Instagram"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
-    </div>
-  </div>
+  <a href="https://wa.me/+919048452454/?text=Hi" target="_blank" aria-label="WhatsApp"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.962-1.304A9.956 9.956 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></a>
+  <a href="https://www.facebook.com/share/187qTETU3J/?mibextid=wwXIfr" target="_blank" aria-label="Facebook"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+  <a href="https://www.instagram.com/edusetinstudyabroad?igsh=MW1jMGMxZ3hsc3F1bw==" target="_blank" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+</div>
 </div>
 
 <!-- NAVBAR -->
@@ -1991,17 +2083,17 @@
           <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           <span>India</span>
         </div>
-        <div class="footer-socials">
-          <a href="#" class="footer-social-link" aria-label="WhatsApp">
-            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.962-1.304A9.956 9.956 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-          </a>
-          <a href="#" class="footer-social-link" aria-label="Facebook">
-            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-          </a>
-          <a href="#" class="footer-social-link" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
-          </a>
-        </div>
+       <div class="footer-socials">
+  <a href="https://wa.me/+919048452454/?text=Hi" target="_blank" class="footer-social-link" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.962-1.304A9.956 9.956 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+  </a>
+  <a href="https://www.facebook.com/share/187qTETU3J/?mibextid=wwXIfr" target="_blank" class="footer-social-link" aria-label="Facebook">
+    <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+  </a>
+  <a href="https://www.instagram.com/edusetinstudyabroad?igsh=MW1jMGMxZ3hsc3F1bw==" target="_blank" class="footer-social-link" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+  </a>
+</div>
       </div>
 
       <!-- Quick Links -->
@@ -2095,7 +2187,16 @@ function onScrollGlobal() {
   lastY = y;
 }
 
-window.addEventListener('scroll', onScrollGlobal, { passive: true });
+var navScrollTicking = false;
+window.addEventListener('scroll', function(){
+  if(!navScrollTicking){
+    requestAnimationFrame(function(){
+      onScrollGlobal();
+      navScrollTicking = false;
+    });
+    navScrollTicking = true;
+  }
+}, { passive: true });
 onScrollGlobal();
   /* ── MOBILE NAVBAR HEIGHT FOR FEATURE CARDS ── */
   function setNavbarOffset(){
@@ -2161,19 +2262,16 @@ onScrollGlobal();
 
   /* ── SCROLL REVEAL ── */
   var srEls=document.querySelectorAll('.sr');
-  var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        entry.target.classList.add('visible');
-        entry.target.querySelectorAll('.mock-bar-fill[data-width]').forEach(function(b){ setTimeout(function(){ b.style.width=b.getAttribute('data-width'); },300); });
-      } else {
-        entry.target.classList.remove('visible');
-        entry.target.querySelectorAll('.mock-bar-fill[data-width]').forEach(function(b){ b.style.width='0'; });
-      }
-    });
-  },{threshold:0.05, rootMargin:'0px 0px -20px 0px'});
-  srEls.forEach(function(el){ obs.observe(el); });
-
+ var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      entry.target.querySelectorAll('.mock-bar-fill[data-width]').forEach(function(b){ setTimeout(function(){ b.style.width=b.getAttribute('data-width'); },300); });
+      obs.unobserve(entry.target); // animate once, never again — for ALL .sr elements now
+    }
+  });
+},{threshold:0.05, rootMargin:'0px 0px -80px 0px'});
+srEls.forEach(function(el){ obs.observe(el); });
   /* ── DARK BG BAR ANIMATIONS ── */
   var barObs=new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
@@ -2197,27 +2295,115 @@ onScrollGlobal();
   sections.forEach(function(s){ secObs.observe(s); });
 
   /* ── ABOUT CARDS AUTO-SCROLL ── */
+  /* ── ABOUT CARDS: desktop auto-scroll carousel, mobile static stack ── */
   (function(){
     var row = document.querySelector('.about-cards-row');
     if(!row) return;
-    var speed = 0.6, isDragging = false, startX, scrollLeft;
+
+    var mql = window.matchMedia('(max-width: 900px)');
+    var speed = 0.6;
+    var isDragging = false;
+    var dragConfirmed = false;
+    var startX, startY, scrollLeft;
+    var sectionVisible = true;
+    var rafId = null;
+    var listenersAttached = false;
+
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ sectionVisible = e.isIntersecting; });
+    }, { threshold: 0.01 });
+    io.observe(row);
+
+    function onMouseDown(e){
+      isDragging = true;
+      row.classList.add('is-dragging');
+      startX = e.pageX - row.offsetLeft;
+      scrollLeft = row.scrollLeft;
+    }
+    function onMouseUp(){
+      isDragging = false;
+      row.classList.remove('is-dragging');
+    }
+    function onMouseMove(e){
+      if(!isDragging) return;
+      e.preventDefault();
+      row.scrollLeft = scrollLeft - (e.pageX - row.offsetLeft - startX);
+    }
+    function onMouseEnter(){ isDragging = true; }
+    function onMouseLeave(){ isDragging = false; }
+
+    function onTouchStart(e){
+      startX = e.touches[0].pageX - row.offsetLeft;
+      startY = e.touches[0].pageY;
+      scrollLeft = row.scrollLeft;
+      dragConfirmed = false;
+      isDragging = false;
+    }
+    function onTouchMove(e){
+      var dx = (e.touches[0].pageX - row.offsetLeft) - startX;
+      var dy = e.touches[0].pageY - startY;
+      if(!dragConfirmed){
+        if(Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        dragConfirmed = true;
+        isDragging = Math.abs(dx) > Math.abs(dy);
+      }
+      if(isDragging){ row.scrollLeft = scrollLeft - dx; }
+    }
+    function onTouchEnd(){ isDragging = false; }
+
+    function attachDesktopListeners(){
+      if(listenersAttached) return;
+      row.addEventListener('mousedown', onMouseDown);
+      document.addEventListener('mouseup', onMouseUp);
+      row.addEventListener('mousemove', onMouseMove);
+      row.addEventListener('mouseenter', onMouseEnter);
+      row.addEventListener('mouseleave', onMouseLeave);
+      row.addEventListener('touchstart', onTouchStart, { passive: true });
+      row.addEventListener('touchmove', onTouchMove, { passive: true });
+      document.addEventListener('touchend', onTouchEnd);
+      listenersAttached = true;
+    }
+
+    function detachDesktopListeners(){
+      if(!listenersAttached) return;
+      row.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mouseup', onMouseUp);
+      row.removeEventListener('mousemove', onMouseMove);
+      row.removeEventListener('mouseenter', onMouseEnter);
+      row.removeEventListener('mouseleave', onMouseLeave);
+      row.removeEventListener('touchstart', onTouchStart);
+      row.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+      isDragging = false;
+      row.classList.remove('is-dragging');
+      listenersAttached = false;
+    }
+
     function autoScroll(){
-      if(!isDragging){
+      if(!mql.matches && !isDragging && sectionVisible){
         row.scrollLeft += speed;
         var halfWidth = row.scrollWidth / 2;
         if(row.scrollLeft >= halfWidth){ row.scrollLeft -= halfWidth; }
       }
-      requestAnimationFrame(autoScroll);
+      rafId = requestAnimationFrame(autoScroll);
     }
-    row.addEventListener('mousedown', function(e){ isDragging=true; row.classList.add('is-dragging'); startX=e.pageX-row.offsetLeft; scrollLeft=row.scrollLeft; });
-    document.addEventListener('mouseup', function(){ isDragging=false; row.classList.remove('is-dragging'); });
-    row.addEventListener('mousemove', function(e){ if(!isDragging) return; e.preventDefault(); row.scrollLeft=scrollLeft-(e.pageX-row.offsetLeft-startX); });
-    row.addEventListener('touchstart', function(e){ isDragging=true; startX=e.touches[0].pageX-row.offsetLeft; scrollLeft=row.scrollLeft; },{passive:true});
-    document.addEventListener('touchend', function(){ isDragging=false; });
-    row.addEventListener('touchmove', function(e){ if(!isDragging) return; row.scrollLeft=scrollLeft-(e.touches[0].pageX-row.offsetLeft-startX); },{passive:true});
-    row.addEventListener('mouseenter', function(){ isDragging=true; });
-    row.addEventListener('mouseleave', function(){ isDragging=false; });
-    autoScroll();
+
+    function applyMode(){
+      if(mql.matches){
+        detachDesktopListeners();     /* mobile: zero listeners on the row */
+        if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+      } else {
+        attachDesktopListeners();     /* desktop: drag + auto-scroll enabled */
+        if(!rafId) rafId = requestAnimationFrame(autoScroll);
+      }
+    }
+
+    applyMode();
+    if(mql.addEventListener){
+      mql.addEventListener('change', applyMode);
+    } else if(mql.addListener){
+      mql.addListener(applyMode); /* Safari <14 fallback */
+    }
   })();
 
   /* ════════════════════════════════════════════════
@@ -2600,6 +2786,7 @@ onScrollGlobal();
 })();
 
 /* ── HERO ANIMATED BACKGROUND ── */
+/* ── HERO ANIMATED BACKGROUND ── */
 (function(){
   var canvas = document.getElementById('heroBgCanvas');
   if(!canvas) return;
@@ -2623,42 +2810,64 @@ onScrollGlobal();
   var elements=[{sym:'C',num:6,name:'Carbon',px:0.93,py:0.35,vy:-0.09},{sym:'O',num:8,name:'Oxygen',px:0.03,py:0.30,vy:-0.07},{sym:'N',num:7,name:'Nitrogen',px:0.96,py:0.65,vy:-0.08},{sym:'H',num:1,name:'Hydrogen',px:0.01,py:0.60,vy:-0.06}];
   elements.forEach(function(e){ e.x=e.px*(W||1440); e.y=e.py*(H||800); });
   function drawElement(x,y,sym,num,name,alpha){ var s=36;ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle='#90CAF9';ctx.lineWidth=0.7;ctx.fillStyle='rgba(255,255,255,0.05)';ctx.beginPath();ctx.rect(x,y,s,s);ctx.fill();ctx.stroke();ctx.fillStyle='#ffffff';ctx.font='7px monospace';ctx.fillText(String(num),x+3,y+9);ctx.font='bold 14px monospace';ctx.fillText(sym,x+5,y+25);ctx.font='6px monospace';ctx.fillText(name,x+2,y+34);ctx.restore(); }
+
+ var heroVisible = true;
+  var heroSectionEl = document.querySelector('.hero');
+  if(heroSectionEl){
+    var heroIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){ heroVisible = entry.isIntersecting; });
+    }, { threshold: 0, rootMargin: '0px 0px 0px 0px' });
+    heroIO.observe(heroSectionEl);
+  }
+
+  var isMobileHero = window.innerWidth <= 768;
+  var heroFrameCount = 0;
+
   function draw(){
     if(!W||!H){ requestAnimationFrame(draw); return; }
-    ctx.clearRect(0,0,W,H);
-    ctx.save();ctx.strokeStyle='rgba(100,181,246,0.10)';ctx.lineWidth=0.6;
-    connectors.forEach(function(pair){ var a=gridDots[pair[0]],b=gridDots[pair[1]];ctx.beginPath();ctx.moveTo(a.cx*W+Math.sin(a.phase+t*a.speed*80)*a.amp,a.cy*H+Math.cos(a.phase+t*a.speed*60)*a.amp);ctx.lineTo(b.cx*W+Math.sin(b.phase+t*b.speed*80)*b.amp,b.cy*H+Math.cos(b.phase+t*b.speed*60)*b.amp);ctx.stroke(); });
-    ctx.restore();
-    gridDots.forEach(function(d){ var x=d.cx*W+Math.sin(d.phase+t*d.speed*80)*d.amp,y=d.cy*H+Math.cos(d.phase+t*d.speed*60)*d.amp;ctx.save();ctx.globalAlpha=0.20;ctx.beginPath();ctx.arc(x,y,1.8,0,Math.PI*2);ctx.fillStyle='#90CAF9';ctx.fill();ctx.restore(); });
-    waves.forEach(function(w){ w.phase+=w.speed;ctx.save();ctx.globalAlpha=w.alpha;ctx.strokeStyle='#64B5F6';ctx.lineWidth=1;ctx.beginPath();for(var x=0;x<=W;x+=4){var y=w.y*H+Math.sin(x*w.freq+w.phase)*w.amp;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.restore(); });
-    hexTiles.forEach(function(h){ h.phase+=h.speed;var cx=h.cx*W,cy=h.cy*H+Math.sin(h.phase)*8;drawHex(cx,cy,h.r,0.11);drawHex(cx,cy,h.r*0.55,0.07); });
-    rings.forEach(function(a){ a.phase+=a.speed;var cx=a.cx*W,cy=a.cy*H;ctx.save();ctx.globalAlpha=0.50;ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();ctx.restore();for(var e=0;e<a.electrons;e++){var ot=(Math.PI/a.electrons)*e,ang=a.phase+(Math.PI*2/a.electrons)*e;ctx.save();ctx.globalAlpha=0.12;ctx.strokeStyle='#ffffff';ctx.lineWidth=0.6;ctx.translate(cx,cy);ctx.rotate(ot);ctx.beginPath();ctx.ellipse(0,0,a.r,a.r*0.30,0,0,Math.PI*2);ctx.stroke();ctx.restore();ctx.save();ctx.globalAlpha=0.70;ctx.beginPath();ctx.arc(cx+Math.cos(ang+ot)*a.r,cy+Math.sin(ang+ot)*a.r*0.30,2.8,0,Math.PI*2);ctx.fillStyle='#90CAF9';ctx.fill();ctx.restore();} });
-    floaters.forEach(function(p){ p.life+=p.lifeSpd;if(p.life>1){Object.assign(p,makeFloater(true));return;}var fade=p.life<0.06?p.life/0.06:p.life>0.90?(1-p.life)/0.10:1;p.wave+=p.waveSpd;p.x+=p.vx+Math.sin(p.wave)*p.waveAmp;p.y+=p.vy;ctx.save();ctx.globalAlpha=p.alpha*fade;ctx.fillStyle='#ffffff';ctx.font='bold '+p.size+'px monospace';ctx.fillText(p.text,p.x*W,p.y*H);ctx.restore(); });
-    elements.forEach(function(el){ el.y+=el.vy*0.25;if(el.y<-50)el.y=H+50;drawElement(el.x-18,el.y-18,el.sym,el.num,el.name,0.22); });
-    t++; requestAnimationFrame(draw);
+    heroFrameCount++;
+    var shouldRender = heroVisible && (!isMobileHero || heroFrameCount % 2 === 0);
+    if(shouldRender){
+      ctx.clearRect(0,0,W,H);
+      ctx.save();ctx.strokeStyle='rgba(100,181,246,0.10)';ctx.lineWidth=0.6;
+      connectors.forEach(function(pair){ var a=gridDots[pair[0]],b=gridDots[pair[1]];ctx.beginPath();ctx.moveTo(a.cx*W+Math.sin(a.phase+t*a.speed*80)*a.amp,a.cy*H+Math.cos(a.phase+t*a.speed*60)*a.amp);ctx.lineTo(b.cx*W+Math.sin(b.phase+t*b.speed*80)*b.amp,b.cy*H+Math.cos(b.phase+t*b.speed*60)*b.amp);ctx.stroke(); });
+      ctx.restore();
+      gridDots.forEach(function(d){ var x=d.cx*W+Math.sin(d.phase+t*d.speed*80)*d.amp,y=d.cy*H+Math.cos(d.phase+t*d.speed*60)*d.amp;ctx.save();ctx.globalAlpha=0.20;ctx.beginPath();ctx.arc(x,y,1.8,0,Math.PI*2);ctx.fillStyle='#90CAF9';ctx.fill();ctx.restore(); });
+      waves.forEach(function(w){ w.phase+=w.speed;ctx.save();ctx.globalAlpha=w.alpha;ctx.strokeStyle='#64B5F6';ctx.lineWidth=1;ctx.beginPath();for(var x=0;x<=W;x+=4){var y=w.y*H+Math.sin(x*w.freq+w.phase)*w.amp;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.restore(); });
+      hexTiles.forEach(function(h){ h.phase+=h.speed;var cx=h.cx*W,cy=h.cy*H+Math.sin(h.phase)*8;drawHex(cx,cy,h.r,0.11);drawHex(cx,cy,h.r*0.55,0.07); });
+      rings.forEach(function(a){ a.phase+=a.speed;var cx=a.cx*W,cy=a.cy*H;ctx.save();ctx.globalAlpha=0.50;ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();ctx.restore();for(var e=0;e<a.electrons;e++){var ot=(Math.PI/a.electrons)*e,ang=a.phase+(Math.PI*2/a.electrons)*e;ctx.save();ctx.globalAlpha=0.12;ctx.strokeStyle='#ffffff';ctx.lineWidth=0.6;ctx.translate(cx,cy);ctx.rotate(ot);ctx.beginPath();ctx.ellipse(0,0,a.r,a.r*0.30,0,0,Math.PI*2);ctx.stroke();ctx.restore();ctx.save();ctx.globalAlpha=0.70;ctx.beginPath();ctx.arc(cx+Math.cos(ang+ot)*a.r,cy+Math.sin(ang+ot)*a.r*0.30,2.8,0,Math.PI*2);ctx.fillStyle='#90CAF9';ctx.fill();ctx.restore();} });
+      floaters.forEach(function(p){ p.life+=p.lifeSpd;if(p.life>1){Object.assign(p,makeFloater(true));return;}var fade=p.life<0.06?p.life/0.06:p.life>0.90?(1-p.life)/0.10:1;p.wave+=p.waveSpd;p.x+=p.vx+Math.sin(p.wave)*p.waveAmp;p.y+=p.vy;ctx.save();ctx.globalAlpha=p.alpha*fade;ctx.fillStyle='#ffffff';ctx.font='bold '+p.size+'px monospace';ctx.fillText(p.text,p.x*W,p.y*H);ctx.restore(); });
+      elements.forEach(function(el){ el.y+=el.vy*0.25;if(el.y<-50)el.y=H+50;drawElement(el.x-18,el.y-18,el.sym,el.num,el.name,0.22); });
+      t++;
+    }
+    requestAnimationFrame(draw);
   }
   draw();
 })();
+/* ── ABOUT CURVE ANIMATION (IntersectionObserver, no scroll listener) ── */
+/* ── ABOUT CURVE ANIMATION (disabled on mobile — static curve, no IO/transform toggling) ── */
+(function(){
+  var curvePath = document.querySelector('.about-curve-path');
+  var curveWrap = document.querySelector('.about-curve-wrap');
+  if(!curvePath || !curveWrap) return;
 
-/* ── ABOUT CURVE ANIMATION ── */
-var curvePath = document.querySelector('.about-curve-path');
-var curveWrap = document.querySelector('.about-curve-wrap');
-if(curvePath && curveWrap){
-  var lastScrollY = window.scrollY;
-  function updateCurve(){
-    var rect=curveWrap.getBoundingClientRect();
-    var scrollingDown=window.scrollY>lastScrollY;
-    lastScrollY=window.scrollY;
-    if(rect.top<window.innerHeight&&rect.bottom>0){
-      curvePath.style.transition=scrollingDown?'transform 1.2s cubic-bezier(.22,1,.36,1)':'transform 0.8s cubic-bezier(.22,1,.36,1)';
-      curvePath.style.transform=scrollingDown?'scaleY(1)':'scaleY(0.02)';
-    }
+  if(window.innerWidth <= 768){
+    curvePath.style.transform = 'scaleY(1)';
+    return; /* skip entirely on mobile: no observer, no transition, no repeated transform writes */
   }
-  curvePath.style.transformOrigin='center bottom';
-  curvePath.style.transform='scaleY(1)';
-  window.addEventListener('scroll', updateCurve, {passive:true});
-}
 
+  curvePath.style.transformOrigin = 'center bottom';
+  curvePath.style.transition = 'transform 1s cubic-bezier(.22,1,.36,1)';
+  curvePath.style.transform = 'scaleY(1)';
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      curvePath.style.transform = entry.isIntersecting ? 'scaleY(1)' : 'scaleY(0.02)';
+    });
+  }, { threshold: 0.1 });
+
+  io.observe(curveWrap);
+})();
 /* ════════════════════════════════════════════════
    WAVE PATTERN BACKGROUNDS
    Visible on ALL sections — dark and light
@@ -2673,8 +2882,9 @@ if(curvePath && curveWrap){
     '.section > .container { position:relative; z-index:1; }';
   document.head.appendChild(styleTag);
 
+  var isSmallScreen = window.innerWidth <= 900;
   var configs = [
-    { sel:'.about-section',        dark:true  },
+    { sel:'.about-section',        dark:true, skipOnSmall:true  },
     { sel:'.everything',           dark:true  },
     { sel:'.feat-header-wrap',     dark:true  },
     { sel:'.feat-sticky-viewport', dark:true  },
@@ -2685,7 +2895,6 @@ if(curvePath && curveWrap){
     { sel:'.faq',                  dark:false },
     { sel:'.pricing',              dark:false },
   ];
-
   document.querySelectorAll('.section').forEach(function(sec){
     var st = sec.getAttribute('style') || '';
     if(st.indexOf('fff') !== -1 || st.indexOf('white') !== -1){
@@ -2698,6 +2907,7 @@ if(curvePath && curveWrap){
   });
 
   configs.forEach(function(cfg){
+    if(cfg.skipOnSmall && isSmallScreen) return;
     document.querySelectorAll(cfg.sel).forEach(function(sec){
       addPattern(sec, cfg.dark);
     });
@@ -2726,12 +2936,14 @@ if(curvePath && curveWrap){
     render();
 
     var t;
+    var lastW = window.innerWidth;
     window.addEventListener('resize', function(){
+      if(window.innerWidth === lastW) return; // ignore mobile address-bar height changes
+      lastW = window.innerWidth;
       clearTimeout(t);
       t = setTimeout(render, 150);
     });
   }
-
   /* ── DARK: star field ── */
   function drawDark(ctx, W, H, seed){
     ctx.clearRect(0, 0, W, H);

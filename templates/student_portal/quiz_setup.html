@@ -952,6 +952,40 @@ document.addEventListener('keydown', e => {
     if(e.key === 'Enter'){  const b = document.querySelector('.qs-section.active .qs-btn-next:not(:disabled)'); if(b) b.click(); }
     if(e.key === 'Escape'){ const b = document.querySelector('.qs-section.active .qs-btn-back');                if(b) b.click(); }
 });
+(function(){
+    const params = new URLSearchParams(window.location.search);
+    const subjId = params.get('subject');
+    if(!subjId) return;
+
+    document.addEventListener('DOMContentLoaded', function(){
+        const card = document.querySelector('.qs-subj-card[data-id="' + subjId + '"]');
+        if(!card) return; // student doesn't have access to this subject — stay on step 1
+
+        /* Select the subject exactly as if the card were clicked */
+        qsPickS(parseInt(subjId, 10), card.dataset.name, card);
+
+        /* Build the Step 2 topic grid for that subject */
+        qsBuildTopicGrid();
+
+        /* Jump straight to Step 2 — no slide animation, no flash of Step 1 */
+        const s1 = document.getElementById('qsS1');
+        const s2 = document.getElementById('qsS2');
+        s1.classList.remove('active');
+        s1.style.display = 'none';
+        s2.style.display = 'block';
+        s2.classList.add('active');
+
+        qsCurStep = 2;
+        qsUpdateStepper();
+
+        /* If a specific submodule/topic was passed too, pre-select it */
+        const submoduleId = params.get('submodule');
+        if(submoduleId){
+            const tCard = document.getElementById('qsTC_' + submoduleId);
+            if(tCard) tCard.click();
+        }
+    });
+})();
 
 /* ══ ANIMATED BACKGROUND ENGINE ══ */
 (function(){

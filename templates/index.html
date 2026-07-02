@@ -35,6 +35,29 @@
     <div class="banner-fade">
       <!-- Additional required wrapper -->
       <div class="swiper-wrapper">
+        <div class="swiper-slide banner-style-three shadow-left">
+  <div class="item bg-cover" style="background: url('{% static 'assets/img/banner/edu.jpeg' %}');">
+    <div class="banner-syle-thee-shape">
+      <img src="{% static 'assets/img/shape/3.png' %}" alt="Image Not Found" />
+      <img src="{% static 'assets/img/shape/4.png' %}" alt="Image Not Found" />
+    </div>
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-xl-7">
+          <div class="content">
+            <h2>Crack IMAT with Edusetin</h2>
+            <h3 class="tagline">Beyond Your Quest</h3>
+            <p>Prepare for IMAT with full-length mock tests, subject-wise quizzes, and previous year questions. Track your accuracy and boost your rank with real-time performance analytics.</p>
+            <div class="button">
+              <a href="{% url 'student_portal:login' %}" class="btn-style-one circle">Start IMAT Mock Test<span></span></a>
+              <a href="{% url 'student_portal:home' %}" class="btn-style-one circle btn-alt">Explore Plans<span></span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
         <!-- Single Item (Study Abroad) -->
         <div class="swiper-slide banner-style-three shadow-left">
           <div class="item bg-cover" style="background: url('{% static 'assets/img/banner/2.png' %}');">
@@ -109,29 +132,7 @@
           </div>
         </div>
         <!-- Single Item (Exam Prep) -->
-<div class="swiper-slide banner-style-three shadow-left">
-  <div class="item bg-cover" style="background: url('{% static 'assets/img/banner/edu.jpeg' %}');">
-    <div class="banner-syle-thee-shape">
-      <img src="{% static 'assets/img/shape/3.png' %}" alt="Image Not Found" />
-      <img src="{% static 'assets/img/shape/4.png' %}" alt="Image Not Found" />
-    </div>
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-xl-7">
-          <div class="content">
-            <h2>Crack IMAT with Edusetin</h2>
-            <h3 class="tagline">Beyond Your Quest</h3>
-            <p>Prepare for IMAT with full-length mock tests, subject-wise quizzes, and previous year questions. Track your accuracy and boost your rank with real-time performance analytics.</p>
-            <div class="button">
-              <a href="{% url 'student_portal:login' %}" class="btn-style-one circle">Start IMAT Mock Test<span></span></a>
-              <a href="{% url 'student_portal:home' %}" class="btn-style-one circle btn-alt">Explore Plans<span></span></a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+
 <!-- End Single Item -->
         <!-- End Single Item -->
       </div>
