@@ -2035,9 +2035,28 @@
             <div class="price-desc">{% if plan.description %}{{ plan.description }}{% else %}Valid for {{ plan.duration_days }} days.{% endif %}</div>
             <div class="price-divider"></div>
             <ul class="price-feats">
-              {% if plan.exams.exists %}<li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ plan.exams.count }} Mock Exam{{ plan.exams.count|pluralize }}</li>{% endif %}
-              {% if plan.subjects.exists %}<li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ plan.subjects.count }} Subject{{ plan.subjects.count|pluralize }} Included</li>{% endif %}
-              {% if plan.submodules.exists %}<li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ plan.submodules.count }} Topic{{ plan.submodules.count|pluralize }} Included</li>{% endif %}
+              {% if plan.subjects.exists %}
+                <li style="font-size:0.72rem;font-weight:800;font-family:var(--font-display);color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;margin:0 0 6px;list-style:none;">Subjects</li>
+                {% for subject in plan.subjects.all %}
+                  <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
+                {% endfor %}
+              {% endif %}
+
+              {% if plan.submodules.exists %}
+                <li style="font-size:0.72rem;font-weight:800;font-family:var(--font-display);color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;margin:14px 0 6px;list-style:none;">Modules</li>
+                {% for submodule in plan.submodules.all %}
+                  <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ submodule.subject.name }} — {{ submodule.name }}</li>
+                {% endfor %}
+              {% endif %}
+
+              {% if plan.exams.exists %}
+                <li style="font-size:0.72rem;font-weight:800;font-family:var(--font-display);color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;margin:14px 0 6px;list-style:none;">Mock Tests</li>
+                {% for exam in plan.exams.all %}
+                  <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
+                {% endfor %}
+              {% endif %}
+
+              <li style="font-size:0.72rem;font-weight:800;font-family:var(--font-display);color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;margin:14px 0 6px;list-style:none;">Included</li>
               <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Student Dashboard</li>
               <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Performance Reports</li>
               <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Progress Tracking</li>
