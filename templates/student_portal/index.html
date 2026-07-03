@@ -821,51 +821,75 @@ body.video-modal-lock { overflow: hidden; }
 .price-check { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; }
 .price-check svg { width: 10px; height: 10px; stroke: var(--blue); fill: none; stroke-width: 3; }
 
-/* ── Toggle button (legacy, unused now but kept in case referenced elsewhere) ── */
-.price-toggle-btn {
-  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px 18px; margin: 4px 0 20px; border-radius: var(--radius-md);
-  background: var(--grey-50); border: 1.5px solid var(--grey-200); color: var(--blue);
-  font-size: 0.85rem; font-weight: 700; font-family: var(--font-display); letter-spacing: .03em;
-  cursor: pointer; transition: all .25s ease;
-}
-.price-toggle-btn:hover { background: var(--blue-pale); border-color: var(--blue-light); }
-.price-toggle-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.5; transition: transform .35s cubic-bezier(.22,1,.36,1); flex-shrink: 0; }
-.price-toggle-btn.open svg { transform: rotate(180deg); }
-
-/* ── Details panel: always visible, only extra items per-group toggle ── */
+/* ── Details wrapper ── */
 .price-details { overflow: visible; }
-.price-details-inner { padding-top: 4px; padding-bottom: 20px; }
-.price-detail-group { margin-bottom: 18px; }
-.price-detail-group:last-child { margin-bottom: 0; }
+.price-details-inner { padding-top: 4px; padding-bottom: 4px; }
 
-/* ── Group heading row: label + inline View More + trailing line ── */
+/* ── Each group is its own dropdown/accordion ── */
+.price-detail-group {
+  border: 1px solid var(--grey-200);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color .25s ease, background-color .25s ease;
+}
+.price-detail-group:last-child { margin-bottom: 0; }
+.price-detail-group.expanded { border-color: var(--blue-light, var(--blue)); background: var(--blue-pale); }
+
+/* Static (non-toggling) group heading — used when a section has only one item */
+.price-detail-static {
+  padding: 12px 14px;
+  border: 1px solid var(--grey-200);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.price-detail-static:last-child { margin-bottom: 0; }
+.price-detail-static .price-detail-label { margin-bottom: 10px; }
+
+/* Clickable header row */
+.price-detail-toggle {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; background: transparent; border: none; cursor: pointer;
+  font-family: var(--font-body); text-align: left; transition: background-color .2s ease;
+}
+.price-detail-toggle:hover { background: var(--blue-pale); }
+.price-detail-group.expanded .price-detail-toggle:hover { background: transparent; }
+
+.price-detail-label-text {
+  font-size: 0.72rem; font-weight: 800; font-family: var(--font-display); color: var(--blue);
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.price-detail-count {
+  background: #fff; color: var(--blue); font-size: 0.72rem; font-weight: 800;
+  font-family: var(--font-display); padding: 2px 8px; border-radius: 20px;
+  border: 1px solid var(--grey-200);
+}
+.price-detail-group.expanded .price-detail-count { border-color: transparent; }
+
+.price-chevron {
+  width: 15px; height: 15px; stroke: var(--blue); fill: none; stroke-width: 2.5;
+  margin-left: auto; flex-shrink: 0; transition: transform .35s cubic-bezier(.22,1,.36,1);
+}
+.price-detail-toggle[aria-expanded="true"] .price-chevron { transform: rotate(180deg); }
+
+/* Collapsible panel — height animated via JS (max-height), fade via CSS */
+.price-detail-panel {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height .35s cubic-bezier(.22,1,.36,1), opacity .28s ease;
+}
+.price-detail-group.expanded .price-detail-panel { opacity: 1; }
+
+.price-detail-panel-inner { padding: 2px 14px 14px; }
+
 .price-detail-label {
   font-size: 0.72rem; font-weight: 800; font-family: var(--font-display); color: var(--blue);
-  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
-}
-.price-detail-label::after { content: ''; flex: 1; height: 1px; background: var(--grey-200); }
-.price-detail-label .price-more-btn {
-  text-transform: none;
-  letter-spacing: normal;
+  text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px;
 }
 
 .price-feats { display: flex; flex-direction: column; gap: 10px; }
 .price-feat { display: flex; align-items: center; gap: 9px; font-size: 0.9rem; color: #0B1E3D; font-family: var(--font-body); font-weight: 400; }
-
-/* ── Extra items: hidden by default, shown when THIS group is expanded ── */
-.price-extra-item { display: none; }
-.price-detail-group.expanded .price-extra-item { display: flex; }
-
-/* ── Inline "View More" toggle (text-link style, sits next to any heading) ── */
-.price-more-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  margin-left: 6px; padding: 2px; border: none; background: none;
-  color: var(--blue); cursor: pointer; transition: opacity .2s ease;
-}
-.price-more-btn:hover { opacity: 0.6; }
-.price-more-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; transition: transform .35s cubic-bezier(.22,1,.36,1); flex-shrink: 0; }
-.price-more-btn.open svg { transform: rotate(180deg); }
 
 .btn-price {
   display: block; text-align: center; padding: 13px 22px; border-radius: var(--radius-md);
@@ -882,7 +906,13 @@ body.video-modal-lock { overflow: hidden; }
 
 @media (max-width: 768px) {
   .price-popular { top: 16px; right: -38px; font-size: 9.5px; padding: 4px 42px; }
-  .price-toggle-btn { padding: 11px 16px; font-size: 0.82rem; }
+  .price-detail-toggle { padding: 11px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .price-card, .price-detail-group, .price-detail-toggle, .price-chevron, .price-detail-panel {
+    transition: none !important;
+  }
 }
     /* ══════════════════════════════════════════
        FAQ
@@ -1723,6 +1753,20 @@ body.video-modal-lock { overflow: hidden; }
     overscroll-behavior-y: auto !important;
   }
 }
+/* ── Mobile overlap fixes ── */
+@media (max-width: 900px) {
+  /* Fix 1: stop the "span 2" item from forcing a phantom 2nd column
+     on the Exam Environment feature grid */
+  .exam-feat-item {
+    grid-column: auto !important;
+  }
+
+  /* Fix 2: force the Previous Year Papers list to the top of its
+     card instead of centering (which collided with the count badge) */
+  .fc-visual-inner {
+    justify-content: flex-start !important;
+  }
+}
 </style>
 
 </head>
@@ -2390,7 +2434,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           {% with item_count=subj_count|add:sub_count|add:exam_count %}
           <div class="price-card {% if total >= 3 and forloop.counter == 2 %}featured{% elif total < 3 and forloop.last %}featured{% endif %} sr {% cycle 'sr-left' 'sr-up' 'sr-right' %} d{{ forloop.counter }}">
 
-            
             <!-- ── ALWAYS VISIBLE: plan summary ── -->
             <div class="price-plan">{{ plan.name }}</div>
             <div class="price-amount">{% if plan.price == 0 %}Free{% else %}<sup>₹</sup>{{ plan.price|floatformat:0 }}{% endif %}</div>
@@ -2410,66 +2453,99 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Progress Tracking</div>
             </div>
 
-            <!-- ── STUDY CONTENT: each group heading has its own inline View More ── -->
+            <!-- ── STUDY CONTENT: each group is its own dropdown ── -->
             {% if item_count > 0 %}
             <div class="price-details">
               <div class="price-details-inner">
 
                 {% if plan.subjects.exists %}
-                <div class="price-detail-group">
-                  <div class="price-detail-label">
-                    <span>Subjects</span>
-                    {% if subj_count > 1 %}
-                    <button class="price-more-btn" onclick="toggleGroupDetails(this)" aria-expanded="false">
-                      
-                      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                  {% if subj_count > 1 %}
+                  <div class="price-detail-group">
+                    <button class="price-detail-toggle" type="button" onclick="toggleGroupDetails(this)" aria-expanded="false">
+                      <span class="price-detail-label-text">Subjects</span>
+                      <span class="price-detail-count">{{ subj_count }}</span>
+                      <svg class="price-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
-                    {% endif %}
+                    <div class="price-detail-panel">
+                      <div class="price-detail-panel-inner">
+                        <ul class="price-feats">
+                          {% for subject in plan.subjects.all %}
+                            <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    </div>
                   </div>
-                  <ul class="price-feats">
-                    {% for subject in plan.subjects.all %}
-                      <li class="price-feat{% if not forloop.first %} price-extra-item{% endif %}"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
+                  {% else %}
+                  <div class="price-detail-static">
+                    <div class="price-detail-label"><span>Subjects</span></div>
+                    <ul class="price-feats">
+                      {% for subject in plan.subjects.all %}
+                        <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  {% endif %}
                 {% endif %}
 
                 {% if plan.submodules.exists %}
-                <div class="price-detail-group">
-                  <div class="price-detail-label">
-                    <span>Modules</span>
-                    {% if sub_count > 1 %}
-                    <button class="price-more-btn" onclick="toggleGroupDetails(this)" aria-expanded="false">
-                     
-                      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                  {% if sub_count > 1 %}
+                  <div class="price-detail-group">
+                    <button class="price-detail-toggle" type="button" onclick="toggleGroupDetails(this)" aria-expanded="false">
+                      <span class="price-detail-label-text">Modules</span>
+                      <span class="price-detail-count">{{ sub_count }}</span>
+                      <svg class="price-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
-                    {% endif %}
+                    <div class="price-detail-panel">
+                      <div class="price-detail-panel-inner">
+                        <ul class="price-feats">
+                          {% for submodule in plan.submodules.all %}
+                            <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ submodule.subject.name }} — {{ submodule.name }}</li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    </div>
                   </div>
-                  <ul class="price-feats">
-                    {% for submodule in plan.submodules.all %}
-                      <li class="price-feat{% if not forloop.first %} price-extra-item{% endif %}"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ submodule.subject.name }} — {{ submodule.name }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
+                  {% else %}
+                  <div class="price-detail-static">
+                    <div class="price-detail-label"><span>Modules</span></div>
+                    <ul class="price-feats">
+                      {% for submodule in plan.submodules.all %}
+                        <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ submodule.subject.name }} — {{ submodule.name }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  {% endif %}
                 {% endif %}
 
                 {% if plan.exams.exists %}
-                <div class="price-detail-group">
-                  <div class="price-detail-label">
-                    <span>Mock Tests</span>
-                    {% if exam_count > 1 %}
-                    <button class="price-more-btn" onclick="toggleGroupDetails(this)" aria-expanded="false">
-                      
-                      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                  {% if exam_count > 1 %}
+                  <div class="price-detail-group">
+                    <button class="price-detail-toggle" type="button" onclick="toggleGroupDetails(this)" aria-expanded="false">
+                      <span class="price-detail-label-text">Mock Tests</span>
+                      <span class="price-detail-count">{{ exam_count }}</span>
+                      <svg class="price-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
-                    {% endif %}
+                    <div class="price-detail-panel">
+                      <div class="price-detail-panel-inner">
+                        <ul class="price-feats">
+                          {% for exam in plan.exams.all %}
+                            <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    </div>
                   </div>
-                  <ul class="price-feats">
-                    {% for exam in plan.exams.all %}
-                      <li class="price-feat{% if not forloop.first %} price-extra-item{% endif %}"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
+                  {% else %}
+                  <div class="price-detail-static">
+                    <div class="price-detail-label"><span>Mock Tests</span></div>
+                    <ul class="price-feats">
+                      {% for exam in plan.exams.all %}
+                        <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  {% endif %}
                 {% endif %}
 
               </div>
@@ -3500,20 +3576,35 @@ srEls.forEach(function(el){ obs.observe(el); });
 })();
 
 /* ── PRICING CARD TOGGLE ── */
-window.toggleGroupDetails = function(btn){
+window.toggleGroupDetails = function (btn) {
   var group = btn.closest('.price-detail-group');
-  var label = btn.querySelector('.toggle-label');
+  var panel = group.querySelector('.price-detail-panel');
   var isOpen = group.classList.contains('expanded');
-  if(isOpen){
+
+  if (isOpen) {
+    // Collapse: pin current height first so the transition to 0 has something to animate from
+    panel.style.maxHeight = panel.scrollHeight + 'px';
+    // force reflow so the browser registers the pinned height before we change it
+    panel.offsetHeight; // eslint-disable-line no-unused-expressions
+    requestAnimationFrame(function () {
+      panel.style.maxHeight = '0px';
+    });
     group.classList.remove('expanded');
-    btn.classList.remove('open');
     btn.setAttribute('aria-expanded', 'false');
-    label.textContent = 'View More';
   } else {
     group.classList.add('expanded');
-    btn.classList.add('open');
     btn.setAttribute('aria-expanded', 'true');
-    label.textContent = 'View Less';
+    panel.style.maxHeight = panel.scrollHeight + 'px';
+
+    // once the open transition finishes, let it grow freely (handles dynamic content/resize)
+    var onEnd = function (e) {
+      if (e.propertyName !== 'max-height') return;
+      if (group.classList.contains('expanded')) {
+        panel.style.maxHeight = 'none';
+      }
+      panel.removeEventListener('transitionend', onEnd);
+    };
+    panel.addEventListener('transitionend', onEnd);
   }
 };
 /* ════════════════════════════════════════════════

@@ -2096,7 +2096,7 @@ def mark_notifications_read(request):
         return JsonResponse({'ok': False})
 
     import json
-    from student_portal.models import NotificationRead  # ← fixed
+    from student_portal.models import NotificationRead  
 
     data = json.loads(request.body)
     keys = data.get('keys', [])
