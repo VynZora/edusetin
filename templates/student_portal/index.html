@@ -9,6 +9,13 @@
   <link rel="icon" type="image/x-icon" href="{% static 'student_portal/assets/img/edu.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Work+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-M2XBMXVL');</script>
+<!-- End Google Tag Manager -->
   <style>
     :root {
       --blue:       #1565C0;
@@ -127,22 +134,25 @@
     .btn-login { padding: 11px 24px; border-radius: 8px; border: 2px solid #1447b3; background: #1447b3; color: #fff; font-size: 15px; font-weight: 700; font-family: var(--font-display); transition: all .18s; white-space: nowrap; display: inline-flex; align-items: center; }
 .btn-login:hover { background: #0a2a6e; border-color: #0a2a6e; }
     .btn-start { padding: 11px 26px; border-radius: 8px; background: #1447b3; color: #fff; font-size: 15px; font-weight: 700; font-family: var(--font-display); border: 2px solid #1447b3; display: inline-flex; align-items: center; gap: 8px; transition: all .18s; white-space: nowrap; }
-    .btn-start:hover { background: #0a2a6e; border-color: #0a2a6e; transform: translateY(-1px); }
+   .btn-start:hover { background: #0a2a6e; border-color: #0a2a6e; transform: translateY(-1px); }
+    .btn-start svg { stroke: #fff !important; }
     .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; flex-direction: column; gap: 5px; border-radius: 8px; margin-left: auto; }
     .hamburger span { display: block; width: 22px; height: 2px; background: #111827; border-radius: 2px; transition: all .2s; }
     .mobile-menu { display: none; background: #fff; border-top: 1px solid #e5e7eb; padding: 14px 20px 24px; flex-direction: column; gap: 4px; }
     .mobile-menu.open { display: flex; }
-    .mobile-menu a { padding: 11px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: var(--font-display); color: #111827; transition: all .2s; text-transform: uppercase; letter-spacing: .05em; display: block; }
+   .mobile-menu a { padding: 11px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: var(--font-display); color: #111827; transition: all .2s; text-transform: uppercase; letter-spacing: .05em; display: block; }
+    .mobile-menu a.btn-login,
+    .mobile-menu a.btn-start { color: #fff; }
     .mobile-menu a:hover { background: #e8effe; color: #1447b3; }
   @media(max-width:1024px){
   .navbar {
-    margin: 10px 12px 0;
-    border-radius: 18px;
-    border: 2px solid #1447b3;
+    margin: 0;
+    border-radius: 0;
+    border: none;
     position: sticky;
-    top: 10px;
+    top: 0;
     overflow: hidden;
-    box-shadow: 0 4px 24px rgba(20,71,179,.22);
+    box-shadow: 0 2px 12px rgba(20,71,179,.15);
     background: #fff;
   }
   .navbar.scrolled {
@@ -171,6 +181,33 @@
   }
   .nav-brand img {
     width: 120px !important;
+  }
+ .top-bar {
+    margin: 0;
+    border-radius: 0;
+    background: #1447b3;
+  }
+  .top-bar-inner {
+    padding: 6px 16px;
+    justify-content: center;
+    gap: 14px;
+  }
+  .top-bar-left { display: none; }
+  .top-bar-right { gap: 14px; }
+  .top-bar-right a {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .navbar {
+    margin: 0;
+    border-radius: 0;
+    top: 0;
+    border: none;
   }
   .hamburger {
     display: flex;
@@ -513,6 +550,198 @@
     .how-step-btn svg { stroke: currentColor; flex-shrink: 0; }
     .how-step.reached .how-step-btn { opacity: 1; pointer-events: auto; background: var(--blue); border-color: var(--blue); color: #fff; transform: translateY(0); }
     .how-step.reached .how-step-btn:hover { background: var(--blue-dark); border-color: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(21,101,192,.30); }
+    /* ══════════════════════════════════════════
+   VIDEO SHOWCASE
+══════════════════════════════════════════ */
+.video-showcase { background: #fff; }
+.video-frame { max-width: 980px; margin: 0 auto; position: relative; }
+.video-thumb {
+  position: relative; width: 100%; aspect-ratio: 16/9; border-radius: var(--radius-lg);
+  overflow: hidden; cursor: pointer;
+  background: linear-gradient(135deg, var(--navy) 0%, #0d2144 55%, var(--blue-dark) 100%);
+  box-shadow: var(--shadow-lg); border: 1px solid rgba(20,71,179,.15);
+  transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) and (pointer: fine) {
+  .video-thumb:hover { transform: translateY(-6px); box-shadow: 0 28px 70px rgba(10,30,80,.30); }
+}
+.video-thumb:active { transform: translateY(-2px) scale(.99); }
+.video-thumb::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(8,20,60,.10) 0%, rgba(8,20,60,.55) 100%);
+}
+.video-thumb img { width: 100%; height: 100%; object-fit: contain; background: #000; position: absolute; inset: 0; }
+.video-badge {
+  position: absolute; top: 20px; left: 20px; z-index: 3; display: inline-flex; align-items: center; gap: 9px;
+  background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.22); backdrop-filter: blur(10px);
+  padding: 6px 16px; border-radius: 30px; color: #90CAF9; font-size: .72rem; font-weight: 700;
+  font-family: var(--font-display); letter-spacing: 1.5px; text-transform: uppercase;
+  max-width: calc(100% - 40px);
+}
+
+.video-caption {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 3; padding: 26px 28px;
+  background: linear-gradient(0deg, rgba(8,20,60,.85) 0%, transparent 100%);
+}
+.video-caption span { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: -.4px; }
+.video-caption p { font-size: .9rem; color: rgba(255,255,255,.65); margin-top: 4px; font-family: var(--font-body); }
+
+.video-play-btn {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 4;
+  width: 86px; height: 86px; border-radius: 50%;
+  background: linear-gradient(180deg, #42A5F5 0%, #1565C0 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 40px rgba(21,101,192,.45); border: 4px solid rgba(255,255,255,.9);
+  transition: transform .3s cubic-bezier(.22,1,.36,1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .video-thumb:hover .video-play-btn { transform: translate(-50%,-50%) scale(1.08); }
+}
+.video-play-btn svg { width: 26px; height: 26px; fill: #fff; margin-left: 4px; }
+
+.play-ring {
+  position: absolute; top: 50%; left: 50%; width: 86px; height: 86px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.55); transform: translate(-50%,-50%);
+  animation: play-pulse 2.4s ease-out infinite;
+}
+.play-ring-2 { animation-delay: 1.2s; }
+@keyframes play-pulse {
+  0%   { transform: translate(-50%,-50%) scale(1);   opacity: .8; }
+  100% { transform: translate(-50%,-50%) scale(1.9); opacity: 0;  }
+}
+
+/* Modal player */
+.video-modal { position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; padding: 24px; }
+.video-modal.open { display: flex; }
+.video-modal-backdrop {
+  position: absolute; inset: 0; background: rgba(6,14,35,.86); backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity .35s ease;
+}
+.video-modal.open .video-modal-backdrop { opacity: 1; }
+.video-modal-inner {
+  position: relative; width: 100%; max-width: 1040px; border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0,0,0,.5); background: #000;
+  transform: scale(.92) translateY(20px); opacity: 0;
+  transition: transform .4s cubic-bezier(.22,1,.36,1), opacity .4s ease;
+}
+.video-modal.open .video-modal-inner { transform: scale(1) translateY(0); opacity: 1; }
+.video-modal-inner video { width: 100%; display: block; max-height: 80vh; background: #000; }
+.video-modal-close {
+  position: absolute; top: -46px; right: 0; width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.25); color: #fff;
+  font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: all .2s; z-index: 5;
+}
+@media (hover: hover) and (pointer: fine) {
+  .video-modal-close:hover { background: var(--blue); border-color: var(--blue); }
+}
+body.video-modal-lock { overflow: hidden; }
+
+/* ══ MOBILE / TABLET RESPONSIVE ══ */
+@media (max-width: 1024px) {
+  .video-frame { max-width: 100%; }
+}
+
+@media (max-width: 900px) {
+  .video-modal { padding: 0; align-items: flex-end; }
+  .video-modal-inner { max-width: 100%; border-radius: 16px 16px 0 0; }
+  .video-modal-inner video { max-height: 70vh; }
+  .video-modal-close { top: 12px; right: 12px; background: rgba(0,0,0,.55); border-color: rgba(255,255,255,.35); }
+}
+
+@media (max-width: 768px) {
+  .video-showcase { padding: 58px 0; }
+ .video-thumb { border-radius: 16px; aspect-ratio: 16/8; }
+  .video-badge { top: 14px; left: 14px; font-size: .62rem; padding: 5px 12px; gap: 6px; }
+  .video-play-btn, .play-ring, .play-ring-2 { width: 64px; height: 64px; }
+  .video-play-btn svg { width: 20px; height: 20px; }
+  .video-play-btn { border-width: 3px; }
+  .video-caption { padding: 16px; }
+  .video-caption span { font-size: 1.05rem; }
+  .video-caption p { font-size: .82rem; }
+}
+
+@media (max-width: 480px) {
+  .video-thumb { aspect-ratio: 16/8; }
+ 
+  .video-badge span { display: none; }
+  .video-caption span { font-size: .95rem; }
+  .video-caption p { font-size: .78rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .play-ring, .play-ring-2 { animation: none; }
+  .video-thumb, .video-modal-inner, .video-play-btn { transition: none !important; }
+}
+.video-inline {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; background: #000; z-index: 1;
+  opacity: 0; transition: opacity .6s ease;
+  pointer-events: none;
+}
+.video-inline.playing { opacity: 1; }
+.video-thumb.inline-active .video-play-btn,
+.video-thumb.inline-active .play-ring { opacity: 0; transition: opacity .4s ease; pointer-events: none; }
+
+/* ── Skip controls ── */
+.video-skip-controls {
+  position: absolute; top: 50%; left: 0; right: 0; z-index: 4;
+  display: flex; align-items: center; justify-content: center; gap: 130px;
+  transform: translateY(-50%); pointer-events: none;
+}
+.video-thumb.inline-active .video-skip-controls { pointer-events: auto; }
+.video-skip-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(8,20,60,.35); border: 1.5px solid rgba(255,255,255,.30);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; cursor: pointer; opacity: 0; transform: scale(.85);
+  transition: all .3s cubic-bezier(.22,1,.36,1);
+}
+.video-thumb.inline-active:hover .video-skip-btn,
+.video-thumb.inline-active:focus-within .video-skip-btn { opacity: 1; transform: scale(1); }
+.video-skip-btn:hover { background: var(--blue); border-color: var(--blue); transform: scale(1.1); }
+.video-skip-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+.video-skip-btn span {
+  position: absolute; font-size: 8px; font-weight: 800; font-family: var(--font-display);
+  bottom: -1px;
+}
+
+/* ── Progress bar ── */
+.video-progress {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 4;
+  height: 4px; background: rgba(255,255,255,.15); cursor: pointer;
+  opacity: 0; transition: opacity .3s ease, height .2s ease;
+}
+.video-thumb.inline-active .video-progress { opacity: 1; }
+.video-thumb.inline-active:hover .video-progress { height: 6px; }
+.video-progress-fill {
+  height: 100%; width: 0%; background: linear-gradient(90deg, #42A5F5, #1565C0);
+  transition: width .1s linear;
+}
+
+@media (max-width: 640px) {
+  .video-skip-controls { gap: 78px; }
+  .video-skip-btn { width: 38px; height: 38px; }
+  .video-skip-btn svg { width: 16px; height: 16px; }
+}
+.video-showcase { position: relative; overflow: hidden; }
+
+.pattern-full-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  opacity: 0.05;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  filter: grayscale(30%);
+}
+
+/* fade the pattern out toward the edges so it blends into the white section background instead of having a hard edge */
 
     /* ══════════════════════════════════════════
        EXAM EXPERIENCE
@@ -549,33 +778,112 @@
     .exam-nav-btn.next { background: var(--blue); color: #fff; }
 
     /* ══════════════════════════════════════════
-       PRICING
-    ══════════════════════════════════════════ */
-    .pricing { background: #fff; }
-    .pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
-    .price-card { background: #fff; border: 1px solid var(--grey-200); border-radius: var(--radius-lg); padding: 36px 30px; position: relative; overflow: hidden; transition: all .35s cubic-bezier(.22,1,.36,1); }
-    .price-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-    .price-card.featured { background: #fff; border-color: var(--grey-200); transform: none; box-shadow: none; }
-    .price-card.featured:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-    .price-popular { display: none; }
-    .price-plan { font-size: 0.92rem; font-weight: 800; font-family: var(--font-display); color: var(--blue); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
-    .price-amount { font-family: var(--font-display); font-size: 2.6rem; font-weight: 600; color: #0B1E3D; line-height: 1; margin-bottom: 7px; letter-spacing: -3px; }
-    .price-amount sup { font-size: 1.2rem; vertical-align: super; margin-right: 2px; }
-    .price-amount sub { font-size: .95rem; font-weight: 500; opacity: .60; }
-    .price-desc { font-size: 0.9375rem; color: #4B5563; margin-bottom: 24px; font-family: var(--font-body); font-weight: 400; line-height: 1.7; }
-    .price-divider { height: 1px; background: var(--grey-200); margin-bottom: 22px; }
-    .price-feats { display: flex; flex-direction: column; gap: 11px; margin-bottom: 28px; }
-    .price-feat { display: flex; align-items: center; gap: 9px; font-size: 0.9375rem; color: #0B1E3D; font-family: var(--font-body); font-weight: 400; }
-    .price-check { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; }
-    .price-check svg { width: 10px; height: 10px; stroke: var(--blue); fill: none; stroke-width: 3; }
-    .btn-price { display: block; text-align: center; padding: 12px 22px; border-radius: var(--radius-md); font-size: 0.9375rem; font-weight: 700; font-family: var(--font-display); border: 2px solid var(--blue); color: var(--blue); background: transparent; transition: all var(--tr); cursor: pointer; }
-    .btn-price:hover { background: var(--blue); color: #fff; }
-    .btn-price.white-inv { background: transparent; color: var(--blue); border-color: var(--blue); }
-    .btn-price.white-inv:hover { background: var(--blue); color: #fff; }
-    .no-plans-msg { text-align: center; padding: 60px 20px; color: var(--grey-600); }
-    .no-plans-msg svg { width: 48px; height: 48px; stroke: var(--grey-400); fill: none; stroke-width: 1.5; margin: 0 auto 16px; }
-    .no-plans-msg h3 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #0B1E3D; margin-bottom: 8px; letter-spacing: -0.8px; }
+   PRICING
+══════════════════════════════════════════ */
+.pricing { background: #fff; }
+.pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; align-items: start; }
+.price-card {
+  background: #fff; border: 1px solid var(--grey-200); border-radius: var(--radius-lg);
+  padding: 36px 30px; position: relative; overflow: hidden;
+  transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s cubic-bezier(.22,1,.36,1);
+}
+.price-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.price-card.featured { background: #fff; border-color: var(--grey-200); }
+.price-card.featured:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.price-popular {
+  display: inline-block; position: absolute; top: 20px; right: -34px; transform: rotate(45deg);
+  background: var(--blue); color: #fff; font-size: 10.5px; font-weight: 800; font-family: var(--font-display);
+  letter-spacing: 1px; text-transform: uppercase; padding: 5px 40px;
+}
+.price-plan { font-size: 0.92rem; font-weight: 800; font-family: var(--font-display); color: var(--blue); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.price-amount { font-family: var(--font-display); font-size: 2.6rem; font-weight: 600; color: #0B1E3D; line-height: 1; margin-bottom: 7px; letter-spacing: -3px; }
+.price-amount sup { font-size: 1.2rem; vertical-align: super; margin-right: 2px; }
+.price-amount sub { font-size: .95rem; font-weight: 500; opacity: .60; }
+.price-desc { font-size: 0.9375rem; color: #4B5563; margin-bottom: 22px; font-family: var(--font-body); font-weight: 400; line-height: 1.7; }
+.price-divider { height: 1px; background: var(--grey-200); margin-bottom: 20px; }
 
+/* ── Quick summary (always visible) ── */
+.price-summary { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.price-summary-row {
+  display: flex; align-items: center; gap: 10px; font-size: 0.9375rem; color: #0B1E3D;
+  font-family: var(--font-body); font-weight: 500; flex-wrap: wrap;
+}
+.price-summary-row svg { width: 17px; height: 17px; stroke: var(--blue); fill: none; stroke-width: 2; flex-shrink: 0; }
+.price-summary-count {
+  margin-left: auto; background: var(--blue-pale); color: var(--blue); font-size: 0.75rem; font-weight: 800;
+  font-family: var(--font-display); padding: 2px 9px; border-radius: 20px; flex-shrink: 0;
+}
+.price-included-line {
+  display: flex; align-items: center; gap: 9px; font-size: 0.9375rem; color: #0B1E3D;
+  font-family: var(--font-body); font-weight: 400; margin-bottom: 9px;
+}
+.price-included-line:last-child { margin-bottom: 0; }
+.price-check { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; }
+.price-check svg { width: 10px; height: 10px; stroke: var(--blue); fill: none; stroke-width: 3; }
+
+/* ── Toggle button (legacy, unused now but kept in case referenced elsewhere) ── */
+.price-toggle-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 18px; margin: 4px 0 20px; border-radius: var(--radius-md);
+  background: var(--grey-50); border: 1.5px solid var(--grey-200); color: var(--blue);
+  font-size: 0.85rem; font-weight: 700; font-family: var(--font-display); letter-spacing: .03em;
+  cursor: pointer; transition: all .25s ease;
+}
+.price-toggle-btn:hover { background: var(--blue-pale); border-color: var(--blue-light); }
+.price-toggle-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.5; transition: transform .35s cubic-bezier(.22,1,.36,1); flex-shrink: 0; }
+.price-toggle-btn.open svg { transform: rotate(180deg); }
+
+/* ── Details panel: always visible, only extra items per-group toggle ── */
+.price-details { overflow: visible; }
+.price-details-inner { padding-top: 4px; padding-bottom: 20px; }
+.price-detail-group { margin-bottom: 18px; }
+.price-detail-group:last-child { margin-bottom: 0; }
+
+/* ── Group heading row: label + inline View More + trailing line ── */
+.price-detail-label {
+  font-size: 0.72rem; font-weight: 800; font-family: var(--font-display); color: var(--blue);
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.price-detail-label::after { content: ''; flex: 1; height: 1px; background: var(--grey-200); }
+.price-detail-label .price-more-btn {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.price-feats { display: flex; flex-direction: column; gap: 10px; }
+.price-feat { display: flex; align-items: center; gap: 9px; font-size: 0.9rem; color: #0B1E3D; font-family: var(--font-body); font-weight: 400; }
+
+/* ── Extra items: hidden by default, shown when THIS group is expanded ── */
+.price-extra-item { display: none; }
+.price-detail-group.expanded .price-extra-item { display: flex; }
+
+/* ── Inline "View More" toggle (text-link style, sits next to any heading) ── */
+.price-more-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-left: 6px; padding: 2px; border: none; background: none;
+  color: var(--blue); cursor: pointer; transition: opacity .2s ease;
+}
+.price-more-btn:hover { opacity: 0.6; }
+.price-more-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; transition: transform .35s cubic-bezier(.22,1,.36,1); flex-shrink: 0; }
+.price-more-btn.open svg { transform: rotate(180deg); }
+
+.btn-price {
+  display: block; text-align: center; padding: 13px 22px; border-radius: var(--radius-md);
+  font-size: 0.9375rem; font-weight: 700; font-family: var(--font-display);
+  border: 2px solid var(--blue); color: var(--blue); background: transparent; transition: all var(--tr); cursor: pointer;
+}
+.btn-price:hover { background: var(--blue); color: #fff; }
+.btn-price.white-inv { background: transparent; color: var(--blue); border-color: var(--blue); }
+.btn-price.white-inv:hover { background: var(--blue); color: #fff; }
+
+.no-plans-msg { text-align: center; padding: 60px 20px; color: var(--grey-600); }
+.no-plans-msg svg { width: 48px; height: 48px; stroke: var(--grey-400); fill: none; stroke-width: 1.5; margin: 0 auto 16px; }
+.no-plans-msg h3 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #0B1E3D; margin-bottom: 8px; letter-spacing: -0.8px; }
+
+@media (max-width: 768px) {
+  .price-popular { top: 16px; right: -38px; font-size: 9.5px; padding: 4px 42px; }
+  .price-toggle-btn { padding: 11px 16px; font-size: 0.82rem; }
+}
     /* ══════════════════════════════════════════
        FAQ
     ══════════════════════════════════════════ */
@@ -1037,7 +1345,7 @@
       .exam-feat-grid{grid-template-columns:1fr}
       .footer-grid{grid-template-columns:1fr;gap:32px}
       .container{padding:0 18px}
-      .top-bar-inner{padding:6px 18px;flex-direction:column;gap:5px;text-align:center}
+      
       .about-curve-svg{height:50px}
       .about-feat-card{flex:0 0 275px;min-width:275px}
       .faq-q{grid-template-columns:40px 1fr 34px;gap:0 10px;padding:22px 0}
@@ -1419,7 +1727,10 @@
 
 </head>
 <body>
-
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M2XBMXVL"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <!-- PRELOADER -->
 <div id="preloader">
   <div class="loader"><div></div><div></div><div></div></div>
@@ -1971,7 +2282,55 @@
     </div>
   </div>
 </section>
+<!-- VIDEO SHOWCASE -->
+<section class="section video-showcase" id="demo">
+  <div class="container">
+    <div class="section-head center">
+      <span class="lbl sr sr-fade" style="background:transparent;border:1.5px solid #1447b3;color:#1447b3;padding:5px 16px;border-radius:30px;">See It In Action</span>
+      <h2 class="section-h sr sr-up d1">Watch <span>Edusetin</span> in Action</h2>
+      <p class="section-desc sr sr-up d2" style="margin:0 auto;">A quick walkthrough of registering, practicing, and taking a mock IMAT exam on the platform.</p>
+    </div>
+    <div class="video-frame sr sr-up d3">
+      <div class="video-thumb" id="videoThumb" role="button" tabindex="0" aria-label="Play product walkthrough video">
+  <video id="inlineDemoVideo" class="video-inline" muted loop playsinline preload="metadata">
+    <source src="{% static 'student_portal/assets/video/edusetin-demo.mp4' %}" type="video/mp4">
+  </video>
+  <div class="video-badge"><div class="live-dot"></div><span>Live Product Walkthrough</span></div>
+  <div class="video-play-btn" id="videoPlayBtn">
+    <div class="play-ring"></div>
+    <div class="play-ring play-ring-2"></div>
+    <svg viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21"/></svg>
+  </div>
+  <div class="video-skip-controls">
+    <button class="video-skip-btn" id="skipBack" aria-label="Rewind 10 seconds" type="button">
+      <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg>
+      <span>10</span>
+    </button>
+    <button class="video-skip-btn" id="skipForward" aria-label="Forward 10 seconds" type="button">
+      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-9.36L23 10"/></svg>
+      <span>10</span>
+    </button>
+  </div>
+  <div class="video-progress" id="videoProgress"><div class="video-progress-fill" id="videoProgressFill"></div></div>
+  <div class="video-caption">
+    <span>Student Journey Walkthrough</span>
+    <p>Sign up → practice → take a mock exam — in under 2 minutes</p>
+  </div>
+</div>
+    </div>
+  </div>
+</section>
 
+<!-- VIDEO MODAL -->
+<div class="video-modal" id="videoModal" role="dialog" aria-modal="true" aria-label="Video player">
+  <div class="video-modal-backdrop" id="videoModalBackdrop"></div>
+  <div class="video-modal-inner">
+    <button class="video-modal-close" id="videoModalClose" aria-label="Close video">&times;</button>
+    <video id="demoVideoEl" controls playsinline preload="metadata" autoplay muted>
+      <source src="{% static 'student_portal/assets/video/edusetin-demo.mp4' %}" type="video/mp4">
+    </video>
+  </div>
+</div>
 <!-- EXAM EXPERIENCE -->
 <section class="section exam-exp" id="exam">
   <div class="container">
@@ -2016,6 +2375,7 @@
 </section>
 
 <!-- PRICING -->
+<!-- PRICING -->
 <section class="section pricing" id="pricing">
   <div class="container">
     <div class="section-head center">
@@ -2023,50 +2383,107 @@
       <h2 class="section-h sr sr-up d1">Choose Your <span>Preparation Plan</span></h2>
       <p class="section-desc sr sr-up d2">From free daily quizzes to unlimited mock tests and previous year papers — pick the plan that matches your needs.</p>
     </div>
-{% if plans %}
+    {% if plans %}
       <div class="pricing-grid">
         {% for plan in plans %}
-          {% with total=plans|length %}
+          {% with total=plans|length subj_count=plan.subjects.count sub_count=plan.submodules.count exam_count=plan.exams.count %}
+          {% with item_count=subj_count|add:sub_count|add:exam_count %}
           <div class="price-card {% if total >= 3 and forloop.counter == 2 %}featured{% elif total < 3 and forloop.last %}featured{% endif %} sr {% cycle 'sr-left' 'sr-up' 'sr-right' %} d{{ forloop.counter }}">
-            {% if total >= 3 and forloop.counter == 2 %}<div class="price-popular">Most Popular</div>
-            {% elif total < 3 and forloop.last %}<div class="price-popular">Best Value</div>{% endif %}
+
+            
+            <!-- ── ALWAYS VISIBLE: plan summary ── -->
             <div class="price-plan">{{ plan.name }}</div>
-            <div class="price-amount">{% if plan.price == 0 %}Free{% else %}<sup>₹</sup>{{ plan.price|floatformat:0 }}</sub>{% endif %}</div>
+            <div class="price-amount">{% if plan.price == 0 %}Free{% else %}<sup>₹</sup>{{ plan.price|floatformat:0 }}{% endif %}</div>
             <div class="price-desc">{% if plan.description %}{{ plan.description }}{% else %}Valid for {{ plan.duration_days }} days.{% endif %}</div>
             <div class="price-divider"></div>
-            <ul class="price-feats">
-              {% if plan.subjects.exists %}
-                <li style="font-size:0.72rem;font-weight:800;font-family:var(--font-display);color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;margin:0 0 6px;list-style:none;">Subjects</li>
-                {% for subject in plan.subjects.all %}
-                  <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
-                {% endfor %}
-              {% endif %}
 
-              {% if plan.submodules.exists %}
-                <li style="font-size:0.72rem;font-weight:800;font-family:var(--font-display);color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;margin:14px 0 6px;list-style:none;">Modules</li>
-                {% for submodule in plan.submodules.all %}
-                  <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ submodule.subject.name }} — {{ submodule.name }}</li>
-                {% endfor %}
+            <div class="price-summary">
+              {% if item_count > 0 %}
+              <div class="price-summary-row">
+                <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <span>Study Content Access</span>
+                <span class="price-summary-count">{{ item_count }} item{{ item_count|pluralize }}</span>
+              </div>
               {% endif %}
+              <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Student Dashboard</div>
+              <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Performance Reports</div>
+              <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Progress Tracking</div>
+            </div>
 
-              {% if plan.exams.exists %}
-                <li style="font-size:0.72rem;font-weight:800;font-family:var(--font-display);color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;margin:14px 0 6px;list-style:none;">Mock Tests</li>
-                {% for exam in plan.exams.all %}
-                  <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
-                {% endfor %}
-              {% endif %}
+            <!-- ── STUDY CONTENT: each group heading has its own inline View More ── -->
+            {% if item_count > 0 %}
+            <div class="price-details">
+              <div class="price-details-inner">
 
-              <li style="font-size:0.72rem;font-weight:800;font-family:var(--font-display);color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;margin:14px 0 6px;list-style:none;">Included</li>
-              <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Student Dashboard</li>
-              <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Performance Reports</li>
-              <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Progress Tracking</li>
-            </ul>
+                {% if plan.subjects.exists %}
+                <div class="price-detail-group">
+                  <div class="price-detail-label">
+                    <span>Subjects</span>
+                    {% if subj_count > 1 %}
+                    <button class="price-more-btn" onclick="toggleGroupDetails(this)" aria-expanded="false">
+                      
+                      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    {% endif %}
+                  </div>
+                  <ul class="price-feats">
+                    {% for subject in plan.subjects.all %}
+                      <li class="price-feat{% if not forloop.first %} price-extra-item{% endif %}"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+
+                {% if plan.submodules.exists %}
+                <div class="price-detail-group">
+                  <div class="price-detail-label">
+                    <span>Modules</span>
+                    {% if sub_count > 1 %}
+                    <button class="price-more-btn" onclick="toggleGroupDetails(this)" aria-expanded="false">
+                     
+                      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    {% endif %}
+                  </div>
+                  <ul class="price-feats">
+                    {% for submodule in plan.submodules.all %}
+                      <li class="price-feat{% if not forloop.first %} price-extra-item{% endif %}"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ submodule.subject.name }} — {{ submodule.name }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+
+                {% if plan.exams.exists %}
+                <div class="price-detail-group">
+                  <div class="price-detail-label">
+                    <span>Mock Tests</span>
+                    {% if exam_count > 1 %}
+                    <button class="price-more-btn" onclick="toggleGroupDetails(this)" aria-expanded="false">
+                      
+                      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    {% endif %}
+                  </div>
+                  <ul class="price-feats">
+                    {% for exam in plan.exams.all %}
+                      <li class="price-feat{% if not forloop.first %} price-extra-item{% endif %}"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- ── CTA ── -->
             {% if user.is_authenticated %}
               <a href="{% url 'student_portal:plan_checkout' plan.uuid %}" class="btn-price {% if total >= 3 and forloop.counter == 2 %}white-inv{% elif total < 3 and forloop.last %}white-inv{% endif %}">{% if plan.price == 0 %}Get Started Free{% else %}Upgrade Now{% endif %}</a>
             {% else %}
               <a href="{% url 'student_portal:register' %}?next={% url 'student_portal:plan_checkout' plan.uuid %}" class="btn-price {% if total >= 3 and forloop.counter == 2 %}white-inv{% elif total < 3 and forloop.last %}white-inv{% endif %}">{% if plan.price == 0 %}Get Started Free{% else %}Get Started{% endif %}</a>
             {% endif %}
           </div>
+          {% endwith %}
           {% endwith %}
         {% endfor %}
       </div>
@@ -2935,6 +3352,8 @@ srEls.forEach(function(el){ obs.observe(el); });
 /* ════════════════════════════════════════════════
    WAVE PATTERN BACKGROUNDS
    Visible on ALL sections — dark and light
+   (Now includes .video-showcase, using the same
+   engine/strength as how-section, faq, pricing)
 ════════════════════════════════════════════════ */
 (function(){
 
@@ -2958,6 +3377,7 @@ srEls.forEach(function(el){ obs.observe(el); });
     { sel:'.how-section',          dark:false },
     { sel:'.faq',                  dark:false },
     { sel:'.pricing',              dark:false },
+    { sel:'.video-showcase',       dark:false },
   ];
   document.querySelectorAll('.section').forEach(function(sec){
     var st = sec.getAttribute('style') || '';
@@ -3079,8 +3499,85 @@ srEls.forEach(function(el){ obs.observe(el); });
 
 })();
 
+/* ── PRICING CARD TOGGLE ── */
+window.toggleGroupDetails = function(btn){
+  var group = btn.closest('.price-detail-group');
+  var label = btn.querySelector('.toggle-label');
+  var isOpen = group.classList.contains('expanded');
+  if(isOpen){
+    group.classList.remove('expanded');
+    btn.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    label.textContent = 'View More';
+  } else {
+    group.classList.add('expanded');
+    btn.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    label.textContent = 'View Less';
+  }
+};
+/* ════════════════════════════════════════════════
+   INLINE VIDEO PLAYER (autoplay-on-scroll, skip, progress)
+════════════════════════════════════════════════ */
+(function(){
+  var thumb    = document.getElementById('videoThumb');
+  var inline   = document.getElementById('inlineDemoVideo');
+  var modal    = document.getElementById('videoModal');
+  var skipBack = document.getElementById('skipBack');
+  var skipFwd  = document.getElementById('skipForward');
+  var progWrap = document.getElementById('videoProgress');
+  var progFill = document.getElementById('videoProgressFill');
+  if(!thumb || !inline) return;
 
+  function restartAndPlay(){
+    inline.currentTime = 0;
+    inline.play().then(function(){
+      inline.classList.add('playing');
+      thumb.classList.add('inline-active');
+    }).catch(function(){});
+  }
+  function stopVideo(){
+    inline.pause();
+    inline.classList.remove('playing');
+    thumb.classList.remove('inline-active');
+  }
 
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(modal && modal.classList.contains('open')) return;
+      if(entry.isIntersecting && entry.intersectionRatio >= 0.5){
+        restartAndPlay(); // always restarts from 0, whether entering from above or below
+      } else {
+        stopVideo();
+      }
+    });
+  }, { threshold: [0, 0.5] });
+  io.observe(thumb);
+
+  /* progress bar */
+  inline.addEventListener('timeupdate', function(){
+    if(!inline.duration) return;
+    progFill.style.width = ((inline.currentTime / inline.duration) * 100) + '%';
+  });
+
+  /* seek by clicking progress bar */
+  progWrap.addEventListener('click', function(e){
+    e.stopPropagation();
+    var rect = progWrap.getBoundingClientRect();
+    var pct = (e.clientX - rect.left) / rect.width;
+    if(inline.duration) inline.currentTime = pct * inline.duration;
+  });
+
+  /* skip controls */
+  skipBack.addEventListener('click', function(e){
+    e.stopPropagation();
+    inline.currentTime = Math.max(0, inline.currentTime - 10);
+  });
+  skipFwd.addEventListener('click', function(e){
+    e.stopPropagation();
+    inline.currentTime = Math.min(inline.duration || inline.currentTime + 10, inline.currentTime + 10);
+  });
+})();
 </script>
 </body>
 </html>
