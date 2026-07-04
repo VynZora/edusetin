@@ -2,8 +2,11 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from .models import Country, University, Blog, Service, CourseCategory
 
-
-class StaticViewSitemap(Sitemap):
+class EdusetinSitemap(Sitemap):
+    protocol = "https"
+    def get_domain(self, site=None):
+        return "edusetin.com"
+class StaticViewSitemap(EdusetinSitemap):
     priority = 0.6
     changefreq = "weekly"
 
@@ -26,7 +29,7 @@ class StaticViewSitemap(Sitemap):
         return reverse(item)
 
 
-class CountrySitemap(Sitemap):
+class CountrySitemap(EdusetinSitemap):
     changefreq = "weekly"
     priority = 0.8
 
@@ -37,7 +40,7 @@ class CountrySitemap(Sitemap):
         return reverse("country_detail", kwargs={"slug": obj.slug})
 
 
-class UniversitySitemap(Sitemap):
+class UniversitySitemap(EdusetinSitemap):
     changefreq = "weekly"
     priority = 0.8
 
@@ -51,7 +54,7 @@ class UniversitySitemap(Sitemap):
         return reverse("uni_detail", kwargs={"slug": obj.slug})
 
 
-class CourseCategorySitemap(Sitemap):
+class CourseCategorySitemap(EdusetinSitemap):
     changefreq = "monthly"
     priority = 0.6
 
@@ -65,7 +68,7 @@ class CourseCategorySitemap(Sitemap):
         return reverse("course_category_detail", kwargs={"slug": obj.slug})
 
 
-class BlogSitemap(Sitemap):
+class BlogSitemap(EdusetinSitemap):
     changefreq = "weekly"
     priority = 0.6
 
@@ -79,7 +82,7 @@ class BlogSitemap(Sitemap):
         return reverse("blog_detail", kwargs={"slug": obj.slug})
 
 
-class ServiceSitemap(Sitemap):
+class ServiceSitemap(EdusetinSitemap):
     changefreq = "monthly"
     priority = 0.5
 
