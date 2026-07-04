@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 
 {% load static %}
-
+<!-- category_detials.html -->
+{% block canonical %}https://www.edusetin.com{% url 'course_category_detail' category.slug %}{% endblock %}
 {% block extra_css %}
   <style>
     /* Force bullets and numbers to show in category description */

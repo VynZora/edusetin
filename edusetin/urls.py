@@ -19,13 +19,46 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import path, include
+from django.contrib.sitemaps.views import sitemap
+from django.http import HttpResponse
+from edusetin_app.sitemaps import (
+    StaticViewSitemap, CountrySitemap, UniversitySitemap,
+    CourseCategorySitemap, BlogSitemap, ServiceSitemap,
+)
 
+sitemaps = {
+    "static": StaticViewSitemap,
+    "countries": CountrySitemap,
+    "universities": UniversitySitemap,
+    "course_categories": CourseCategorySitemap,
+    "blogs": BlogSitemap,
+    "services": ServiceSitemap,
+}
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        "Disallow: /apply-form/",
+        "Disallow: /accounts/",
+        "Disallow: /media/private/",
+        "Disallow: /student-management/",
+        "Allow: /static/",
+        "Allow: /",
+        "",
+        "Sitemap: https://edusetin.com/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
 urlpatterns = [
 
     # path("admin/", admin.site.urls),
     path('student-management/', include('student_management.urls')),
     path('student/', include('student_portal.urls')),
     path('', include('edusetin_app.urls')),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps},
+         name="django.contrib.sitemaps.views.sitemap"),
+    path("robots.txt", robots_txt), 
 ]
 # This is important for serving static files during development
 if settings.DEBUG:

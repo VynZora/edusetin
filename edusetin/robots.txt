@@ -1,0 +1,10 @@
+User-agent: *
+    Disallow: /admin/
+    Disallow: /apply-form/
+    Disallow: /accounts/
+    Disallow: /media/private/
+    Disallow: /student-management/
+    Allow: /static/
+    Allow: /
+
+Sitemap: https://edusetin.com/sitemap.xml

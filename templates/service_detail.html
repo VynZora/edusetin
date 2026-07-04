@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-
+<!-- service_detail.html -->
+{% block canonical %}https://www.edusetin.com{% url 'service_detail' service.slug %}{% endblock %}
 {% block extra_css %}
   <style>
     /* Force bullets and numbers to show in service description */

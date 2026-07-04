@@ -42,8 +42,10 @@ INSTALLED_APPS = [
     "edusetin_app",
     "student_management",
     "student_portal",
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
 ]
-
+SITE_ID = 1
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     
@@ -151,6 +153,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'msvishnu673@gmail.com'
 EMAIL_HOST_PASSWORD = 'sjcf tyva aldr ashi' 
 DEFAULT_FROM_EMAIL = 'EduSetin <msvishnu673@gmail.com>'
-
 
 

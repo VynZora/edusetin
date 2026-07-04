@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% load static %}
+<!-- country-details.html -->
+{% block canonical %}https://www.edusetin.com{% url 'country_detail' country.slug %}{% endblock %}
 
 {% block extra_css %}
  
