@@ -156,3 +156,4 @@ EMAIL_HOST_PASSWORD = 'sjcf tyva aldr ashi'
 DEFAULT_FROM_EMAIL = 'EduSetin <msvishnu673@gmail.com>'
 
 
+
