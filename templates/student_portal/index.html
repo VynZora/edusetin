@@ -17,6 +17,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-M2XBMXVL');</script>
 <!-- End Google Tag Manager -->
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1503469751038597');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
   <style>
     :root {
       --blue:       #1565C0;
@@ -1768,6 +1786,97 @@ body.video-modal-lock { overflow: hidden; }
     justify-content: flex-start !important;
   }
 }
+
+/* ══ EXAM INFO SECTION — MOBILE ══ */
+@media (max-width: 768px) {
+  .exam-info-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .exam-info-card {
+    padding: 22px 20px !important;
+    gap: 14px !important;
+    border-radius: 16px !important;
+  }
+  .exam-info-icon {
+    width: 46px !important;
+    height: 46px !important;
+    border-radius: 11px !important;
+  }
+  .exam-info-icon svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  .exam-info-label {
+    font-size: 0.66rem !important;
+  }
+  .exam-info-value {
+    font-size: 1.2rem !important;
+  }
+
+  .exam-info-panel {
+    padding: 26px 20px !important;
+    border-radius: 18px !important;
+  }
+  .exam-info-title {
+    font-size: 1.05rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .exam-breakdown-row {
+    flex-wrap: wrap !important;
+    row-gap: 6px !important;
+    gap: 10px !important;
+  }
+  .exam-breakdown-label {
+    width: 100% !important;
+    font-size: 0.85rem !important;
+  }
+  .exam-breakdown-bar {
+    flex: 1 1 auto !important;
+  }
+  .exam-breakdown-value {
+    width: auto !important;
+    margin-left: auto !important;
+  }
+
+  .exam-marking-grid {
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 8px !important;
+  }
+  .exam-marking-item {
+    padding: 12px 8px !important;
+  }
+  .exam-marking-num {
+    font-size: 1.2rem !important;
+  }
+  .exam-marking-lbl {
+    font-size: 0.68rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .exam-info-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+  .exam-marking-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .exam-marking-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    text-align: left !important;
+    padding: 12px 14px !important;
+  }
+  .exam-marking-item .exam-marking-num,
+  .exam-marking-item .exam-marking-lbl {
+    margin-top: 0 !important;
+  }
+}
+
 </style>
 
 </head>
@@ -2006,7 +2115,498 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </section>
+<!-- IMAT EXAM INFO -->
+<section class="section" style="background:#fff;">
+  <div class="container">
 
+    <div class="section-head center">
+      <span class="lbl sr sr-fade" style="background:transparent;border:1.5px solid #64B5F6;color:#64B5F6;padding:5px 16px;border-radius:30px;">Exam Information</span>
+      <h2 class="section-h sr sr-up d1">Know Your <span>IMAT Exam</span></h2>
+      <p class="section-desc sr sr-up d2" style="margin:0 auto;">Everything you need to know about the test date, structure, and scoring — so you walk in fully prepared.</p>
+    </div>
+
+    <!-- ================= EXAM STAT CARDS ================= -->
+    <div class="glance-wrap">
+    <div class="guide-mascot-wrap">
+      <img src="{% static 'student_portal/assets/img/exam-guide-character.png' %}" alt="Guide character pointing at the exam stats" class="guide-mascot sr sr-left d1" />
+    </div>
+    <p class="sr sr-fade d1" style="text-align:center;margin:0 0 18px;font:700 .72rem/1 'Courier New',monospace;letter-spacing:.14em;text-transform:uppercase;color:#8A94A6;">— Your Exam At A Glance —</p>
+
+    <div class="stat-cards" style="max-width:1120px;margin:0 auto 48px;">
+
+      <div class="stat-card sc1">
+        <div class="wipe"></div>
+        <div class="stat-icon icon-draw">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#3B82F6" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <p class="stat-label">Exam date</p>
+        <p class="stat-value"><span class="bold-val">Sep 30, 2026</span></p>
+      </div>
+
+      <div class="stat-card sc2">
+        <div class="wipe"></div>
+        <div class="stat-icon icon-draw">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#3B82F6" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <p class="stat-label">Duration</p>
+        <p class="stat-value"><span class="bold-val">100 minutes</span></p>
+      </div>
+
+      <div class="stat-card sc3">
+        <div class="wipe"></div>
+        <div class="stat-icon icon-draw">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <p class="stat-label">Total questions</p>
+        <p class="stat-value"><span class="bold-val">60, multiple-choice</span></p>
+      </div>
+
+      <div class="stat-card sc4 dark">
+        <div class="wipe wipe-accent"></div>
+        <div class="stat-icon dark icon-draw">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#64B5F6" stroke-width="2"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg>
+        </div>
+        <p class="stat-label dark">Max score</p>
+        <p class="stat-value dark"><span class="bold-val">90 Mark</span></p>
+        <div class="barcode" aria-hidden="true"></div>
+      </div>
+
+    </div>
+    </div>
+
+    <!-- ============ SUBJECT-WISE QUESTION BREAKDOWN — CARDS (unchanged) ============ -->
+    <h3 class="sr sr-up d1" style="text-align:center;font-size:1.25rem;color:#0B1E3D;margin:0 0 6px;">Question breakdown by subject</h3>
+    <p class="sr sr-up d2" style="text-align:center;color:#5B6472;margin:0 auto 28px;max-width:520px;">60 questions across 5 sections — know exactly where the marks are.</p>
+
+    <div class="why-grid">
+
+      <div class="why-card sr sr-left d1">
+        <div class="why-card-header">
+          <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-2-8-1v13c3-1 6-.5 8 1 2-1.5 5-2 8-1V5c-3-1-6-.5-8 1Z"/><path d="M12 6v13"/></svg></div>
+          <h3>Reading &amp; General Knowledge</h3>
+        </div>
+        <div class="q-count-row" style="margin-top:6px;">
+          <span style="font-size:1.6rem;font-weight:800;color:#0B1E3D;">4</span>
+          <span style="font-size:.85rem;font-weight:600;color:#8A94A6;margin-left:6px;">questions</span>
+        </div>
+      </div>
+
+      <div class="why-card sr sr-up d2">
+        <div class="why-card-header">
+          <div class="why-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></div>
+          <h3>Logical Reasoning &amp; Problem Solving</h3>
+        </div>
+        <div class="q-count-row" style="margin-top:6px;">
+          <span style="font-size:1.6rem;font-weight:800;color:#0B1E3D;">5</span>
+          <span style="font-size:.85rem;font-weight:600;color:#8A94A6;margin-left:6px;">questions</span>
+        </div>
+      </div>
+
+      <div class="why-card sr sr-right d3">
+        <div class="why-card-header">
+          <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M6 3c0 6 12 12 12 18M18 3c0 6-12 12-12 18"/><path d="M7.5 6.5h3M7.5 17.5h3M13.5 6.5h3M13.5 17.5h3M9 11h1.5M13.5 11H15M9 13h1.5M13.5 13H15"/></svg></div>
+          <h3>Biology</h3>
+        </div>
+        <div class="q-count-row" style="margin-top:6px;">
+          <span style="font-size:1.6rem;font-weight:800;color:#0B1E3D;">23</span>
+          <span style="font-size:.85rem;font-weight:600;color:#8A94A6;margin-left:6px;">questions</span>
+        </div>
+      </div>
+
+      <div class="why-card sr sr-left d2">
+        <div class="why-card-header">
+          <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M10 2v6.2L4.5 18.3A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.8-2.7L14 8.2V2"/><path d="M9 2h6"/><path d="M8.5 15h7"/></svg></div>
+          <h3>Chemistry</h3>
+        </div>
+        <div class="q-count-row" style="margin-top:6px;">
+          <span style="font-size:1.6rem;font-weight:800;color:#0B1E3D;">15</span>
+          <span style="font-size:.85rem;font-weight:600;color:#8A94A6;margin-left:6px;">questions</span>
+        </div>
+      </div>
+
+      <div class="why-card sr sr-up d3">
+        <div class="why-card-header">
+          <div class="why-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg></div>
+          <h3>Physics &amp; Mathematics</h3>
+        </div>
+        <div class="q-count-row" style="margin-top:6px;">
+          <span style="font-size:1.6rem;font-weight:800;color:#0B1E3D;">13</span>
+          <span style="font-size:.85rem;font-weight:600;color:#8A94A6;margin-left:6px;">questions</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= MARKING SCHEME — OMR / SCANTRON SHEET ================= -->
+    <h3 class="sr sr-up d1" style="text-align:center;font-size:1.25rem;color:#0B1E3D;margin:48px 0 6px;">Marking scheme</h3>
+    <p class="sr sr-up d2" style="text-align:center;color:#5B6472;margin:0 auto 6px;max-width:480px;">Know the cost of a guess before you make one.</p>
+    <p class="sr sr-fade d2" style="text-align:center;margin:0 0 22px;font:700 .68rem/1 'Courier New',monospace;letter-spacing:.14em;text-transform:uppercase;color:#B3BBC8;">Answer sheet preview</p>
+
+    <div class="omr-sheet">
+
+      <div class="omr-row sr sr-left d1">
+        <div class="bubble-group" aria-hidden="true">
+          <span class="bubble filled fill-green">A</span>
+          <span class="bubble">B</span>
+          <span class="bubble">C</span>
+          <span class="bubble">D</span>
+        </div>
+        <div class="omr-text">
+          <p class="omr-title">Correct answer</p>
+          <p class="omr-sub">Awarded for every right response</p>
+        </div>
+        <span class="omr-score green">+1.5</span>
+      </div>
+
+      <div class="omr-row sr sr-right d2">
+        <div class="bubble-group" aria-hidden="true">
+          <span class="bubble">A</span>
+          <span class="bubble filled fill-red">B</span>
+          <span class="bubble">C</span>
+          <span class="bubble">D</span>
+        </div>
+        <div class="omr-text">
+          <p class="omr-title">Wrong answer</p>
+          <p class="omr-sub">Deducted for every incorrect response</p>
+        </div>
+        <span class="omr-score red">−0.4</span>
+      </div>
+
+      <div class="omr-row sr sr-left d3">
+        <div class="bubble-group" aria-hidden="true">
+          <span class="bubble">A</span>
+          <span class="bubble">B</span>
+          <span class="bubble">C</span>
+          <span class="bubble">D</span>
+        </div>
+        <div class="omr-text">
+          <p class="omr-title">Omitted answer</p>
+          <p class="omr-sub">No penalty for questions left unanswered</p>
+        </div>
+        <span class="omr-score gray">0</span>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* ===== Exam stat cards — separate, larger, reveal one after another ===== */
+  .stat-cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:24px;
+  }
+  .stat-card{
+    position:relative;
+    overflow:hidden;
+    background:#fff;
+    border:1px solid #E5EAF0;
+    border-radius:22px;
+    padding:36px 30px 34px;
+    box-shadow:0 10px 30px rgba(11,30,61,0.05);
+    opacity:0;
+    transform:translateY(46px) scale(.94);
+    transition:opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .25s ease, border-color .25s ease;
+  }
+  .stat-cards.in-view .sc1{transition-delay:0s;}
+  .stat-cards.in-view .sc2{transition-delay:.15s;}
+  .stat-cards.in-view .sc3{transition-delay:.30s;}
+  .stat-cards.in-view .sc4{transition-delay:.45s;}
+  .stat-cards.in-view .stat-card{opacity:1;transform:translateY(0) scale(1);}
+
+  .stat-card:hover, .stat-card.auto-dark{transform:translateY(-6px) scale(1.015);box-shadow:0 18px 38px rgba(11,30,61,0.10);background:#0B1E3D;border-color:#0B1E3D;}
+  .stat-cards.in-view .stat-card:hover, .stat-cards.in-view .stat-card.auto-dark{transform:translateY(-6px) scale(1.015);}
+
+  .stat-card{transition:opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .25s ease, background .3s ease, border-color .3s ease;}
+  .stat-card .stat-icon{transition:background .3s ease;}
+  .stat-card:hover .stat-icon, .stat-card.auto-dark .stat-icon{background:rgba(255,255,255,.12);}
+  .stat-card .stat-icon svg{transition:stroke .3s ease;}
+  .stat-card:hover .stat-icon svg, .stat-card.auto-dark .stat-icon svg{stroke:#64B5F6;}
+  .stat-card .stat-label{transition:color .3s ease;}
+  .stat-card:hover .stat-label, .stat-card.auto-dark .stat-label{color:#9FB3D1;}
+  .stat-card .stat-value{transition:color .3s ease;}
+  .stat-card:hover .stat-value, .stat-card.auto-dark .stat-value{color:#fff;}
+
+  .stat-card.dark{padding-bottom:46px;}
+
+  .stat-icon{width:60px;height:60px;border-radius:16px;background:#EAF3FD;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;margin-bottom:20px;}
+
+  .stat-label{margin:0;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:#8A94A6;font-weight:700;position:relative;z-index:1;}
+  .stat-value{margin:10px 0 0;font-size:1.5rem;color:#0B1E3D;overflow:hidden;position:relative;z-index:1;}
+
+  /* Curtain wipe — covers the card, then slides away to reveal it */
+  .wipe{
+    position:absolute;inset:0;background:#0B1E3D;
+    transform-origin:left center;transform:scaleX(1);
+    transition:transform .55s cubic-bezier(.76,0,.24,1);
+    z-index:2;pointer-events:none;
+  }
+  .wipe-accent{background:#3B82F6;}
+  .stat-cards.in-view .sc1 .wipe{transition-delay:.15s;}
+  .stat-cards.in-view .sc2 .wipe{transition-delay:.30s;}
+  .stat-cards.in-view .sc3 .wipe{transition-delay:.45s;}
+  .stat-cards.in-view .sc4 .wipe{transition-delay:.60s;}
+  .stat-cards.in-view .wipe{transform:scaleX(0);}
+
+  /* Icon draws itself in behind the wipe */
+  .icon-draw svg *{
+    stroke-dasharray:100;stroke-dashoffset:100;
+    transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1);
+  }
+  .stat-cards.in-view .sc1 .icon-draw svg *{transition-delay:.33s;}
+  .stat-cards.in-view .sc2 .icon-draw svg *{transition-delay:.48s;}
+  .stat-cards.in-view .sc3 .icon-draw svg *{transition-delay:.63s;}
+  .stat-cards.in-view .sc4 .icon-draw svg *{transition-delay:.78s;}
+  .stat-cards.in-view .icon-draw svg *{stroke-dashoffset:0;}
+
+  /* Value pops in bold, blurred and oversized, then settles large */
+  .bold-val{
+    display:inline-block;
+    opacity:0;filter:blur(6px);transform:scale(1.6);
+    font-weight:900;letter-spacing:.04em;
+    transition:
+      opacity .5s cubic-bezier(.16,1,.3,1),
+      filter .5s cubic-bezier(.16,1,.3,1),
+      transform .55s cubic-bezier(.16,1,.3,1),
+      font-weight .55s cubic-bezier(.16,1,.3,1),
+      letter-spacing .55s cubic-bezier(.16,1,.3,1);
+  }
+  .stat-cards.in-view .sc1 .bold-val{transition-delay:.47s;}
+  .stat-cards.in-view .sc2 .bold-val{transition-delay:.62s;}
+  .stat-cards.in-view .sc3 .bold-val{transition-delay:.77s;}
+  .stat-cards.in-view .sc4 .bold-val{transition-delay:.92s;}
+  .stat-cards.in-view .bold-val{
+    opacity:1;filter:blur(0);transform:scale(1);
+    font-weight:800;letter-spacing:normal;
+  }
+
+  .barcode{
+    position:absolute;left:30px;right:30px;bottom:16px;height:14px;
+    background:repeating-linear-gradient(90deg, rgba(11,30,61,.55) 0 2px, transparent 2px 4px, rgba(11,30,61,.85) 4px 6px, transparent 6px 9px);
+    opacity:.5;border-radius:2px;
+    transition:background .3s ease;
+  }
+  .stat-card:hover .barcode, .stat-card.auto-dark .barcode{
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,.6) 0 2px, transparent 2px 4px, rgba(255,255,255,.9) 4px 6px, transparent 6px 9px);
+  }
+
+  @media (max-width:960px){
+    .stat-cards{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:560px){
+    .stat-cards{grid-template-columns:1fr;}
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     GUIDE CHARACTER — tracks the active card on ALL screen sizes
+     ═══════════════════════════════════════════════════════════
+     Fix summary:
+     - Previously the mascot was forced to position:static on
+       mobile (<=960px) AND the JS explicitly skipped positioning
+       below 960px — so on mobile it just sat still, never tracking
+       the active card.
+     - Now .guide-mascot-wrap stays position:absolute at every
+       breakpoint, and JS positions it at all widths.
+     - Tracking (top/left transition) lives on the WRAPPER, along
+       with the floating bob animation (transform). The <img>
+       itself only carries the one-time .sr scroll-reveal transform,
+       so the two transform-based animations never collide on the
+       same element.
+  */
+  .glance-wrap{
+    position:relative;
+    padding-bottom:190px;
+  }
+  @media (max-width:960px){
+    .glance-wrap{ padding-bottom:150px; }
+  }
+  @media (max-width:560px){
+    .glance-wrap{ padding-bottom:120px; }
+  }
+
+  .guide-mascot-wrap{
+    position:absolute;
+    top:220px;
+    left:20px;
+    z-index:6;
+    pointer-events:none;
+    transition:left .6s cubic-bezier(.22,1,.36,1), top .6s cubic-bezier(.22,1,.36,1);
+    animation:mascotFloat 2.6s ease-in-out infinite;
+  }
+
+  .guide-mascot{
+    display:block;
+    width:110px;
+    height:auto;
+    filter:drop-shadow(0 12px 20px rgba(11,30,61,.18));
+  }
+
+  @media (max-width:960px){
+    .guide-mascot{ width:84px; }
+  }
+  @media (max-width:560px){
+    .guide-mascot{ width:64px; }
+  }
+  @media (max-width:380px){
+    .guide-mascot{ width:52px; }
+  }
+
+  @keyframes mascotFloat{
+    0%, 100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-12px) rotate(-3deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .guide-mascot-wrap{ animation:none; }
+  }
+
+  /* ===== OMR / scantron marking scheme ===== */
+  .omr-sheet{
+    max-width:720px;margin:0 auto;
+    display:flex;flex-direction:column;gap:16px;
+    padding:24px;border:1px solid #E5EAF0;border-radius:20px;
+    background-image:repeating-linear-gradient(#fff 0 38px, #F0F2F6 38px 39px);
+    box-shadow:0 10px 30px rgba(11,30,61,0.05);
+  }
+  .omr-row{
+    display:flex;align-items:center;gap:20px;
+    padding:20px 22px;border-radius:16px;
+    background:#fff;border:1px solid #ECEFF3;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .omr-row:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(11,30,61,0.08);}
+
+  .bubble-group{display:flex;gap:8px;flex:0 0 auto;}
+  .bubble{
+    width:34px;height:34px;border-radius:50%;flex:0 0 34px;
+    border:2px solid #C7D0DC;color:#98A2B3;background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.8rem;font-weight:800;
+  }
+  .bubble.filled{color:#fff;border-color:transparent;}
+  .bubble.fill-green{background:#2E7D32;}
+  .bubble.fill-red{background:#C62828;}
+
+  .omr-row.sr-visible .bubble.filled{
+    animation:bubbleFill .55s cubic-bezier(.34,1.56,.64,1) .35s both;
+  }
+  @keyframes bubbleFill{
+    0%{transform:scale(.35) rotate(-8deg);opacity:0;}
+    65%{transform:scale(1.18) rotate(2deg);opacity:1;}
+    100%{transform:scale(1) rotate(0deg);opacity:1;}
+  }
+
+  .omr-text{flex:1 1 auto;min-width:0;}
+  .omr-title{margin:0;font-weight:700;color:#0B1E3D;font-size:1.2rem;}
+  .omr-sub{margin:4px 0 0;font-size:.95rem;color:#5B6472;}
+
+  .omr-score{
+    flex:0 0 auto;font-family:'Courier New',monospace;font-weight:800;font-size:1.3rem;
+    border:2px dashed currentColor;border-radius:10px;padding:6px 14px;
+    transform:rotate(-3deg);white-space:nowrap;
+  }
+  .omr-score.green{color:#2E7D32;}
+  .omr-score.red{color:#C62828;}
+  .omr-score.gray{color:#9CA3AF;}
+
+  @media (max-width:560px){
+    .omr-row{flex-wrap:wrap;}
+    .omr-score{margin-left:54px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .wipe, .icon-draw svg *, .bold-val, .bubble.filled, .stat-card, .omr-row{transition:none !important;animation:none !important;transform:none !important;filter:none !important;opacity:1 !important;stroke-dashoffset:0 !important;}
+  }
+</style>
+
+<script>
+  // Scroll reveal for .sr elements + triggers the ticket flip and OMR bubble fill.
+  (function () {
+    if (window.__srObserverInit) return;
+    window.__srObserverInit = true;
+
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+      .sr { opacity:0; transition:opacity .6s ease, transform .6s ease; }
+      .sr-fade { transform:none; }
+      .sr-up { transform:translateY(24px); }
+      .sr-left { transform:translateX(-24px); }
+      .sr-right { transform:translateX(24px); }
+      .sr.sr-visible { opacity:1; transform:none; }
+      .sr.d1 { transition-delay:.05s; }
+      .sr.d2 { transition-delay:.15s; }
+      .sr.d3 { transition-delay:.25s; }
+      .sr.d4 { transition-delay:.35s; }
+    `;
+    document.head.appendChild(styleTag);
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('sr-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.sr').forEach((el) => io.observe(el));
+
+    const statCards = document.querySelector('.stat-cards');
+    if (statCards) {
+      const cardIo = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            cardIo.unobserve(entry.target);
+
+            // Auto-cycle the dark color state across cards, no hover needed.
+            const cards = Array.from(entry.target.querySelectorAll('.stat-card'));
+            const glanceWrap = entry.target.closest('.glance-wrap');
+            // NOTE: we now track the WRAPPER (.guide-mascot-wrap), not the <img>.
+            // The wrapper owns top/left + the float animation; the <img> only
+            // owns its one-time .sr reveal transform. This keeps the two
+            // transform-based animations from fighting on the same element,
+            // and lets positioning work identically on desktop and mobile.
+            const mascotWrap = glanceWrap ? glanceWrap.querySelector('.guide-mascot-wrap') : null;
+
+            const positionMascotUnder = (card) => {
+              if (!mascotWrap || !glanceWrap) return;
+              const top = card.offsetTop + card.offsetHeight + 14;
+              let left = card.offsetLeft + (card.offsetWidth / 2) - (mascotWrap.offsetWidth / 2);
+              // clamp so it never overflows the container edges at narrow widths
+              const maxLeft = glanceWrap.offsetWidth - mascotWrap.offsetWidth - 4;
+              left = Math.max(4, Math.min(left, maxLeft));
+              mascotWrap.style.top = top + 'px';
+              mascotWrap.style.left = left + 'px';
+            };
+
+            if (cards.length && !window.__statAutoCycle) {
+              window.__statAutoCycle = true;
+              let idx = 0;
+              setTimeout(() => {
+                const advance = () => {
+                  cards.forEach((c) => c.classList.remove('auto-dark'));
+                  cards[idx].classList.add('auto-dark');
+                  positionMascotUnder(cards[idx]);
+                  idx = (idx + 1) % cards.length;
+                };
+                advance();
+                setInterval(advance, 1800);
+
+                window.addEventListener('resize', () => {
+                  const activeCard = cards.find((c) => c.classList.contains('auto-dark'));
+                  if (activeCard) positionMascotUnder(activeCard);
+                });
+              }, 1200);
+            }
+          }
+        });
+      }, { threshold: 0.2, rootMargin: '0px 0px -60px 0px' });
+      cardIo.observe(statCards);
+    }
+  })();
+</script>
 <!-- EVERYTHING YOU NEED -->
 <section class="section everything" id="features">
   <div class="container">
@@ -3670,6 +4270,8 @@ window.toggleGroupDetails = function (btn) {
     inline.currentTime = Math.min(inline.duration || inline.currentTime + 10, inline.currentTime + 10);
   });
 })();
+
 </script>
+
 </body>
 </html>
