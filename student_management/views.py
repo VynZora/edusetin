@@ -918,8 +918,8 @@ def question_import(request):
             return redirect('student_management:question_import')
 
         filename = excel_file.name.lower()
-        if not (filename.endswith('.xlsx') or filename.endswith('.xls')):
-            messages.error(request, "Invalid file format. Only .xlsx and .xls files are accepted.")
+        if not (filename.endswith('.xlsx') or filename.endswith('.xls') or filename.endswith('.xlsm')):
+            messages.error(request, "Invalid file format. Only .xlsx, .xls, and .xlsm files are accepted.")
             return redirect('student_management:question_import')
 
         try:

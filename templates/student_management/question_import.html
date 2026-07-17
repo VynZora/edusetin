@@ -63,8 +63,9 @@
                         {% csrf_token %}
                         <div class="mb-4">
                             <label for="excel_file" class="form-label fw-semibold">Excel File <span class="text-danger">*</span></label>
-                            <input type="file" id="excel_file" name="excel_file" class="form-control" accept=".xlsx,.xls" required>
-                            <div class="form-text mt-2">Accepted formats: .xlsx, .xls</div>
+                            <input type="file" id="excel_file" name="excel_file" class="form-control"
+                            accept=".xlsx,.xls,.xlsm" required>
+                        <div class="form-text mt-2">Accepted formats: .xlsx, .xls, .xlsm</div>
                         </div>
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary py-2">
