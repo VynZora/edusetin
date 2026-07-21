@@ -273,14 +273,32 @@
                         </span>
                     </button>
                     <div class="accordion-body">
-                        {% if form.submodules.field.queryset.exists %}
+
+                        <!-- Shared question limit, applies to every submodule checked below -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" style="font-size:13px;">
+                                Question Limit Per Submodule
+                            </label>
+                            <input type="number" min="0" name="submodule_question_limit"
+                                   placeholder="No limit"
+                                   value="{% if existing_limit_value is not None %}{{ existing_limit_value }}{% endif %}"
+                                   class="form-control" style="max-width:200px;">
+                            <p class="text-muted small mt-1 mb-0">
+                                Each selected submodule below will allow up to this many questions per quiz. Leave blank for no limit.
+                            </p>
+                        </div>
+
+                        {% if submodules %}
                         <div class="row g-2">
-                            {% for choice in form.submodules %}
+                            {% for sm in submodules %}
                             <div class="col-sm-6 col-md-4">
                                 <div class="form-check">
-                                    {{ choice.tag }}
-                                    <label class="form-check-label" for="{{ choice.id_for_label }}">
-                                        {{ choice.choice_label }}
+                                    <input type="checkbox" class="form-check-input"
+                                           name="submodules" value="{{ sm.id }}"
+                                           id="sm_{{ sm.id }}"
+                                           {% if sm.id in selected_submodule_ids %}checked{% endif %}>
+                                    <label class="form-check-label" for="sm_{{ sm.id }}">
+                                        {{ sm.subject.name }} → {{ sm.name }}
                                     </label>
                                 </div>
                             </div>
@@ -289,9 +307,7 @@
                         {% else %}
                         <p class="text-muted small mb-0">No active submodules available.</p>
                         {% endif %}
-                        {% if form.submodules.errors %}
-                            <div class="text-danger small mt-1">{{ form.submodules.errors.0 }}</div>
-                        {% endif %}
+
                     </div>
                 </div>
 

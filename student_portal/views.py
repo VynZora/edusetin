@@ -1615,7 +1615,19 @@ def _get_accessible_submodule_ids(student, subject_id):
                 submodule_ids.add(submod.id)
     return submodule_ids
 
-
+def _used_question_ids_for_submodule(student, submodule_id):
+    """
+    Distinct question IDs from this submodule that the student has already
+    received in a SUBMITTED quiz attempt. These count against the plan's
+    lifetime per-submodule limit and should not be handed out again.
+    """
+    return set(
+        QuizAttemptResponse.objects.filter(
+            attempt__student=student,
+            attempt__status=QuizAttempt.STATUS_SUBMITTED,
+            question__submodule_id=submodule_id,
+        ).values_list('question_id', flat=True).distinct()
+    )
 # ─────────────────────────────────────────────
 # QUIZ SETUP  — choose subject / submodule / count
 # ─────────────────────────────────────────────
@@ -1646,35 +1658,55 @@ def quiz_setup(request):
     plan_subjects   = plan.subjects.filter(is_active=True).order_by('name')
     plan_submodules = plan.submodules.filter(is_active=True)
 
+    submodule_limits = {
+        pl.submodule_id: pl.question_limit
+        for pl in plan.submodule_limits.all()
+    }
+
     subject_submodules = {}
     for subj in plan_subjects:
-        # ALL submodules of this subject (to show in UI)
         all_sms = SubModule.objects.filter(
             subject=subj, is_active=True
         ).order_by('order', 'name')
 
-        # Only the ones in this plan
         plan_sm_ids = set(
             plan_submodules.filter(subject=subj).values_list('id', flat=True)
         )
 
-        subject_submodules[subj.id] = [
-            {
-                'id':      sm.id,
-                'name':    sm.name,
-                'image':   sm.image.url if sm.image else None,
-                'in_plan': sm.id in plan_sm_ids,   # ← locked/unlocked flag
-            }
-            for sm in all_sms
-        ]
+        sm_list = []
+        for sm in all_sms:
+            raw_count = sm.questions.filter(is_active=True).count()
+            in_plan   = sm.id in plan_sm_ids
+            limit     = submodule_limits.get(sm.id) if in_plan else None
+
+            if limit:
+                used_count      = len(_used_question_ids_for_submodule(student, sm.id))
+                remaining_limit = max(0, limit - used_count)
+                # "Available" = how many NEW questions the student can still pull,
+                # never more than what's actually left unused in the DB either.
+                available_count = min(raw_count, remaining_limit)
+            else:
+                available_count = raw_count
+
+            sm_list.append({
+                'id':             sm.id,
+                'name':           sm.name,
+                'image':          sm.image.url if sm.image else None,
+                'in_plan':        in_plan,
+                'question_count': available_count,
+                'is_capped':      bool(limit),   # show the lock icon whenever a limit applies
+            })
+
+        subject_submodules[subj.id] = sm_list
+        subj.available_count = sum(
+            row['question_count'] for row in sm_list if row['in_plan']
+        )
 
     return render(request, 'student_portal/quiz_setup.html', {
         'subjects':                plan_subjects,
         'subject_submodules_json': json.dumps(subject_submodules),
         'has_subscription':        True,
     })
-
-
 # ─────────────────────────────────────────────
 # QUIZ GENERATE  — POST: create attempt + questions
 # ─────────────────────────────────────────────
@@ -1691,7 +1723,6 @@ def quiz_generate(request):
     from student_management.models import Question, Subject, SubModule
     from django.utils import timezone
 
-    # ── fetch active payment ──
     active_payment = student.payments.filter(
         status='success',
         expires_at__gt=timezone.now(),
@@ -1704,11 +1735,10 @@ def quiz_generate(request):
     plan = active_payment.plan
 
     subject_id    = request.POST.get('subject_id', '').strip()
-    submodule_ids = request.POST.get('submodule_ids', '').strip()  # comma-separated
+    submodule_ids = request.POST.get('submodule_ids', '').strip()
     num_questions = int(request.POST.get('num_questions', 10))
     num_questions = max(5, min(num_questions, 50))
 
-    # ── validate subject access ──
     accessible_subject_ids = _get_accessible_subject_ids(student)
     if not subject_id or int(subject_id) not in accessible_subject_ids:
         messages.error(request, "You don't have access to this subject.")
@@ -1716,51 +1746,81 @@ def quiz_generate(request):
 
     subject = Subject.objects.get(id=subject_id)
 
-    # ── plan submodules for this subject ──
     plan_submodule_ids = list(
         plan.submodules.filter(subject_id=subject_id, is_active=True)
         .values_list('id', flat=True)
     )
 
-    # ── block if no submodules in plan for this subject ──
     if not plan_submodule_ids:
         messages.error(request, "No topics are available for this subject in your plan. Please upgrade.")
         return redirect('student_portal:quiz_setup')
 
-    qs = Question.objects.filter(subject_id=subject_id, is_active=True)
+    submodule_limits = {
+        pl.submodule_id: pl.question_limit
+        for pl in plan.submodule_limits.all()
+    }
+
+    def _available_ids_for_submodule(sm_id):
+        """
+        Question IDs still available for this submodule under the plan's
+        lifetime limit — already-used (submitted) questions are excluded
+        and don't refresh, so the pool shrinks as the student progresses.
+        """
+        all_ids = list(
+            Question.objects.filter(
+                subject_id=subject_id, submodule_id=sm_id, is_active=True
+            ).order_by('id').values_list('id', flat=True)
+        )
+        limit = submodule_limits.get(sm_id)
+        if not limit:
+            return all_ids
+
+        used_ids   = _used_question_ids_for_submodule(student, sm_id)
+        unused_ids = [qid for qid in all_ids if qid not in used_ids]
+        remaining  = max(0, limit - len(used_ids))
+        return unused_ids[:remaining]
+
     submodule = None
 
     if submodule_ids:
-        # Parse the comma-separated list sent from the form
         requested_ids = []
         for sid in submodule_ids.split(','):
             sid = sid.strip()
             if sid.isdigit():
                 requested_ids.append(int(sid))
 
-        # Validate — only allow IDs that are actually in the plan
-        plan_sm_set    = set(plan_submodule_ids)
-        allowed_ids    = [i for i in requested_ids if i in plan_sm_set]
+        plan_sm_set = set(plan_submodule_ids)
+        allowed_ids = [i for i in requested_ids if i in plan_sm_set]
 
         if not allowed_ids:
             messages.error(request, "You don't have access to the selected topic(s).")
             return redirect('student_portal:quiz_setup')
 
-        qs = qs.filter(submodule_id__in=allowed_ids)
+        question_pool = []
+        for sm_id in allowed_ids:
+            question_pool.extend(_available_ids_for_submodule(sm_id))
 
-        # If exactly one submodule selected, pass it for display
         if len(allowed_ids) == 1:
             submodule = SubModule.objects.get(id=allowed_ids[0])
-
     else:
-        # No specific submodule chosen → restrict to ALL plan submodules
-        qs = qs.filter(submodule_id__in=plan_submodule_ids)
+        question_pool = []
+        for sm_id in plan_submodule_ids:
+            question_pool.extend(_available_ids_for_submodule(sm_id))
 
-    # ── pull questions ──
-    question_pool = list(qs.values_list('id', flat=True))
     if not question_pool:
-        messages.error(request, "No questions available for the selected topic(s).")
+        messages.error(
+            request,
+            "You've used up all the questions available for this topic under your plan. "
+            "Please upgrade to get more."
+        )
         return redirect('student_portal:quiz_setup')
+
+    if num_questions > len(question_pool):
+        messages.warning(
+            request,
+            f"Your plan limits questions per topic — we generated a quiz with the "
+            f"{len(question_pool)} question(s) still available to you. Upgrade for more."
+        )
 
     selected_ids = random.sample(question_pool, min(num_questions, len(question_pool)))
     questions    = list(
@@ -1782,7 +1842,6 @@ def quiz_generate(request):
         'subject':   subject,
         'submodule': submodule,
     })
- 
 # ─────────────────────────────────────────────
 # QUIZ SUBMIT
 # ─────────────────────────────────────────────

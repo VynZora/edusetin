@@ -133,11 +133,15 @@
                         {% endif %}
                     </td>
                     <td class="text-end">
-                        <a href="{% url 'student_management:submodule_edit' submodule.slug %}"
-                           class="btn btn-sm btn-outline-primary" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form method="post"
+    <a href="{% url 'student_management:submodule_questions_pdf' submodule.slug %}"
+       class="btn btn-sm btn-outline-success" title="Download questions as PDF">
+        <i class="fas fa-file-pdf"></i>
+    </a>
+    <a href="{% url 'student_management:submodule_edit' submodule.slug %}"
+       class="btn btn-sm btn-outline-primary" title="Edit">
+        <i class="fas fa-edit"></i>
+    </a>
+    <form method="post"
                               action="{% url 'student_management:submodule_delete' submodule.slug %}"
                               class="d-inline"
                               onsubmit="return confirm('Delete submodule \"{{ submodule.name|escapejs }}\"? This cannot be undone.');">

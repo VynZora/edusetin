@@ -9,7 +9,7 @@ import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from student_portal.models import Student
-from .models import Subject, Question, QuestionMedia, MediaLibrary, PendingMediaReference,SubModule, Subject
+from .models import Subject, Question, QuestionMedia, MediaLibrary, PendingMediaReference,SubModule, Subject,PlanSubmoduleLimit
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from student_portal.models import ExamAttempt,QuizAttempt
@@ -2093,13 +2093,10 @@ def submodule_list(request):
     elif status == 'inactive':
         submodules = submodules.filter(is_active=False)
 
-    paginator = Paginator(submodules, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    submodules = submodules.order_by('subject__name', 'order') 
 
     context = {
-        'page_obj': page_obj,
-        'submodules': page_obj.object_list,
+        'submodules': submodules,  
         'subjects': Subject.objects.filter(is_active=True).order_by('name'),
         'search': search,
         'selected_subject': subject_id,
@@ -2278,7 +2275,238 @@ def submodules_by_subject_api(request):
     ).order_by('name').values('id', 'name')
     return JsonResponse({'submodules': list(submodules)})
 
+@admin_login_required
+def submodule_questions_pdf(request, slug):
+    """Generate and serve a PDF of all active questions in this submodule, including images."""
+    submodule = get_object_or_404(SubModule.objects.select_related('subject'), slug=slug)
+    questions = Question.objects.filter(
+        submodule=submodule, is_active=True
+    ).select_related('subject').prefetch_related('media_files').order_by('id')
 
+    if not questions.exists():
+        messages.warning(request, f'No active questions found in "{submodule.name}" to export.')
+        return redirect('student_management:submodule_list')
+
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import cm
+        from reportlab.lib.colors import HexColor, white
+        from reportlab.platypus import (
+            SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
+            KeepTogether, PageBreak, Image as RLImage
+        )
+        from PIL import Image as PILImage
+        import io
+
+        buffer = io.BytesIO()
+        page_w, page_h = A4
+
+        def add_page_number(canvas, doc):
+            canvas.saveState()
+            canvas.setFont('Helvetica', 8)
+            canvas.setFillColor(HexColor('#6B7280'))
+            canvas.drawCentredString(
+                page_w / 2, 1.2 * cm,
+                f"Page {canvas.getPageNumber()}  |  {submodule.subject.name} — {submodule.name}"
+            )
+            canvas.setStrokeColor(HexColor('#D1D5DB'))
+            canvas.setLineWidth(0.5)
+            canvas.line(2 * cm, 1.5 * cm, page_w - 2 * cm, 1.5 * cm)
+            canvas.restoreState()
+
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A4,
+            rightMargin=2 * cm, leftMargin=2 * cm,
+            topMargin=2 * cm, bottomMargin=2.2 * cm,
+        )
+
+        styles      = getSampleStyleSheet()
+        black_color = HexColor('#0F172A')
+        light_gray  = HexColor('#F9FAFB')
+        border_gray = HexColor('#D1D5DB')
+
+        usable_width = page_w - 4 * cm
+
+        title_style = ParagraphStyle(
+            'Title', parent=styles['Normal'],
+            fontSize=16, fontName='Helvetica-Bold',
+            textColor=black_color, alignment=1, leading=20,
+        )
+        sub_style = ParagraphStyle(
+            'Sub', parent=styles['Normal'],
+            fontSize=10, fontName='Helvetica',
+            textColor=HexColor('#6B7280'), alignment=1, leading=14,
+        )
+        q_style = ParagraphStyle(
+            'Question', parent=styles['Normal'],
+            fontSize=11, fontName='Helvetica',
+            textColor=black_color, leading=16,
+        )
+        opt_style = ParagraphStyle(
+            'Option', parent=styles['Normal'],
+            fontSize=10, fontName='Helvetica',
+            textColor=black_color, leading=15,
+        )
+        ak_head_style = ParagraphStyle(
+            'AKHead', parent=styles['Normal'],
+            fontSize=12, fontName='Helvetica-Bold',
+            textColor=black_color, spaceAfter=6, alignment=1,
+        )
+        ak_item_style = ParagraphStyle(
+            'AKItem', parent=styles['Normal'],
+            fontSize=9, fontName='Helvetica',
+            textColor=black_color, alignment=1,
+        )
+
+        # ── Helper: build a scaled Image flowable from a QuestionMedia row ──
+        def _media_image_flowable(media_obj, max_width_cm=6.0, max_height_cm=6.0):
+            if not media_obj:
+                return None
+            img_field = media_obj.effective_image
+            if not img_field:
+                return None
+            try:
+                img_field.open()
+                with PILImage.open(img_field) as pil_img:
+                    orig_w, orig_h = pil_img.size
+                img_field.seek(0)
+
+                max_w = max_width_cm * cm
+                max_h = max_height_cm * cm
+                scale = min(max_w / orig_w, max_h / orig_h, 1.0) if orig_w and orig_h else 1.0
+                draw_w = orig_w * scale
+                draw_h = orig_h * scale
+
+                return RLImage(img_field, width=draw_w, height=draw_h)
+            except Exception:
+                return None
+            finally:
+                try:
+                    img_field.close()
+                except Exception:
+                    pass
+
+        story = [
+            Paragraph(f"{submodule.subject.name} — {submodule.name}", title_style),
+            Paragraph(f"{questions.count()} question(s)", sub_style),
+            Spacer(1, 0.5 * cm),
+        ]
+
+        options_map = [
+            ('a', 'option_a', 'OPTION_A'), ('b', 'option_b', 'OPTION_B'),
+            ('c', 'option_c', 'OPTION_C'), ('d', 'option_d', 'OPTION_D'),
+            ('e', 'option_e', 'OPTION_E'),
+        ]
+
+        for idx, q in enumerate(questions, 1):
+            media_map = {m.media_type: m for m in q.media_files.all()}
+            block = []
+
+            q_row = Table(
+                [[Paragraph(f"<b>{idx}.</b>", q_style),
+                  Paragraph(q.question_text, q_style)]],
+                colWidths=[0.7 * cm, usable_width - 0.7 * cm],
+            )
+            q_row.setStyle(TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ('TOPPADDING', (0, 0), (-1, -1), 0),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ]))
+            block.append(q_row)
+
+            # Question image, if any
+            q_img = _media_image_flowable(media_map.get('QUESTION'))
+            if q_img:
+                block.append(Spacer(1, 0.15 * cm))
+                block.append(q_img)
+                block.append(Spacer(1, 0.15 * cm))
+
+            opts = [
+                (letter, getattr(q, field, None), media_type)
+                for letter, field, media_type in options_map
+                if getattr(q, field, None)
+            ]
+            if opts:
+                opt_col_w = (usable_width - 0.7 * cm) / 2
+                opt_rows = []
+                for i in range(0, len(opts), 2):
+                    row_cells = []
+                    for letter, val, media_type in opts[i:i + 2]:
+                        cell_content = [Paragraph(f"({letter})  {val}", opt_style)]
+                        opt_img = _media_image_flowable(media_map.get(media_type), max_width_cm=4.0, max_height_cm=4.0)
+                        if opt_img:
+                            cell_content.append(Spacer(1, 0.1 * cm))
+                            cell_content.append(opt_img)
+                        row_cells.append(cell_content)
+                    if len(row_cells) == 1:
+                        row_cells.append([Paragraph('', opt_style)])
+                    opt_rows.append(row_cells)
+
+                opt_table = Table(opt_rows, colWidths=[opt_col_w, opt_col_w])
+                opt_table.setStyle(TableStyle([
+                    ('LEFTPADDING', (0, 0), (-1, -1), 20),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+                    ('TOPPADDING', (0, 0), (-1, -1), 1),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ]))
+                block.append(opt_table)
+
+            block.append(Spacer(1, 0.3 * cm))
+            story.append(KeepTogether(block))
+
+        # ── Answer key ──
+        story.append(PageBreak())
+        ak_title_tbl = Table([[Paragraph("ANSWER KEY", ak_head_style)]], colWidths=[usable_width])
+        ak_title_tbl.setStyle(TableStyle([
+            ('BOX', (0, 0), (-1, -1), 1.5, black_color),
+            ('BACKGROUND', (0, 0), (-1, -1), HexColor('#F3F4F6')),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        story.append(ak_title_tbl)
+        story.append(Spacer(1, 0.3 * cm))
+
+        answers = [f"{i}. ({q.correct_answer})" for i, q in enumerate(questions, 1)]
+        row_size = 8
+        ak_rows = []
+        for i in range(0, len(answers), row_size):
+            row = answers[i:i + row_size]
+            while len(row) < row_size:
+                row.append('')
+            ak_rows.append([Paragraph(a, ak_item_style) for a in row])
+
+        if ak_rows:
+            col_w = usable_width / row_size
+            ak_table = Table(ak_rows, colWidths=[col_w] * row_size)
+            ak_table.setStyle(TableStyle([
+                ('BOX', (0, 0), (-1, -1), 1, black_color),
+                ('INNERGRID', (0, 0), (-1, -1), 0.4, border_gray),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('TOPPADDING', (0, 0), (-1, -1), 5),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('ROWBACKGROUNDS', (0, 0), (-1, -1), [white, light_gray]),
+            ]))
+            story.append(ak_table)
+
+        doc.build(story, onFirstPage=add_page_number, onLaterPages=add_page_number)
+        buffer.seek(0)
+
+        safe_name = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' for c in submodule.name).strip()
+        filename = f"questions_{safe_name}.pdf"
+
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+    except ImportError:
+        messages.error(request, "ReportLab is not installed. Run: pip install reportlab pillow")
+        return redirect('student_management:submodule_list')
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.db.models import Q
@@ -2292,11 +2520,6 @@ class SubscriptionPlanForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
-    submodules = forms.ModelMultipleChoiceField(
-        queryset=SubModule.objects.filter(is_active=True),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-    )
     exams = forms.ModelMultipleChoiceField(
         queryset=Exam.objects.filter(is_active=True),
         widget=forms.CheckboxSelectMultiple,
@@ -2305,8 +2528,7 @@ class SubscriptionPlanForm(forms.ModelForm):
 
     class Meta:
         model = SubscriptionPlan
-        fields = ["name", "price", "duration_days", "subjects", "submodules", "exams", "is_active"]
-
+        fields = ["name", "price", "duration_days", "subjects", "exams", "is_active"]
 
 @admin_login_required
 def plan_list(request):
@@ -2323,26 +2545,90 @@ def plan_detail(request, pk):
     return render(request, "student_management/plan_detail.html", {"plan": plan})
 
 
-@admin_login_required
-def plan_create(request):
-    form = SubscriptionPlanForm(request.POST or None)
-    if form.is_valid():
-        plan = form.save()
-        messages.success(request, f'Plan "{plan.name}" created successfully.')
-        return redirect("student_management:plan_list")
-    return render(request, "student_management/plan_form.html", {"form": form, "title": "Create Plan"})
+def _save_submodule_limits(request, plan):
+    """
+    Sync PlanSubmoduleLimit rows: every checked submodule gets the SAME
+    question_limit value (one shared limit for the whole plan, applied
+    per-submodule independently — not a combined total).
+    """
+    selected_ids = set(request.POST.getlist('submodules'))
+    existing = {pl.submodule_id: pl for pl in plan.submodule_limits.all()}
 
+    limit_raw = request.POST.get('submodule_question_limit', '').strip()
+    limit = None
+    if limit_raw:
+        try:
+            limit = int(limit_raw)
+            if limit < 0:
+                limit = None
+        except ValueError:
+            limit = None
 
+    for sm_id_str in selected_ids:
+        try:
+            sm_id = int(sm_id_str)
+        except ValueError:
+            continue
+        if not SubModule.objects.filter(id=sm_id).exists():
+            continue
+
+        if sm_id in existing:
+            if existing[sm_id].question_limit != limit:
+                existing[sm_id].question_limit = limit
+                existing[sm_id].save(update_fields=['question_limit'])
+        else:
+            PlanSubmoduleLimit.objects.create(plan=plan, submodule_id=sm_id, question_limit=limit)
+
+    # Remove rows for submodules that were unchecked
+    for sm_id, row in existing.items():
+        if str(sm_id) not in selected_ids:
+            row.delete()
 @admin_login_required
 def plan_update(request, name):
     plan = get_object_or_404(SubscriptionPlan, name=name)
+    submodules = SubModule.objects.filter(is_active=True).select_related('subject').order_by('subject__name', 'order', 'name')
+    existing_limits = {pl.submodule_id: pl.question_limit for pl in plan.submodule_limits.all()}
+    selected_submodule_ids = set(existing_limits.keys())
+
+    # Pull one representative limit value to prefill the shared input
+    existing_limit_value = next(iter(existing_limits.values()), None) if existing_limits else None
+
     form = SubscriptionPlanForm(request.POST or None, instance=plan)
-    if form.is_valid():
+
+    if request.method == 'POST' and form.is_valid():
         plan = form.save()
+        _save_submodule_limits(request, plan)
         messages.success(request, f'Plan "{plan.name}" updated successfully.')
         return redirect("student_management:plan_list")
-    return render(request, "student_management/plan_form.html", {"form": form, "title": "Edit Plan", "plan": plan})
 
+    return render(request, "student_management/plan_form.html", {
+        "form": form,
+        "title": "Edit Plan",
+        "plan": plan,
+        "submodules": submodules,
+        "selected_submodule_ids": selected_submodule_ids,
+        "existing_limit_value": existing_limit_value,
+    })
+
+
+@admin_login_required
+def plan_create(request):
+    form = SubscriptionPlanForm(request.POST or None)
+    submodules = SubModule.objects.filter(is_active=True).select_related('subject').order_by('subject__name', 'order', 'name')
+
+    if request.method == 'POST' and form.is_valid():
+        plan = form.save()
+        _save_submodule_limits(request, plan)
+        messages.success(request, f'Plan "{plan.name}" created successfully.')
+        return redirect("student_management:plan_list")
+
+    return render(request, "student_management/plan_form.html", {
+        "form": form,
+        "title": "Create Plan",
+        "submodules": submodules,
+        "selected_submodule_ids": set(),
+        "existing_limit_value": None,
+    })
 @admin_login_required
 def plan_delete(request, pk):
     plan = get_object_or_404(SubscriptionPlan, pk=pk)

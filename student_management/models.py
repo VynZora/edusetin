@@ -326,6 +326,7 @@ class SubscriptionPlan(models.Model):
     submodules = models.ManyToManyField(
         SubModule,
         blank=True,
+        through='PlanSubmoduleLimit',
         related_name="subscription_plans",
     )
     exams = models.ManyToManyField(
@@ -350,6 +351,40 @@ class SubscriptionPlan(models.Model):
             "submodules": self.submodules.filter(is_active=True).count(),
             "exams": self.exams.filter(is_active=True).count(),
         }
+    @property
+    def submodule_question_limit(self):
+        """
+        Returns the shared per-submodule question limit for this plan,
+        or None if no limit is set (or no submodules are assigned).
+        """
+        first_row = self.submodule_limits.first()
+        return first_row.question_limit if first_row else None
+class PlanSubmoduleLimit(models.Model):
+    """
+    Through-model for SubscriptionPlan.submodules.
+    Stores how many questions from this submodule a student on this plan
+    is allowed to pull into a generated quiz. Blank/None = no limit.
+    """
+    plan = models.ForeignKey(
+        SubscriptionPlan, on_delete=models.CASCADE, related_name='submodule_limits'
+    )
+    submodule = models.ForeignKey(
+        SubModule, on_delete=models.CASCADE, related_name='plan_limits'
+    )
+    question_limit = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text="Max questions available per quiz for this submodule on this plan. Blank = no limit."
+    )
+
+    class Meta:
+        unique_together = ('plan', 'submodule')
+
+    def __str__(self):
+        limit = self.question_limit if self.question_limit is not None else "No limit"
+        return f"{self.plan.name} — {self.submodule.name}: {limit}"
+    
+
+
 import uuid
 from django.db import models
 from django.core.validators import MinValueValidator

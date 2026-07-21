@@ -107,7 +107,9 @@
     pointer-events: none;
 }
 .qs-lock-badge i { font-size: 10px; }
-
+.qs-topic-card.exhausted { opacity: 0.55; cursor: not-allowed; }
+.qs-topic-card.exhausted:hover { transform: none !important; box-shadow: none !important; border-color: var(--qs-border) !important; }
+.qs-topic-card.exhausted .qs-topic-icon-wrap { filter: grayscale(0.5); }
 /* ── TOAST ── */
 #qsToast {
     position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
@@ -136,6 +138,51 @@
     transition: background .2s;
 }
 #qsToast .toast-upgrade:hover { background: #d97706; }
+
+/* ── QUESTION-LIMIT MODAL ── */
+#qsLimitModal {
+    position: fixed; inset: 0; z-index: 10000;
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+    background: rgba(15,23,42,0.55);
+    backdrop-filter: blur(2px);
+    opacity: 0; transition: opacity 0.25s ease;
+}
+#qsLimitModal.show { display: flex; opacity: 1; }
+#qsLimitModal .qs-modal-box {
+    background: var(--qs-card-bg, #fff);
+    border-radius: 20px;
+    max-width: 360px; width: 100%;
+    padding: 28px 26px 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    transform: translateY(14px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.22,0.68,0,1.2);
+}
+#qsLimitModal.show .qs-modal-box { transform: translateY(0) scale(1); }
+[data-theme="dark"] #qsLimitModal .qs-modal-box { background: #1e293b; }
+#qsLimitModal .qs-modal-icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(245,158,11,0.12);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+}
+#qsLimitModal .qs-modal-icon i { font-size: 26px; color: #f59e0b; }
+#qsLimitModal h3 { font-size: 1.05rem; font-weight: 800; color: var(--qs-heading); margin: 0 0 8px; }
+#qsLimitModal p { font-size: 0.86rem; color: var(--qs-muted); line-height: 1.5; margin: 0 0 22px; }
+#qsLimitModal .qs-modal-actions { display: flex; flex-direction: column; gap: 8px; }
+#qsLimitModal .qs-modal-upgrade {
+    background: #f59e0b; color: #fff; border: none;
+    padding: 11px 18px; border-radius: 12px; font-size: 0.86rem;
+    font-weight: 700; cursor: pointer; text-decoration: none;
+    transition: background .2s;
+}
+#qsLimitModal .qs-modal-upgrade:hover { background: #d97706; }
+#qsLimitModal .qs-modal-dismiss {
+    background: transparent; border: none; color: var(--qs-muted);
+    font-size: 0.82rem; font-weight: 600; padding: 8px; cursor: pointer;
+}
+#qsLimitModal .qs-modal-dismiss:hover { color: var(--qs-text); }
 
 /* ─── BASE STYLES ─── */
 .qs-hero {
@@ -334,6 +381,7 @@
 .qs-preset { padding:6px 16px; border:2px solid var(--qs-border); border-radius:24px; font-size:0.8rem; font-weight:600; cursor:pointer; transition:all 0.2s var(--qs-ease); background:var(--qs-card-bg); color:var(--qs-muted); }
 .qs-preset:hover    { border-color:var(--qs-primary); color:var(--qs-primary); }
 .qs-preset.selected { background:var(--qs-primary); color:#fff; border-color:var(--qs-primary); }
+.qs-preset.qs-preset-locked { opacity:0.45; }
 .qs-slider { width:100%; -webkit-appearance:none; appearance:none; height:5px; border-radius:8px; background:var(--qs-border); outline:none; cursor:pointer; }
 .qs-slider::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:var(--qs-primary); cursor:pointer; box-shadow:0 2px 10px rgba(37,99,235,0.30); }
 .qs-slider::-moz-range-thumb { width:22px; height:22px; border-radius:50%; background:var(--qs-primary); border:none; cursor:pointer; }
@@ -410,6 +458,19 @@
     <a href="{% url 'student_portal:plan_list' %}" class="toast-upgrade">Upgrade →</a>
 </div>
 
+<!-- Question-limit modal -->
+<div id="qsLimitModal">
+    <div class="qs-modal-box">
+        <div class="qs-modal-icon"><i class="ti ti-hash"></i></div>
+        <h3>Question limit reached</h3>
+        <p id="qsLimitModalText">Your plan allows a limited number of questions for this selection. Upgrade to generate bigger quizzes.</p>
+        <div class="qs-modal-actions">
+            <a href="{% url 'student_portal:plan_list' %}" class="qs-modal-upgrade">Upgrade plan →</a>
+            <button type="button" class="qs-modal-dismiss" onclick="qsCloseLimitModal()">Maybe later</button>
+        </div>
+    </div>
+</div>
+
 <canvas id="imat-bg-canvas" aria-hidden="true"></canvas>
 
 <div class="qs-wrap">
@@ -477,7 +538,7 @@
                                 <span class="qs-check"><i class="ti ti-check" style="font-size:10px;"></i></span>
                             </div>
                             <div class="qs-subj-name">{{ subject.name }}</div>
-                            <div class="qs-subj-qty">{{ subject.questions.count }} questions</div>
+                            <div class="qs-subj-qty">{{ subject.available_count }} questions</div>
                         </div>
                         {% empty %}
                         <p style="color:var(--qs-muted);grid-column:1/-1;font-size:0.88rem;padding:20px 0;text-align:center;">
@@ -597,7 +658,8 @@ const QS_SM_MAP = {{ subject_submodules_json|safe }};
 /* ── STATE ── */
 let qsSId = null, qsSName = '', qsSelectedRingEl = null,
     qsSelectedSmIds = new Set(),   // only plan-unlocked selected IDs
-    qsCount = 10, qsCurStep = 1;
+    qsCount = 10, qsCurStep = 1,
+    qsMaxAvailable = 50;           // ← current cap for the selected topics, recomputed each time Step 3 is entered
 
 /* ── PALETTE ── */
 const QS_PAL = [
@@ -698,6 +760,25 @@ function qsShowToast(title, sub){
     if(navigator.vibrate) navigator.vibrate([10, 40, 10]);
 }
 
+/* ── QUESTION-LIMIT MODAL ── */
+function qsShowLimitModal(){
+    const modal = document.getElementById('qsLimitModal');
+    const text  = document.getElementById('qsLimitModalText');
+    text.textContent = `Your plan allows up to ${qsMaxAvailable} question${qsMaxAvailable === 1 ? '' : 's'} for this selection. Upgrade your plan to generate bigger quizzes.`;
+    modal.classList.add('show');
+    if(navigator.vibrate) navigator.vibrate([10, 40, 10]);
+}
+function qsCloseLimitModal(){
+    document.getElementById('qsLimitModal').classList.remove('show');
+}
+window.qsCloseLimitModal = qsCloseLimitModal;
+document.addEventListener('DOMContentLoaded', function(){
+    const modal = document.getElementById('qsLimitModal');
+    modal.addEventListener('click', function(e){
+        if(e.target === modal) qsCloseLimitModal();
+    });
+});
+
 /* ── STEP 1: PICK SUBJECT ── */
 function qsPickS(id, name, el){
     qsSId    = id;
@@ -770,10 +851,11 @@ function qsBuildTopicGrid(){
     sms.forEach((sm, i) => {
         const pal    = getPal(i);
         const icon   = qsIcon(sm.name);
-        const locked = !sm.in_plan;          // ← key flag from view
+       const locked    = !sm.in_plan;                              // not in the plan at all
+       const exhausted = sm.in_plan && sm.question_count === 0;     // in plan, but limit fully used up         // ← key flag from view
 
         const card = document.createElement('div');
-        card.className = 'qs-topic-card' + (locked ? ' locked' : '');
+       card.className = 'qs-topic-card' + (locked ? ' locked' : (exhausted ? ' exhausted' : ''));
         card.id = 'qsTC_' + sm.id;
 
         card.innerHTML = `
@@ -792,14 +874,26 @@ function qsBuildTopicGrid(){
         </span>
     </div>
     <div class="qs-topic-name" style="${locked ? 'color:#94a3b8;' : ''}">${sm.name}</div>
-    <div class="qs-topic-qty">${sm.question_count != null ? sm.question_count + ' questions' : ''}</div>`;
-        card.addEventListener('click', () => {
+    <div class="qs-topic-qty">
+        ${sm.question_count != null ? sm.question_count + ' questions' : ''}
+        ${sm.is_capped ? ' <i class="ti ti-shield-lock" style="font-size:9px;color:#f59e0b;" title="Limited by your plan"></i>' : ''}
+    </div>`;
+card.addEventListener('click', () => {
             /* ── LOCKED: show toast, do nothing else ── */
             if(locked){
                 qsShowToast(
                     `"${sm.name}" is not in your plan`,
                     'Upgrade your plan to unlock this topic'
                 );
+                return;
+            }
+
+            /* ── EXHAUSTED: limit fully used up — show upgrade modal instead of selecting ── */
+            if(exhausted){
+                const text = document.getElementById('qsLimitModalText');
+                text.textContent = `You've used up all the questions available in "${sm.name}" under your plan. Upgrade to unlock more.`;
+                document.getElementById('qsLimitModal').classList.add('show');
+                if(navigator.vibrate) navigator.vibrate([10, 40, 10]);
                 return;
             }
 
@@ -859,6 +953,12 @@ function qsSelAll(){
 
 /* ── STEP 3: SET QUESTION COUNT ── */
 function qsSetQ(v, fromBtn){
+    /* Block anything above the plan's cap for the current topic selection */
+    if(v > qsMaxAvailable){
+        v = qsMaxAvailable;
+        qsShowLimitModal();
+    }
+
     qsCount = v;
     document.getElementById('qsHNum').value = v;
     const el = document.getElementById('qsBig');
@@ -866,13 +966,47 @@ function qsSetQ(v, fromBtn){
     el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
     document.getElementById('qsSumQ').textContent = v;
     document.querySelectorAll('.qs-preset').forEach(b => b.classList.toggle('selected', +b.textContent === v));
-    if(fromBtn) document.getElementById('qsSlider').value = v;
+    document.getElementById('qsSlider').value = v;
 }
 
 /* ── NAVIGATION ── */
 function qsGo(n, back){
     if(n === 2) qsBuildTopicGrid();
     if(n === 3){
+        /* ── Recompute the question-count cap for the currently selected topics ── */
+        const sms  = QS_SM_MAP[qsSId] || [];
+        const pool = qsSelectedSmIds.size === 0
+            ? sms.filter(sm => sm.in_plan)
+            : sms.filter(sm => qsSelectedSmIds.has(sm.id));
+
+        let maxAvailable = 0, anyCapped = false;
+        pool.forEach(sm => {
+            maxAvailable += (sm.question_count || 0);
+            if(sm.is_capped) anyCapped = true;
+        });
+        qsMaxAvailable = Math.max(1, Math.min(50, maxAvailable || 50));
+
+        /* Grey out presets above the cap (still visible, but flagged) */
+        document.querySelectorAll('.qs-preset').forEach(b => {
+            b.classList.toggle('qs-preset-locked', +b.textContent > qsMaxAvailable);
+        });
+
+        /* If the current count no longer fits, clamp it (no modal on silent entry) */
+        if(qsCount > qsMaxAvailable){
+            qsCount = qsMaxAvailable;
+            document.getElementById('qsHNum').value = qsCount;
+            document.getElementById('qsBig').textContent = qsCount;
+            document.getElementById('qsSlider').value = qsCount;
+            document.querySelectorAll('.qs-preset').forEach(b => b.classList.toggle('selected', +b.textContent === qsCount));
+        }
+
+        if(anyCapped){
+            qsShowToast(
+                `Up to ${qsMaxAvailable} questions available`,
+                'This selection is limited by your plan — upgrade for more'
+            );
+        }
+
         document.getElementById('qsSumS').textContent = qsSName || '—';
         document.getElementById('qsSumQ').textContent = qsCount;
 
@@ -881,7 +1015,6 @@ function qsGo(n, back){
         if(qsSelectedSmIds.size === 0){
             wrap.innerHTML = `<span style="font-size:0.86rem;font-weight:700;color:var(--qs-heading);">All plan topics</span>`;
         } else {
-            const sms = QS_SM_MAP[qsSId] || [];
             const pw  = document.createElement('div'); pw.className = 'qs-pills-wrap';
             sms.forEach((sm, i) => {
                 if(!qsSelectedSmIds.has(sm.id)) return;
@@ -1096,4 +1229,3 @@ document.addEventListener('keydown', e => {
 })();
 </script>
 {% endblock %}
-

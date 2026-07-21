@@ -64,6 +64,7 @@ path(
     views.submodules_by_subject_api,
     name='submodules_by_subject_api',
 ),
+path('submodules/<slug:slug>/questions/pdf/', views.submodule_questions_pdf, name='submodule_questions_pdf'),
 path('students/export/', views.student_export_excel, name='student_export_excel'),
 path('questions/export/', views.question_export_excel, name='question_export_excel'),
 path('exams/<int:pk>/download-pdf/', views.exam_download_pdf, name='exam_download_pdf'),
