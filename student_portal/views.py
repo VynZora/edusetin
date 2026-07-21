@@ -283,6 +283,29 @@ def student_login(request):
         logout(request)
 
     if request.method == 'POST':
+
+        # ── Step 2 of the flow: user clicked "Log out other device & Sign in" ──
+        if request.POST.get('force_login') == '1':
+            pending_user_id = request.session.get('pending_login_user_id')
+            if not pending_user_id:
+                messages.error(request, "Your session expired. Please log in again.")
+                return redirect('student_portal:login')
+
+            user = get_object_or_404(User, id=pending_user_id)
+            request.session.pop('pending_login_user_id', None)
+
+            # Kick the other device out by deleting its session record
+            UserSession.objects.filter(user=user).delete()
+
+            login(request, user)
+            new_key = str(uuid.uuid4())
+            UserSession.objects.create(user=user, session_key=new_key)
+            request.session['session_key'] = new_key
+
+            messages.success(request, "Signed in. Your other device has been logged out.")
+            return redirect('student_portal:dashboard')
+
+        # ── Normal login attempt ──
         form = StudentLoginForm(request.POST)
         if form.is_valid():
             email    = form.cleaned_data['email']
@@ -295,16 +318,14 @@ def student_login(request):
                         "No student account found for this email. Please register first."
                     )
                 else:
-                    
                     existing_session = UserSession.objects.filter(user=user).first()
                     if existing_session:
-                        messages.error(
-                            request,
-                            "This account is already logged in on another device. "
-                            "Please logout from the other device first."
-                        )
-                        return render(request, 'student_portal/login.html', {'form': form})
-                    # ───────────────────────────────────────────────────
+                        # Stash the verified user id, then show the confirm-and-force-login option
+                        request.session['pending_login_user_id'] = user.id
+                        return render(request, 'student_portal/login.html', {
+                            'form': form,
+                            'show_force_login': True,
+                        })
 
                     login(request, user)
                     new_key = str(uuid.uuid4())

@@ -1,5 +1,6 @@
 {% extends "student_portal/base.html" %}
 {% load static %}
+{% load exam_extras %}
 
 {% block content %}
 
@@ -231,7 +232,7 @@
             </div>
 
             <!-- Question text -->
-            <h5 class="fw-700 mb-3">{{ item.question.question_text }}</h5>
+            <h5 class="fw-700 mb-3">{{ item.question.question_text|safe_math }}</h5>
 
             <!-- Question media -->
             {% for media in item.question.media_files.all %}
@@ -259,7 +260,7 @@
                             {% endif %}
                         {% endfor %}
 
-                        <span class="flex-grow-1">{{ opt_text }}</span>
+                        <span class="flex-grow-1">{{ opt_text|safe_math }}</span>
                         <span class="opt-label correct-label">✓ Your Answer</span>
                     </div>
 
@@ -275,7 +276,7 @@
                             {% endif %}
                         {% endfor %}
 
-                        <span class="flex-grow-1">{{ opt_text }}</span>
+                        <span class="flex-grow-1">{{ opt_text|safe_math }}</span>
                         <span class="opt-label correct-label">Correct Answer</span>
                     </div>
 
@@ -291,7 +292,7 @@
                             {% endif %}
                         {% endfor %}
 
-                        <span class="flex-grow-1">{{ opt_text }}</span>
+                        <span class="flex-grow-1">{{ opt_text|safe_math }}</span>
                         <span class="opt-label wrong-label">✗ Your Answer</span>
                     </div>
 
@@ -307,7 +308,7 @@
                             {% endif %}
                         {% endfor %}
 
-                        <span class="flex-grow-1">{{ opt_text }}</span>
+                        <span class="flex-grow-1">{{ opt_text|safe_math }}</span>
                     </div>
                 {% endif %}
 
@@ -318,7 +319,7 @@
             {% if item.question.explanation %}
             <div class="mt-3 p-3" style="background: var(--admio-input-bg,#f9fafb); border-radius:10px;">
                 <span class="fw-700 text-sm">Explanation: </span>
-                <span class="text-sm text-secondary-c">{{ item.question.explanation }}</span>
+                <span class="text-sm text-secondary-c">{{ item.question.explanation|safe_math }}</span>
             </div>
             {% endif %}
 

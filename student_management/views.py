@@ -2288,6 +2288,8 @@ def submodule_questions_pdf(request, slug):
         return redirect('student_management:submodule_list')
 
     try:
+        import re
+        from xml.sax.saxutils import escape as xml_escape
         from reportlab.lib.pagesizes import A4
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib.units import cm
@@ -2298,6 +2300,38 @@ def submodule_questions_pdf(request, slug):
         )
         from PIL import Image as PILImage
         import io
+
+        # ── Formats raw question/option text for ReportLab's Paragraph mini-XML.
+        # Mirrors the safe_math template filter, but ReportLab uses <super>/<sub>
+        # (NOT the HTML <sup>/<sub>), and the input text must be XML-escaped
+        # BEFORE we inject our own tags, or our tags get escaped too.
+        def _pdf_format(value):
+            if not value:
+                return ''
+            value = str(value)
+
+            # Escape raw XML special chars first (&, <, >) so stray characters
+            # in question text don't break ReportLab's parser or get double-escaped.
+            value = xml_escape(value)
+
+            # Normalize line breaks -> ReportLab's self-closing <br/>
+            value = value.replace('\r\n', '\n')
+            value = re.sub(r'\s*\n\s*', '<br/>', value.strip())
+
+            # Explicit superscript markup: 10^23 -> 10<super>23</super>
+            value = re.sub(r'\^([A-Za-z0-9+\-]+)', r'<super>\1</super>', value)
+
+            # Explicit subscript markup: H_2O -> H<sub>2</sub>
+            value = re.sub(r'_([A-Za-z0-9]+)', r'<sub>\1</sub>', value)
+
+            # Ionic/charge notation BEFORE the generic subscript rule below
+            # Matches: Fe3+(aq), H+(aq), I-(aq), Mg2+(aq)
+            value = re.sub(r'(\d*)([+\-])(?=\()', r'<super>\1\2</super>', value)
+
+            # Auto-subscript numbers directly adjacent to a letter/bracket
+            value = re.sub(r'(?<=[A-Za-z\)\]])(\d+)', r'<sub>\1</sub>', value)
+
+            return value
 
         buffer = io.BytesIO()
         page_w, page_h = A4
@@ -2405,7 +2439,7 @@ def submodule_questions_pdf(request, slug):
 
             q_row = Table(
                 [[Paragraph(f"<b>{idx}.</b>", q_style),
-                  Paragraph(q.question_text, q_style)]],
+                  Paragraph(_pdf_format(q.question_text), q_style)]],
                 colWidths=[0.7 * cm, usable_width - 0.7 * cm],
             )
             q_row.setStyle(TableStyle([
@@ -2435,7 +2469,7 @@ def submodule_questions_pdf(request, slug):
                 for i in range(0, len(opts), 2):
                     row_cells = []
                     for letter, val, media_type in opts[i:i + 2]:
-                        cell_content = [Paragraph(f"({letter})  {val}", opt_style)]
+                        cell_content = [Paragraph(f"({letter})  {_pdf_format(val)}", opt_style)]
                         opt_img = _media_image_flowable(media_map.get(media_type), max_width_cm=4.0, max_height_cm=4.0)
                         if opt_img:
                             cell_content.append(Spacer(1, 0.1 * cm))

@@ -23,6 +23,11 @@
             --muted:    #6b7280;
             --border:   #e2e8f0;
             --surface:  #f8fafc;
+            --amber-50:  #fff7ed;
+            --amber-200: #fed7aa;
+            --amber-700: #9a3412;
+            --amber-600: #ea580c;
+            --amber-800: #7c2d12;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -229,6 +234,56 @@
             background: var(--border);
             margin: 22px 0;
         }
+
+        /* ══ Force-login / already-logged-in-elsewhere notice ══ */
+        .session-conflict {
+            background: var(--amber-50);
+            border: 1px solid var(--amber-200);
+            color: var(--amber-700);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 22px;
+        }
+        .session-conflict-head {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .session-conflict-head i {
+            margin-top: 2px;
+            font-size: 15px;
+            color: var(--amber-600);
+        }
+        .session-conflict-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--amber-800);
+            margin-bottom: 2px;
+        }
+        .session-conflict-desc {
+            font-size: 0.8rem;
+            color: var(--amber-700);
+            line-height: 1.5;
+        }
+        .btn-force-login {
+            width: 100%;
+            margin-top: 14px;
+            padding: 11px;
+            border: none;
+            border-radius: 9px;
+            background: var(--amber-600);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.86rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .15s, transform .1s;
+        }
+        .btn-force-login:hover {
+            background: var(--amber-800);
+            transform: translateY(-1px);
+        }
+        .btn-force-login:active { transform: translateY(0); }
 
         /* Field */
         .field-wrap { margin-bottom: 18px; }
@@ -515,6 +570,25 @@
 
             <h2 class="auth-heading">Welcome back</h2>
             <p class="auth-subheading">Sign in to continue your IMAT preparation</p>
+
+            {% if show_force_login %}
+            <div class="session-conflict">
+                <div class="session-conflict-head">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <div>
+                        <div class="session-conflict-title">Already logged in elsewhere</div>
+                        <div class="session-conflict-desc">This account is currently active on another device. Log it out to continue signing in here.</div>
+                    </div>
+                </div>
+                <form method="POST" action="{% url 'student_portal:login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="force_login" value="1">
+                    <button type="submit" class="btn-force-login">
+                        <i class="fas fa-right-from-bracket me-2"></i> Log out other device &amp; Sign in
+                    </button>
+                </form>
+            </div>
+            {% endif %}
 
             <form method="POST" action="{% url 'student_portal:login' %}">
                 {% csrf_token %}

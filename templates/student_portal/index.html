@@ -134,14 +134,14 @@ src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
     }
     
     .navbar.scrolled { box-shadow: 0 4px 32px rgba(10,42,110,.18); border-bottom-color: transparent; }
-    .nav-inner { max-width: 100%; margin: 0; padding: 0 56px 0 0; height: 88px; display: flex; align-items: center; }
+    .nav-inner { max-width: 100%; margin: 0; padding: 0 56px 0 0; height: 88px; display: flex; align-items: center; min-width: 0; }
     .nav-brand {
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
       background: #1447b3; height: 88px; min-width: 340px; padding: 0 85px 0 38px;
       margin-right: 50px; clip-path: polygon(0 0, 85% 0, 100% 100%, 0 100%);
     }
     .nav-brand img { width: 210px !important; height: auto !important; max-width: none !important; object-fit: contain; display: block; flex-shrink: 0; filter: brightness(0) invert(1); }
-    .nav-links { flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px; margin-left: 0; }
+    .nav-links { flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px; margin-left: 0; min-width: 0; }
     .nav-links a {
       display: inline-flex; align-items: center; justify-content: center;
       padding: 12px 18px; font-size: 15px; font-weight: 700; font-family: var(--font-display);
@@ -163,7 +163,7 @@ src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
     .mobile-menu a.btn-login,
     .mobile-menu a.btn-start { color: #fff; }
     .mobile-menu a:hover { background: #e8effe; color: #1447b3; }
-  @media(max-width:1024px){
+  @media(max-width:1300px){
   .navbar {
     margin: 0;
     border-radius: 0;
@@ -1352,13 +1352,13 @@ body.video-modal-lock { overflow: hidden; }
       .why-grid{grid-template-columns:repeat(2,1fr)}
       .footer-grid{grid-template-columns:1fr 1fr}
     }
-    @media(max-width:1024px){
-      .nav-links,.nav-cta{display:none}
-      .hamburger{display:flex}
-      .nav-inner{padding:0 20px 0 0;height:72px}
-      .nav-brand{padding:0 48px 0 20px;min-width:220px;height:72px}
-      .nav-brand img{width:140px!important}
-    }
+    @media(max-width:1300px){
+  .nav-links,.nav-cta{display:none}
+  .hamburger{display:flex}
+  .nav-inner{padding:0 20px 0 0;height:72px}
+  .nav-brand{padding:0 48px 0 20px;min-width:220px;height:72px}
+  .nav-brand img{width:140px!important}
+}
     @media(max-width:900px){
       .feat-sticky-viewport { height: 100svh; overflow: hidden; }
       .feat-card { overflow: hidden; }
@@ -1613,7 +1613,7 @@ body.video-modal-lock { overflow: hidden; }
     contain: none;
      -webkit-overflow-scrolling: auto;
   }
-  .about-cards-clip {
+ .about-cards-clip {
   overflow: hidden;
   width: 100%;
 }
@@ -3936,7 +3936,7 @@ srEls.forEach(function(el){ obs.observe(el); });
 
   /* ── RESIZE ── */
   window.addEventListener('resize', function(){
-    if(window.innerWidth>=1024){ if(mob) mob.classList.remove('open'); if(ham){ ham.classList.remove('is-open'); ham.querySelectorAll('span').forEach(function(s){s.style.transform='';s.style.opacity='';}); } }
+    if(window.innerWidth>=1300){ if(mob) mob.classList.remove('open'); if(ham){ ham.classList.remove('is-open'); ham.querySelectorAll('span').forEach(function(s){s.style.transform='';s.style.opacity='';}); } }
   });
 
 })();

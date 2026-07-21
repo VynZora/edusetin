@@ -279,7 +279,7 @@
                             </div>
 
                             <h4 class="fw-700">
-                                {{ question.question_text }}
+                                {{ question.question_text|safe_math }}
                             </h4>
 
                             {% with q_media=question.media_files.all|get_option_media:"QUESTION" %}
@@ -303,7 +303,7 @@
                                     </div>
                                     {% endif %}
                                     {% if question.option_a %}
-                                    <span class="option-text">{{ question.option_a }}</span>
+                                    <span class="option-text">{{ question.option_a|safe_math }}</span>
                                     {% endif %}
                                 </div>
                                 {% endwith %}
@@ -319,7 +319,7 @@
                                     </div>
                                     {% endif %}
                                     {% if question.option_b %}
-                                    <span class="option-text">{{ question.option_b }}</span>
+                                    <span class="option-text">{{ question.option_b|safe_math }}</span>
                                     {% endif %}
                                 </div>
                                 {% endwith %}
@@ -335,7 +335,7 @@
                                     </div>
                                     {% endif %}
                                     {% if question.option_c %}
-                                    <span class="option-text">{{ question.option_c }}</span>
+                                    <span class="option-text">{{ question.option_c|safe_math }}</span>
                                     {% endif %}
                                 </div>
                                 {% endwith %}
@@ -351,7 +351,7 @@
                                     </div>
                                     {% endif %}
                                     {% if question.option_d %}
-                                    <span class="option-text">{{ question.option_d }}</span>
+                                    <span class="option-text">{{ question.option_d|safe_math }}</span>
                                     {% endif %}
                                 </div>
                                 {% endwith %}
@@ -367,7 +367,7 @@
                                         <img src="{{ media.effective_image.url }}" alt="Option E" class="option-image js-zoomable">
                                     </div>
                                     {% endif %}
-                                    <span class="option-text">{{ question.option_e }}</span>
+                                    <span class="option-text">{{ question.option_e|safe_math }}</span>
                                 </div>
                                 {% endwith %}
                             </label>
