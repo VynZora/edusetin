@@ -2217,7 +2217,7 @@ def _build_submodule_limit_summary(ordered_submodules):
             return f"{numeric[0]} Qs per module (some unlimited)"
         return f"{min(numeric)}\u2013{max(numeric)} Qs per module (some unlimited)"
 
-    return "Unlimited questions "
+    return "Full Set questions "
 
 @never_cache
 def landing_page(request):

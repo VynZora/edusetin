@@ -2139,13 +2139,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- ================= EXAM STAT CARDS ================= -->
     <div class="glance-wrap">
     <div class="guide-mascot-wrap">
-      <img src="{% static 'student_portal/assets/img/exam-guide-character.png' %}" alt="Guide character pointing at the exam stats" class="guide-mascot sr sr-left d1" />
+      <!-- TODO: replace these 4 paths with your real per-card mascot images, in card order (date, duration, questions, score) -->
+      <img src="{% static 'student_portal/assets/img/char.png' %}" alt="Guide mascot for exam date" class="guide-mascot mascot-img is-active" data-mascot-idx="0" />
+      <img src="{% static 'student_portal/assets/img/char1.png' %}" alt="Guide mascot for duration" class="guide-mascot mascot-img" data-mascot-idx="1" />
+      <img src="{% static 'student_portal/assets/img/char2.png' %}" alt="Guide mascot for total questions" class="guide-mascot mascot-img" data-mascot-idx="2" />
+      <img src="{% static 'student_portal/assets/img/char3.png' %}" alt="Guide mascot for max score" class="guide-mascot mascot-img" data-mascot-idx="3" />
     </div>
     <p class="sr sr-fade d1" style="text-align:center;margin:0 0 14px;font:700 .72rem/1 'Courier New',monospace;letter-spacing:.14em;text-transform:uppercase;color:#8A94A6;">— Your Exam At A Glance —</p>
 
     <div class="stat-cards" style="max-width:1120px;margin:0 auto 32px;">
 
-      <div class="stat-card sc1">
+      <div class="stat-card sc1" data-mascot-idx="0">
         <div class="wipe"></div>
         <div class="stat-icon icon-draw">
           <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#3B82F6" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -2154,7 +2158,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <p class="stat-value"><span class="bold-val">Sep 30, 2026</span></p>
       </div>
 
-      <div class="stat-card sc2">
+      <div class="stat-card sc2" data-mascot-idx="1">
         <div class="wipe"></div>
         <div class="stat-icon icon-draw">
           <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#3B82F6" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -2163,7 +2167,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <p class="stat-value"><span class="bold-val">100 minutes</span></p>
       </div>
 
-      <div class="stat-card sc3">
+      <div class="stat-card sc3" data-mascot-idx="2">
         <div class="wipe"></div>
         <div class="stat-icon icon-draw">
           <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -2172,13 +2176,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <p class="stat-value"><span class="bold-val">60, multiple-choice</span></p>
       </div>
 
-      <div class="stat-card sc4 dark">
+      <div class="stat-card sc4" data-mascot-idx="3">
         <div class="wipe wipe-accent"></div>
-        <div class="stat-icon dark icon-draw">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#64B5F6" stroke-width="2"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg>
+        <div class="stat-icon icon-draw">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg>
         </div>
-        <p class="stat-label dark">Max score</p>
-        <p class="stat-value dark"><span class="bold-val">90 Mark</span></p>
+        <p class="stat-label">Max score</p>
+        <p class="stat-value"><span class="bold-val">90 Mark</span></p>
         <div class="barcode" aria-hidden="true"></div>
       </div>
 
@@ -2340,18 +2344,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   .stat-cards.in-view .sc4{transition-delay:.45s;}
   .stat-cards.in-view .stat-card{opacity:1;transform:translateY(0) scale(1);}
 
-  .stat-card:hover, .stat-card.auto-dark{background:#0B1E3D;border-color:#0B1E3D;box-shadow:0 18px 34px rgba(11,30,61,0.22);transform:translateY(-4px);z-index:2;}
+  /* Dark highlight now triggers on hover AND on the single auto-cycled "card-active" state (kept in sync with mascot) */
+  .stat-card:hover, .stat-card.card-active{background:#0B1E3D;border-color:#0B1E3D;box-shadow:0 18px 34px rgba(11,30,61,0.22);transform:translateY(-4px);z-index:2;}
 
   .stat-card .stat-icon{transition:background .3s ease;}
-  .stat-card:hover .stat-icon, .stat-card.auto-dark .stat-icon{background:rgba(255,255,255,.12);}
+  .stat-card:hover .stat-icon, .stat-card.card-active .stat-icon{background:rgba(255,255,255,.12);}
   .stat-card .stat-icon svg{transition:stroke .3s ease;}
-  .stat-card:hover .stat-icon svg, .stat-card.auto-dark .stat-icon svg{stroke:#64B5F6;}
+  .stat-card:hover .stat-icon svg, .stat-card.card-active .stat-icon svg{stroke:#64B5F6;}
   .stat-card .stat-label{transition:color .3s ease;}
-  .stat-card:hover .stat-label, .stat-card.auto-dark .stat-label{color:#9FB3D1;}
+  .stat-card:hover .stat-label, .stat-card.card-active .stat-label{color:#9FB3D1;}
   .stat-card .stat-value{transition:color .3s ease;}
-  .stat-card:hover .stat-value, .stat-card.auto-dark .stat-value{color:#fff;}
+  .stat-card:hover .stat-value, .stat-card.card-active .stat-value{color:#fff;}
 
-  .stat-card.dark{padding-bottom:36px;}
+  .stat-card.sc4{padding-bottom:36px;}
 
   .stat-icon{width:52px;height:52px;border-radius:14px;background:#EAF3FD;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;margin-bottom:16px;}
 
@@ -2408,7 +2413,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     opacity:.5;border-radius:2px;
     transition:background .3s ease;
   }
-  .stat-card:hover .barcode, .stat-card.auto-dark .barcode{
+  .stat-card:hover .barcode, .stat-card.card-active .barcode{
     background:repeating-linear-gradient(90deg, rgba(255,255,255,.6) 0 2px, transparent 2px 4px, rgba(255,255,255,.9) 4px 6px, transparent 6px 9px);
   }
 
@@ -2432,6 +2437,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   @media (max-width:960px){ .glance-wrap{ padding-bottom:120px; } }
   @media (max-width:560px){ .glance-wrap{ padding-bottom:100px; } }
 
+  /* Position/size of the mascot wrap — initial values before JS positions it under the active card */
   .guide-mascot-wrap{
     position:absolute;
     top:190px;
@@ -2442,11 +2448,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     animation:mascotFloat 2.6s ease-in-out infinite;
   }
 
+  /* Each mascot image is stacked exactly on top of the others (same box, same size as original .guide-mascot)
+     and cross-fades via opacity — only one is visible (.is-active) at a time */
   .guide-mascot{
     display:block;
     width:100px;
     height:auto;
     filter:drop-shadow(0 12px 20px rgba(11,30,61,.18));
+  }
+  .mascot-img{
+    position:absolute;
+    top:0;
+    left:0;
+    opacity:0;
+    transition:opacity .5s ease;
+  }
+  .mascot-img.is-active{
+    position:relative; /* first/active one sets the wrap's natural size */
+    opacity:1;
   }
 
   @media (max-width:960px){ .guide-mascot{ width:80px; } }
@@ -2678,39 +2697,138 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 
   @media (prefers-reduced-motion: reduce){
-    .wipe, .icon-draw svg *, .bold-val, .bubble.filled, .stat-card, .omr-row{transition:none !important;animation:none !important;transform:none !important;filter:none !important;opacity:1 !important;stroke-dashoffset:0 !important;}
+    .wipe, .icon-draw svg *, .bold-val, .bubble.filled, .stat-card, .omr-row, .mascot-img{transition:none !important;animation:none !important;transform:none !important;filter:none !important;opacity:1 !important;stroke-dashoffset:0 !important;}
   }
 </style>
 
 <script>
 (function(){
   var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(prefersReduced) return;
 
-  var cards = document.querySelectorAll('.exam-col .why-grid.subject-grid .why-card');
-  if(!cards.length) return;
+  /* ===== Subject cards auto-cycle (unchanged) ===== */
+  var subjectCards = document.querySelectorAll('.exam-col .why-grid.subject-grid .why-card');
+  if(subjectCards.length && !prefersReduced){
+    var si = 0;
+    var subjectPaused = false;
 
-  var i = 0;
-  var timer = null;
-  var paused = false;
+    function highlightSubject(){
+      if(subjectPaused) return;
+      subjectCards.forEach(function(c){ c.classList.remove('card-active'); });
+      subjectCards[si].classList.add('card-active');
+      si = (si + 1) % subjectCards.length;
+    }
 
-  function highlight(){
-    if(paused) return;
-    cards.forEach(function(c){ c.classList.remove('card-active'); });
-    cards[i].classList.add('card-active');
-    i = (i + 1) % cards.length;
+    subjectCards.forEach(function(c){
+      c.addEventListener('mouseenter', function(){ subjectPaused = true; c.classList.add('card-active'); });
+      c.addEventListener('mouseleave', function(){
+        subjectCards.forEach(function(x){ x.classList.remove('card-active'); });
+        subjectPaused = false;
+      });
+    });
+
+    highlightSubject();
+    setInterval(highlightSubject, 2200);
   }
 
-  cards.forEach(function(c){
-    c.addEventListener('mouseenter', function(){ paused = true; c.classList.add('card-active'); });
-    c.addEventListener('mouseleave', function(){
-      cards.forEach(function(x){ x.classList.remove('card-active'); });
-      paused = false;
+  /* ===== Stat cards: ONE unified controller ==========================
+     Drives three things together from a single index, so they never
+     drift out of sync: (1) which card is dark, (2) which mascot image
+     is shown, (3) where the mascot wrapper sits on screen. ===== */
+  var statCards   = document.querySelectorAll('.stat-cards .stat-card');
+  var mascotImgs  = document.querySelectorAll('.guide-mascot-wrap .mascot-img');
+  var mascotWrap  = document.querySelector('.guide-mascot-wrap');
+  var glanceWrap  = document.querySelector('.glance-wrap');
+  var statCardsEl = document.querySelector('.stat-cards');
+  if(!statCards.length || !mascotImgs.length) return;
+
+  var ci = 0;
+  var statPaused = false;
+  var colorChangeTimeout = null;
+
+  function setActiveMascotImage(idx){
+    mascotImgs.forEach(function(img){
+      img.classList.toggle('is-active', img.getAttribute('data-mascot-idx') === String(idx));
+    });
+  }
+
+  function positionMascotUnder(card){
+    if(!mascotWrap || !glanceWrap || !card) return;
+    var top = card.offsetTop + card.offsetHeight + 14;
+    var left = card.offsetLeft + (card.offsetWidth / 2) - (mascotWrap.offsetWidth / 2);
+    var maxLeft = glanceWrap.offsetWidth - mascotWrap.offsetWidth - 4;
+    left = Math.max(4, Math.min(left, maxLeft));
+    mascotWrap.style.top = top + 'px';
+    mascotWrap.style.left = left + 'px';
+  }
+
+  function setActiveStatCard(idx, immediate){
+    idx = Number(idx);
+    var target = document.querySelector('.stat-cards .stat-card[data-mascot-idx="' + idx + '"]');
+
+    // mascot image + position move first...
+    setActiveMascotImage(idx);
+    if(target) positionMascotUnder(target);
+
+    if(colorChangeTimeout) clearTimeout(colorChangeTimeout);
+
+    var applyColor = function(){
+      statCards.forEach(function(card){ card.classList.remove('card-active'); });
+      if(target) target.classList.add('card-active');
+    };
+
+    if(immediate){
+      applyColor();
+    } else {
+      // ...card highlight color follows slightly after the mascot has arrived
+      colorChangeTimeout = setTimeout(applyColor, 350);
+    }
+  }
+
+  statCards.forEach(function(card){
+    var idx = card.getAttribute('data-mascot-idx');
+    card.addEventListener('mouseenter', function(){
+      statPaused = true;
+      setActiveStatCard(idx, true);
+    });
+    card.addEventListener('mouseleave', function(){
+      statPaused = false;
     });
   });
 
-  highlight();
-  timer = setInterval(highlight, 2200);
+  // Keep the mascot glued under the active card if the layout reflows (resize/orientation change)
+  window.addEventListener('resize', function(){
+    var activeCard = document.querySelector('.stat-cards .stat-card.card-active');
+    if(activeCard) positionMascotUnder(activeCard);
+  });
+
+  if(prefersReduced){
+    setActiveStatCard(0, true);
+    return;
+  }
+
+  function cycleStatCards(){
+    if(statPaused) return;
+    setActiveStatCard(ci);
+    ci = (ci + 1) % statCards.length;
+  }
+
+  // Start the cycle once the cards are actually laid out/visible, so
+  // offsetTop/offsetLeft measurements used for positioning are correct.
+  if(statCardsEl){
+    var startIo = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          startIo.unobserve(entry.target);
+          cycleStatCards();
+          setInterval(cycleStatCards, 3800);
+        }
+      });
+    }, { threshold: 0.2, rootMargin: '0px 0px -60px 0px' });
+    startIo.observe(statCardsEl);
+  } else {
+    cycleStatCards();
+    setInterval(cycleStatCards, 3800);
+  }
 })();
 </script>
 <script>
@@ -2752,53 +2870,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           if (entry.isIntersecting) {
             entry.target.classList.add('in-view');
             cardIo.unobserve(entry.target);
-
-            // Auto-cycle the dark color state across cards, no hover needed.
-            const cards = Array.from(entry.target.querySelectorAll('.stat-card'));
-            const glanceWrap = entry.target.closest('.glance-wrap');
-            // NOTE: we now track the WRAPPER (.guide-mascot-wrap), not the <img>.
-            // The wrapper owns top/left + the float animation; the <img> only
-            // owns its one-time .sr reveal transform. This keeps the two
-            // transform-based animations from fighting on the same element,
-            // and lets positioning work identically on desktop and mobile.
-            const mascotWrap = glanceWrap ? glanceWrap.querySelector('.guide-mascot-wrap') : null;
-
-            const positionMascotUnder = (card) => {
-              if (!mascotWrap || !glanceWrap) return;
-              const top = card.offsetTop + card.offsetHeight + 14;
-              let left = card.offsetLeft + (card.offsetWidth / 2) - (mascotWrap.offsetWidth / 2);
-              // clamp so it never overflows the container edges at narrow widths
-              const maxLeft = glanceWrap.offsetWidth - mascotWrap.offsetWidth - 4;
-              left = Math.max(4, Math.min(left, maxLeft));
-              mascotWrap.style.top = top + 'px';
-              mascotWrap.style.left = left + 'px';
-            };
-
-            if (cards.length && !window.__statAutoCycle) {
-              window.__statAutoCycle = true;
-              let idx = 0;
-              setTimeout(() => {
-                const advance = () => {
-                  cards.forEach((c) => c.classList.remove('auto-dark'));
-                  cards[idx].classList.add('auto-dark');
-                  positionMascotUnder(cards[idx]);
-                  idx = (idx + 1) % cards.length;
-                };
-                advance();
-                setInterval(advance, 1800);
-
-                window.addEventListener('resize', () => {
-                  const activeCard = cards.find((c) => c.classList.contains('auto-dark'));
-                  if (activeCard) positionMascotUnder(activeCard);
-                });
-              }, 1200);
-            }
           }
         });
       }, { threshold: 0.2, rootMargin: '0px 0px -60px 0px' });
       cardIo.observe(statCards);
     }
   })();
+</script>
 </script>
 <!-- EVERYTHING YOU NEED -->
 <section class="section everything" id="features">
