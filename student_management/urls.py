@@ -78,4 +78,14 @@ path("payments/create/",                 views.payment_create,        name="paym
 path("payments/<int:id>/",               views.payment_detail,        name="payment_detail"),
 path("payments/<int:id>/update-status/", views.payment_update_status, name="payment_update_status"),
 path("payments/<int:id>/delete/",        views.payment_delete,        name="payment_delete"),
+path(
+    "exam-reviews/",
+    views.exam_reviews_list,
+    name="exam_reviews_list",
+),
+path(
+    "exam-reviews/<int:review_id>/delete/",
+    views.exam_review_delete,
+    name="exam_review_delete",
+),
 ]

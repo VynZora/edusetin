@@ -45,6 +45,8 @@ path('plans/<uuid:plan_uuid>/checkout/', views.plan_checkout, name='plan_checkou
     ),
     path('notifications/read/', views.mark_notifications_read, name='mark_notifications_read'),
      path('home/', views.landing_page, name='home'),
+    path('exam/review/<uuid:attempt_slug>/submit/', views.submit_exam_review, name='exam_review_submit'),
+    path('exam/review/<uuid:attempt_slug>/skip/', views.skip_exam_review, name='exam_review_skip'),
     
     # Password Reset URLs
     path('password-reset/', 

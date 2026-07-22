@@ -471,42 +471,10 @@ def question_create(request):
     if request.method == 'POST':
         subject_id = request.POST.get('subject')
         submodule_id = request.POST.get('submodule', '').strip()
-        question_text = request.POST.get('question_text', '').strip()
-        option_a = request.POST.get('option_a', '').strip()
-        option_b = request.POST.get('option_b', '').strip()
-        option_c = request.POST.get('option_c', '').strip()
-        option_d = request.POST.get('option_d', '').strip()
-        option_e = request.POST.get('option_e', '').strip()
-        correct_answer = request.POST.get('correct_answer', '').strip()
-        source = request.POST.get('source', '').strip() or None
-        year_raw = request.POST.get('year', '').strip()
-        explanation = request.POST.get('explanation', '').strip()
-        is_active = request.POST.get('is_active') == 'on'
-
-        # Collect uploaded images (Option 1: direct upload)
-        uploaded_images = {
-            'QUESTION': request.FILES.get('question_image'),
-            'OPTION_A': request.FILES.get('option_a_image'),
-            'OPTION_B': request.FILES.get('option_b_image'),
-            'OPTION_C': request.FILES.get('option_c_image'),
-            'OPTION_D': request.FILES.get('option_d_image'),
-            'OPTION_E': request.FILES.get('option_e_image'),
-        }
-
-        # Collect library asset IDs (Option 2: from library)
-        library_ids = {
-            'QUESTION': request.POST.get('question_library_id', '').strip(),
-            'OPTION_A': request.POST.get('option_a_library_id', '').strip(),
-            'OPTION_B': request.POST.get('option_b_library_id', '').strip(),
-            'OPTION_C': request.POST.get('option_c_library_id', '').strip(),
-            'OPTION_D': request.POST.get('option_d_library_id', '').strip(),
-            'OPTION_E': request.POST.get('option_e_library_id', '').strip(),
-        }
 
         errors = []
         subject = None
         submodule = None
-        year = None
 
         if not subject_id:
             errors.append("Please select a subject.")
@@ -514,53 +482,46 @@ def question_create(request):
             subject = Subject.objects.filter(id=subject_id).first()
             if not subject:
                 errors.append("Selected subject does not exist.")
+
         if submodule_id:
             submodule = SubModule.objects.filter(id=submodule_id).first()
             if not submodule:
                 errors.append("Selected submodule does not exist.")
             elif subject and submodule.subject_id != subject.id:
                 errors.append("Selected submodule does not belong to the chosen subject.")
-        if not question_text:
-            errors.append("Question text is required.")
-        if not option_a:
-            errors.append("Option A is required.")
-        if not option_b:
-            errors.append("Option B is required.")
-        if not option_c:
-            errors.append("Option C is required.")
-        if not option_d:
-            errors.append("Option D is required.")
-        if not correct_answer:
-            errors.append("Please select the correct answer.")
 
-        if year_raw:
-            try:
-                year = int(year_raw)
-                if year < 1900 or year > 2100:
-                    errors.append("Please enter a valid year between 1900 and 2100.")
-            except ValueError:
-                errors.append("Year must be a valid number.")
+        # ── Pull array-style fields, one entry per question card ──
+        question_texts   = request.POST.getlist('question_text[]')
+        option_as        = request.POST.getlist('option_a[]')
+        option_bs        = request.POST.getlist('option_b[]')
+        option_cs        = request.POST.getlist('option_c[]')
+        option_ds        = request.POST.getlist('option_d[]')
+        option_es        = request.POST.getlist('option_e[]')
+        correct_answers  = request.POST.getlist('correct_answer[]')
+        sources          = request.POST.getlist('source[]')
+        years_raw        = request.POST.getlist('year[]')
+        explanations     = request.POST.getlist('explanation[]')
+        is_actives       = request.POST.getlist('is_active[]')  # only present for checked boxes -> handled per-index below differently
 
-        if source == 'PYQ' and not year:
-            errors.append("Year is required when Source is PYQ.")
+        # Files/library ids are also arrays aligned by index
+        question_images   = request.FILES.getlist('question_image[]')
+        option_a_images    = request.FILES.getlist('option_a_image[]')
+        option_b_images    = request.FILES.getlist('option_b_image[]')
+        option_c_images    = request.FILES.getlist('option_c_image[]')
+        option_d_images    = request.FILES.getlist('option_d_image[]')
+        option_e_images    = request.FILES.getlist('option_e_image[]')
 
-        if not errors and subject and question_text:
-            normalized_current = normalize_question(question_text)
-            comparison_source = source or 'OTHER'
-            existing_qs = Question.objects.filter(subject=subject).values('question_text', 'source', 'year')
-            is_duplicate = False
-            for eq in existing_qs:
-                if normalize_question(eq['question_text']) == normalized_current:
-                    existing_source = eq['source'] or 'OTHER'
-                    if comparison_source == 'PYQ' and existing_source == 'PYQ':
-                        if year == eq['year']:
-                            is_duplicate = True
-                            break
-                    elif comparison_source == existing_source and comparison_source != 'PYQ':
-                        is_duplicate = True
-                        break
-            if is_duplicate:
-                errors.append("This question already exists (duplicate detected based on subject, text, source, and year rules).")
+        question_lib_ids   = request.POST.getlist('question_library_id[]')
+        option_a_lib_ids   = request.POST.getlist('option_a_library_id[]')
+        option_b_lib_ids   = request.POST.getlist('option_b_library_id[]')
+        option_c_lib_ids   = request.POST.getlist('option_c_library_id[]')
+        option_d_lib_ids   = request.POST.getlist('option_d_library_id[]')
+        option_e_lib_ids   = request.POST.getlist('option_e_library_id[]')
+
+        total_cards = len(question_texts)
+
+        if not errors and total_cards == 0:
+            errors.append("Please add at least one question.")
 
         if errors:
             for err in errors:
@@ -572,22 +533,13 @@ def question_create(request):
                 'post_data': request.POST,
             })
 
-        # Create the question
-        question = Question.objects.create(
-            subject=subject,
-            submodule=submodule,
-            question_text=question_text,
-            option_a=option_a,
-            option_b=option_b,
-            option_c=option_c,
-            option_d=option_d,
-            option_e=option_e or None,
-            correct_answer=correct_answer,
-            explanation=explanation or None,
-            source=source,
-            year=year,
-            is_active=is_active,
-        )
+        # NOTE: checkbox arrays don't preserve index alignment when some
+        # boxes are unchecked (browsers only submit checked ones), so
+        # "is_active[]" can't be zipped positionally. Switch it to a
+        # per-card hidden field instead, e.g. name="is_active_flag[]"
+        # with value "1"/"0" driven by JS, OR give each checkbox a
+        # unique name like is_active_{uid}. Until the template is
+        # updated, we default every imported card to active=True.
 
         FIELD_NAME_MAP = {
             'QUESTION': 'requires_question_image',
@@ -598,45 +550,153 @@ def question_create(request):
             'OPTION_E': 'requires_option_e_image',
         }
 
-        media_created = False
-        for media_type in ['QUESTION', 'OPTION_A', 'OPTION_B', 'OPTION_C', 'OPTION_D', 'OPTION_E']:
-            file = uploaded_images.get(media_type)
-            lib_id = library_ids.get(media_type)
+        created_count = 0
+        skipped_rows = []
 
-            field_name = FIELD_NAME_MAP[media_type]
+        # Cache existing questions per subject for duplicate checking
+        existing_qs = Question.objects.filter(subject=subject).values('question_text', 'source', 'year')
+        existing_cache = [
+            {
+                'text': normalize_question(eq['question_text']),
+                'source': eq['source'] or 'OTHER',
+                'year': eq['year'],
+            }
+            for eq in existing_qs
+        ]
 
-            if file:
-                # Option 1: direct upload takes priority
-                QuestionMedia.objects.create(
-                    question=question,
-                    media_type=media_type,
-                    image=file,
-                )
-                setattr(question, field_name, True)
-                media_created = True
-            elif lib_id:
-                # Option 2: from media library
+        def _at(lst, i, default=''):
+            return lst[i].strip() if i < len(lst) and lst[i] is not None else default
+
+        for i in range(total_cards):
+            q_text = _at(question_texts, i)
+            a = _at(option_as, i)
+            b = _at(option_bs, i)
+            c = _at(option_cs, i)
+            d = _at(option_ds, i)
+            e = _at(option_es, i)
+            ans = _at(correct_answers, i).upper()
+            src = _at(sources, i) or None
+            year_raw = _at(years_raw, i)
+            expl = _at(explanations, i)
+
+            row_errors = []
+            if not q_text:
+                row_errors.append("Question text is required")
+            if not a:
+                row_errors.append("Option A is required")
+            if not b:
+                row_errors.append("Option B is required")
+            if not c:
+                row_errors.append("Option C is required")
+            if not d:
+                row_errors.append("Option D is required")
+            if not ans:
+                row_errors.append("Correct answer is required")
+            elif ans not in {'A', 'B', 'C', 'D', 'E'}:
+                row_errors.append("Correct answer must be A, B, C, D, or E")
+
+            year = None
+            if year_raw:
                 try:
-                    asset = MediaLibrary.objects.get(id=lib_id, is_active=True)
-                    QuestionMedia.objects.create(
-                        question=question,
-                        media_type=media_type,
-                        media_library=asset,
-                    )
+                    year = int(year_raw)
+                    if year < 1900 or year > 2100:
+                        row_errors.append("Year must be between 1900 and 2100")
+                        year = None
+                except ValueError:
+                    row_errors.append("Year must be a valid number")
+
+            if src == 'PYQ' and not year:
+                row_errors.append("Year is required when Source is PYQ")
+
+            if row_errors:
+                skipped_rows.append(f"Question {i + 1}: {'; '.join(row_errors)}")
+                continue
+
+            # Duplicate check
+            normalized_current = normalize_question(q_text)
+            comparison_source = src or 'OTHER'
+            is_duplicate = False
+            for eq in existing_cache:
+                if eq['text'] == normalized_current:
+                    if comparison_source == 'PYQ' and eq['source'] == 'PYQ':
+                        if year == eq['year']:
+                            is_duplicate = True
+                            break
+                    elif comparison_source == eq['source'] and comparison_source != 'PYQ':
+                        is_duplicate = True
+                        break
+            if is_duplicate:
+                skipped_rows.append(f"Question {i + 1}: duplicate question skipped")
+                continue
+
+            question = Question.objects.create(
+                subject=subject,
+                submodule=submodule,
+                question_text=q_text,
+                option_a=a,
+                option_b=b,
+                option_c=c,
+                option_d=d,
+                option_e=e or None,
+                correct_answer=ans,
+                explanation=expl or None,
+                source=src,
+                year=year,
+                is_active=True,
+            )
+
+            # Media: direct upload takes priority over library pick
+            media_slots = [
+                ('QUESTION',  question_images,  question_lib_ids),
+                ('OPTION_A',  option_a_images,  option_a_lib_ids),
+                ('OPTION_B',  option_b_images,  option_b_lib_ids),
+                ('OPTION_C',  option_c_images,  option_c_lib_ids),
+                ('OPTION_D',  option_d_images,  option_d_lib_ids),
+                ('OPTION_E',  option_e_images,  option_e_lib_ids),
+            ]
+
+            media_created = False
+            for media_type, files, lib_ids in media_slots:
+                file = files[i] if i < len(files) and files[i] else None
+                lib_id = lib_ids[i].strip() if i < len(lib_ids) and lib_ids[i] else ''
+
+                field_name = FIELD_NAME_MAP[media_type]
+                if file:
+                    QuestionMedia.objects.create(question=question, media_type=media_type, image=file)
                     setattr(question, field_name, True)
                     media_created = True
-                except MediaLibrary.DoesNotExist:
-                    pass
+                elif lib_id:
+                    asset = MediaLibrary.objects.filter(id=lib_id, is_active=True).first()
+                    if asset:
+                        QuestionMedia.objects.create(question=question, media_type=media_type, media_library=asset)
+                        setattr(question, field_name, True)
+                        media_created = True
 
-        if media_created:
-            question.save(update_fields=[
-                'requires_question_image', 'requires_option_a_image',
-                'requires_option_b_image', 'requires_option_c_image',
-                'requires_option_d_image', 'requires_option_e_image',
-            ])
-            _recalculate_media_status(question)
+            if media_created:
+                question.save(update_fields=[
+                    'requires_question_image', 'requires_option_a_image',
+                    'requires_option_b_image', 'requires_option_c_image',
+                    'requires_option_d_image', 'requires_option_e_image',
+                ])
+                _recalculate_media_status(question)
 
-        messages.success(request, "Question created successfully.")
+            existing_cache.append({'text': normalized_current, 'source': comparison_source, 'year': year})
+            created_count += 1
+
+        if created_count:
+            messages.success(request, f"{created_count} question(s) created successfully.")
+        if skipped_rows:
+            for row_msg in skipped_rows:
+                messages.warning(request, row_msg)
+
+        if created_count == 0:
+            return render(request, 'student_management/question_create.html', {
+                'subjects': subjects,
+                'submodules': submodules,
+                'library_assets': library_assets,
+                'post_data': request.POST,
+            })
+
         return redirect('student_management:question_list')
 
     return render(request, 'student_management/question_create.html', {
@@ -644,7 +704,6 @@ def question_create(request):
         'submodules': submodules,
         'library_assets': library_assets,
     })
-
 
 @admin_login_required
 def question_detail(request, id):
@@ -1124,16 +1183,13 @@ def question_import(request):
             comparison_source = source or 'OTHER'
 
             is_duplicate = False
-            for eq in existing_questions_cache[subject.id]:
-                if eq['text'] == normalized_current:
-                    existing_source = eq['source']
-                    if comparison_source == 'PYQ' and existing_source == 'PYQ':
-                        if year == eq['year']:
+            if comparison_source != 'PYQ':
+                for eq in existing_questions_cache[subject.id]:
+                    if eq['text'] == normalized_current:
+                        existing_source = eq['source']
+                        if comparison_source == existing_source:
                             is_duplicate = True
                             break
-                    elif comparison_source == existing_source and comparison_source != 'PYQ':
-                        is_duplicate = True
-                        break
 
             if is_duplicate:
                 duplicate_count += 1
@@ -3340,3 +3396,27 @@ def exam_download_pdf(request, pk):
             "ReportLab is not installed. Run: pip install reportlab pillow",
             status=500,
         )
+
+from student_portal.models import ExamReview
+from django.views.decorators.http import require_POST
+@admin_login_required
+def exam_reviews_list(request):
+    reviews = (
+        ExamReview.objects
+        .select_related("student", "student__user", "exam", "attempt")
+        .order_by("-created_at")
+    )
+ 
+    context = {
+        "reviews": reviews,
+        "exams": Exam.objects.all().order_by("title"),
+    }
+    return render(request, "student_management/exam_reviews_list.html", context)
+ 
+ 
+@admin_login_required
+@require_POST
+def exam_review_delete(request, review_id):
+    review = get_object_or_404(ExamReview, pk=review_id)
+    review.delete()
+    return JsonResponse({"status": "success"})

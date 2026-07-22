@@ -3212,7 +3212,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
-<!-- PRICING -->
 <section class="section pricing" id="pricing">
   <div class="container">
     <div class="section-head center">
@@ -3223,13 +3222,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     {% if plans %}
       <div class="pricing-grid">
         {% for plan in plans %}
-          {% with total=plans|length subj_count=plan.subjects.count sub_count=plan.submodules.count exam_count=plan.exams.count %}
+          {% with total=plans|length subj_count=plan.subjects.count sub_count=plan.ordered_submodules|length exam_count=plan.exams.count %}
           {% with item_count=subj_count|add:sub_count|add:exam_count %}
           <div class="price-card {% if total >= 3 and forloop.counter == 2 %}featured{% elif total < 3 and forloop.last %}featured{% endif %} sr {% cycle 'sr-left' 'sr-up' 'sr-right' %} d{{ forloop.counter }}">
 
             <!-- ── ALWAYS VISIBLE: plan summary ── -->
             <div class="price-plan">{{ plan.name }}</div>
-            <div class="price-amount">{% if plan.price == 0 %}Free{% else %}<sup>₹</sup>{{ plan.price|floatformat:0 }}{% endif %}</div>
+
+            <!-- ── PRICE (with hardcoded strikethrough original, frontend-only) ── -->
+            <div class="price-amount">
+              {% if plan.price == 0 %}
+                Free
+              {% else %}
+                {% if plan.price == 999 %}
+                  <span class="price-original"><sup>₹</sup>1999</span>
+                {% elif plan.price == 3999 %}
+                  <span class="price-original"><sup>₹</sup>5999</span>
+                {% elif plan.price == 6999 %}
+                  <span class="price-original"><sup>₹</sup>9999</span>
+                {% endif %}
+                <sup>₹</sup>{{ plan.price|floatformat:0 }}
+              {% endif %}
+            </div>
+
             <div class="price-desc">{% if plan.description %}{{ plan.description }}{% else %}Valid for {{ plan.duration_days }} days.{% endif %}</div>
             <div class="price-divider"></div>
 
@@ -3241,9 +3256,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <span class="price-summary-count">{{ item_count }} item{{ item_count|pluralize }}</span>
               </div>
               {% endif %}
+
               <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Student Dashboard</div>
               <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Performance Reports</div>
               <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Progress Tracking</div>
+
+              <!-- ── Single collapsed question-limit line — visible WITHOUT opening the dropdown ── -->
+              {% if plan.submodule_limit_summary %}
+              <div class="price-included-line price-qlimit-line">
+                <div class="price-check price-qlimit-check"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+                {{ plan.submodule_limit_summary }}
+              </div>
+              {% endif %}
             </div>
 
             <!-- ── STUDY CONTENT: each group is its own dropdown ── -->
@@ -3281,7 +3305,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   {% endif %}
                 {% endif %}
 
-                {% if plan.submodules.exists %}
+                {% if plan.ordered_submodules %}
                   {% if sub_count > 1 %}
                   <div class="price-detail-group">
                     <button class="price-detail-toggle" type="button" onclick="toggleGroupDetails(this)" aria-expanded="false">
@@ -3292,8 +3316,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="price-detail-panel">
                       <div class="price-detail-panel-inner">
                         <ul class="price-feats">
-                          {% for submodule in plan.submodules.all %}
-                            <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ submodule.subject.name }} — {{ submodule.name }}</li>
+                          {% for submodule in plan.ordered_submodules %}
+                            <li class="price-feat">
+                              <div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                              <span class="price-feat-name">{{ submodule.subject.name }} — {{ submodule.name }}</span>
+                             
+                            </li>
                           {% endfor %}
                         </ul>
                       </div>
@@ -3303,15 +3331,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   <div class="price-detail-static">
                     <div class="price-detail-label"><span>Modules</span></div>
                     <ul class="price-feats">
-                      {% for submodule in plan.submodules.all %}
-                        <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ submodule.subject.name }} — {{ submodule.name }}</li>
+                      {% for submodule in plan.ordered_submodules %}
+                        <li class="price-feat">
+                          <div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                          <span class="price-feat-name">{{ submodule.subject.name }} — {{ submodule.name }}</span>
+                          <span class="price-feat-limit {% if submodule.question_limit is None %}unlimited{% endif %}">{{ submodule.question_limit_display }}{% if submodule.question_limit is not None %} Qs{% endif %}</span>
+                        </li>
                       {% endfor %}
                     </ul>
                   </div>
                   {% endif %}
                 {% endif %}
 
-                <!-- ── EXAMS: grouped by exam type (PYQ / MOCK / QUIZ / CUSTOM) ── -->
+                <!-- ── EXAMS: grouped by exam type (PYQ / MOCK / QUIZ / CUSTOM), sorted ascending in the view ── -->
                 {% for group in plan.exam_groups %}
                   {% if group.count > 1 %}
                   <div class="price-detail-group">
@@ -3366,6 +3398,60 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     {% endif %}
   </div>
 </section>
+
+<style>
+  /* ── Strikethrough original price (frontend-only, hardcoded) ── */
+  .price-original {
+  text-decoration: line-through;
+  text-decoration-color: #DC2626;
+  text-decoration-thickness: 1.5px;
+  color: #94A3B8;
+  opacity: 1;
+  font-size: 0.75em;
+  font-weight: 600;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+  /* ── Single collapsed question-limit line (always visible, above the dropdown) ── */
+  .price-qlimit-line {
+    font-weight: 500;
+  }
+  .price-qlimit-check {
+    background: var(--blue-pale);
+  }
+  .price-qlimit-check svg {
+    stroke: var(--blue);
+  }
+
+  /* ── Submodule question-limit badge (inside the dropdown) ── */
+  .price-feats .price-feat {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .price-feat-name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .price-feat-limit {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 800;
+    font-family: var(--font-display);
+    letter-spacing: 0.3px;
+    color: var(--blue);
+    background: var(--blue-pale);
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .price-feat-limit.unlimited {
+    color: #2E7D32;
+    background: rgba(46, 125, 50, 0.10);
+  }
+</style>
+
 <!-- FAQ -->
 <section class="faq" id="faq">
   <div class="container">
@@ -3412,7 +3498,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </section>
-
 <!-- FOOTER -->
 <footer class="footer" id="contact">
   <div class="container">

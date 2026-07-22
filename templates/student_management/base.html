@@ -1127,7 +1127,12 @@
         </li>
     </ul>
 </li>
-                    
+<li>
+    <a href="{% url 'student_management:exam_reviews_list' %}" class="{% if '/student-management/exam-reviews/' in request.path %}active{% endif %}">
+        <i class="icofont-star"></i>
+        Feedback
+    </a>
+</li>                   
                 </ul>
             </div>
         </div>

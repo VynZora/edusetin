@@ -156,3 +156,14 @@ EMAIL_HOST_PASSWORD = 'sjcf tyva aldr ashi'
 DEFAULT_FROM_EMAIL = 'EduSetin <msvishnu673@gmail.com>'
 
 
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'send-plan-expiry-reminders': {
+        'task': 'student_management.tasks.send_plan_expiry_reminders',
+        'schedule': crontab(hour=9, minute=0),  # once a day, 9am
+    },
+}
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = TIME_ZONE  # keep it consistent with your Django TIME_ZONE

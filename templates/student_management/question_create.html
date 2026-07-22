@@ -389,8 +389,6 @@
                 </div>
             </div>
 
-           
-
             <!-- Option A -->
             <div class="mb-2 pb-2 border-bottom">
                 <label class="form-label fw-semibold small">Option A <span class="text-danger">*</span></label>
@@ -542,7 +540,14 @@
                         </div>
                         <div class="col-6 d-flex align-items-end">
                             <div class="form-check form-switch mb-1">
-                                <input class="form-check-input" type="checkbox" name="is_active[]" value="1" checked>
+                                <!-- NOTE: this checkbox no longer has a name attribute.
+                                     Unchecked checkboxes are not submitted at all by
+                                     browsers, which would break positional alignment
+                                     with question_text[], option_a[], etc. in the
+                                     backend. Instead, a paired hidden input below
+                                     always submits "1" or "0", kept in sync via JS. -->
+                                <input class="form-check-input is-active-checkbox" type="checkbox" checked>
+                                <input type="hidden" name="is_active[]" class="is-active-hidden" value="1">
                                 <label class="form-check-label fw-semibold small">Active</label>
                             </div>
                         </div>
@@ -573,6 +578,7 @@
     const submitBtn       = document.getElementById('submitBtn');
     const template        = document.getElementById('questionCardTemplate');
     const qCountBadge     = document.getElementById('qCountBadge');
+    const questionForm    = document.getElementById('questionForm');
 
     let questionCount = 0;
     let currentSlot   = null;
@@ -692,6 +698,21 @@
         card.querySelectorAll('.lib-clear-btn').forEach(btn => {
             btn.addEventListener('click', function () { clearLib(card, this.dataset.slot); });
         });
+
+        /* Keep the hidden is_active[] input in sync with the visible
+           checkbox. This guarantees one is_active[] value is submitted
+           per card, in the same order as the cards appear, regardless
+           of whether the box is checked or not — so it stays aligned
+           by index with question_text[], option_a[], correct_answer[]
+           etc. on the backend. */
+        const activeCheckbox = card.querySelector('.is-active-checkbox');
+        const activeHidden   = card.querySelector('.is-active-hidden');
+        if (activeCheckbox && activeHidden) {
+            activeHidden.value = activeCheckbox.checked ? '1' : '0';
+            activeCheckbox.addEventListener('change', function () {
+                activeHidden.value = this.checked ? '1' : '0';
+            });
+        }
     }
 
     function switchTab(card, slot, mode) {
@@ -737,6 +758,23 @@
         submitBtn.style.display = count > 0 ? '' : 'none';
         if (qCountBadge) qCountBadge.textContent = count + ' added';
     }
+
+    /* Expand every card before native browser validation runs.
+       A collapsed card's fields are display:none, so the browser
+       can't anchor a validation bubble to them and instead renders
+       the message detached at the top of the page. Running this in
+       the CAPTURE phase guarantees it fires before the browser's own
+       required-field check on submit. */
+    questionForm.addEventListener('submit', function (e) {
+        container.querySelectorAll('.question-card').forEach(card => {
+            const body = card.querySelector('.question-card-body');
+            const icon = card.querySelector('.toggle-icon');
+            if (body.style.display === 'none') {
+                body.style.display = '';
+                if (icon) icon.classList.replace('fa-chevron-right', 'fa-chevron-down');
+            }
+        });
+    }, true);
 
     /* Library Picker */
     document.getElementById('pickerSearchInput').addEventListener('input', function () {

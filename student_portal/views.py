@@ -2185,12 +2185,50 @@ def mark_notifications_read(request):
         NotificationRead.objects.get_or_create(student=student, notif_key=key)
 
     return JsonResponse({'ok': True})
+import re
+from django.views.decorators.cache import never_cache
+from django.shortcuts import render
+
+
+import re
+from django.views.decorators.cache import never_cache
+from django.shortcuts import render
+
+
+def _build_submodule_limit_summary(ordered_submodules):
+    """
+    Collapses all per-submodule question limits into a single,
+    human-readable line — no module names, just the numbers.
+    """
+    if not ordered_submodules:
+        return ''
+
+    limits = [sm.question_limit for sm in ordered_submodules]
+    numeric = sorted(l for l in limits if l is not None)
+    has_unlimited = any(l is None for l in limits)
+
+    if numeric and not has_unlimited:
+        if min(numeric) == max(numeric):
+            return f"{numeric[0]} questions per module"
+        return f"{min(numeric)}\u2013{max(numeric)} questions per module"
+
+    if numeric and has_unlimited:
+        if min(numeric) == max(numeric):
+            return f"{numeric[0]} Qs per module (some unlimited)"
+        return f"{min(numeric)}\u2013{max(numeric)} Qs per module (some unlimited)"
+
+    return "Unlimited questions "
+
+
 @never_cache
 def landing_page(request):
     from student_management.models import SubscriptionPlan
 
     plans = SubscriptionPlan.objects.filter(is_active=True).prefetch_related(
-        'subjects', 'submodules', 'exams__exam_type'
+        'subjects',
+        'submodules',
+        'exams__exam_type',
+        'submodule_limits__submodule',
     ).order_by('price')
 
     type_order = ['PYQ', 'MOCK', 'QUIZ', 'CUSTOM']
@@ -2201,7 +2239,31 @@ def landing_page(request):
         'CUSTOM': 'Custom Tests',
     }
 
+    def exam_sort_key(exam):
+        display_name = (exam.custom_name or exam.title or '').strip()
+        match = re.search(r'(\d+)\s*$', display_name)
+        if match:
+            return (0, int(match.group(1)), display_name.lower())
+        return (1, display_name.lower(), exam.id)
+
     for plan in plans:
+        limit_by_submodule_id = {
+            row.submodule_id: row.question_limit
+            for row in plan.submodule_limits.all()
+        }
+
+        ordered_submodules = sorted(
+            plan.submodules.all(),
+            key=lambda sm: sm.name.lower()
+        )
+        for sm in ordered_submodules:
+            limit = limit_by_submodule_id.get(sm.id)
+            sm.question_limit = limit
+            sm.question_limit_display = 'Unlimited' if limit is None else str(limit)
+        plan.ordered_submodules = ordered_submodules
+
+        plan.submodule_limit_summary = _build_submodule_limit_summary(ordered_submodules)
+
         groups = {}
         for exam in plan.exams.all():
             key = exam.exam_type.name
@@ -2210,16 +2272,16 @@ def landing_page(request):
         exam_groups = []
         for key in type_order:
             if key in groups:
+                sorted_exams = sorted(groups[key], key=exam_sort_key)
                 exam_groups.append({
                     'key': key,
                     'label': type_labels.get(key, key),
-                    'exams': groups[key],
-                    'count': len(groups[key]),
+                    'exams': sorted_exams,
+                    'count': len(sorted_exams),
                 })
-        plan.exam_groups = exam_groups  
+        plan.exam_groups = exam_groups
 
     return render(request, 'student_portal/index.html', {'plans': plans})
- 
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -2243,5 +2305,57 @@ from django.shortcuts import render
 def custom_403_view(request, exception=None):
     return render(request, '403.html', status=403)
 
+
+import bleach
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+
+
+@require_POST
+@csrf_protect
+def submit_exam_review(request, attempt_slug):
+    from .models import ExamAttempt, ExamReview
+
+    attempt = get_object_or_404(ExamAttempt, slug=attempt_slug, student=request.user.student)
+
+    # Already reviewed this attempt — don't allow duplicates
+    if ExamReview.objects.filter(attempt=attempt).exists():
+        return JsonResponse({"status": "already_submitted"})
+
+    name    = bleach.clean(request.POST.get("name", "").strip(), tags=[], strip=True)
+    email   = bleach.clean(request.POST.get("email", "").strip(), tags=[], strip=True)
+    phone   = bleach.clean(request.POST.get("phone", "").strip(), tags=[], strip=True)
+    rating  = request.POST.get("rating", "").strip()
+    comment = bleach.clean(request.POST.get("comment", "").strip(), tags=[], strip=True)
+
+    if not name or not email or not rating:
+        return JsonResponse({"status": "error", "message": "Name, email, and rating are required."}, status=400)
+
+    try:
+        rating = int(rating)
+        if rating < 1 or rating > 5:
+            raise ValueError
+    except ValueError:
+        return JsonResponse({"status": "error", "message": "Invalid rating."}, status=400)
+
+    ExamReview.objects.create(
+        student=request.user.student,
+        exam=attempt.exam,
+        attempt=attempt,
+        name=name,
+        email=email,
+        phone_number=phone or None,
+        rating=rating,
+        comment=comment or None,
+    )
+    return JsonResponse({"status": "success"})
+
+
+@require_POST
+@csrf_protect
+def skip_exam_review(request, attempt_slug):
+    """No DB write needed for skip — just acknowledges the client-side dismiss."""
+    return JsonResponse({"status": "skipped"})
 
 

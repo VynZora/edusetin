@@ -280,3 +280,44 @@ class UserSession(models.Model):
 
     def __str__(self):
         return f"{self.user.email} — {self.session_key[:8]}..."
+    
+class ExamReview(models.Model):
+    """Post-exam feedback/testimonial submitted by a student after finishing an exam."""
+
+    RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]
+
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name="exam_reviews",
+    )
+    exam = models.ForeignKey(
+        "student_management.Exam",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviews",
+    )
+    attempt = models.ForeignKey(
+        ExamAttempt,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="review",
+    )
+
+    name         = models.CharField(max_length=150)
+    email        = models.EmailField()
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+
+    rating  = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
+    comment = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = [("student", "attempt")]
+
+    def __str__(self):
+        return f"{self.name} — {self.rating}★ — {self.exam or 'General'}"
