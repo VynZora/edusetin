@@ -2188,9 +2188,36 @@ def mark_notifications_read(request):
 @never_cache
 def landing_page(request):
     from student_management.models import SubscriptionPlan
+
     plans = SubscriptionPlan.objects.filter(is_active=True).prefetch_related(
-        'subjects', 'submodules', 'exams'
+        'subjects', 'submodules', 'exams__exam_type'
     ).order_by('price')
+
+    type_order = ['PYQ', 'MOCK', 'QUIZ', 'CUSTOM']
+    type_labels = {
+        'PYQ': 'Previous Year Exam',
+        'MOCK': 'Mock Tests',
+        'QUIZ': 'Quick Quizzes',
+        'CUSTOM': 'Custom Tests',
+    }
+
+    for plan in plans:
+        groups = {}
+        for exam in plan.exams.all():
+            key = exam.exam_type.name
+            groups.setdefault(key, []).append(exam)
+
+        exam_groups = []
+        for key in type_order:
+            if key in groups:
+                exam_groups.append({
+                    'key': key,
+                    'label': type_labels.get(key, key),
+                    'exams': groups[key],
+                    'count': len(groups[key]),
+                })
+        plan.exam_groups = exam_groups  
+
     return render(request, 'student_portal/index.html', {'plans': plans})
  
 from django.contrib.auth import views as auth_views

@@ -3213,7 +3213,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </section>
 
 <!-- PRICING -->
-<!-- PRICING -->
 <section class="section pricing" id="pricing">
   <div class="container">
     <div class="section-head center">
@@ -3312,18 +3311,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   {% endif %}
                 {% endif %}
 
-                {% if plan.exams.exists %}
-                  {% if exam_count > 1 %}
+                <!-- ── EXAMS: grouped by exam type (PYQ / MOCK / QUIZ / CUSTOM) ── -->
+                {% for group in plan.exam_groups %}
+                  {% if group.count > 1 %}
                   <div class="price-detail-group">
                     <button class="price-detail-toggle" type="button" onclick="toggleGroupDetails(this)" aria-expanded="false">
-                      <span class="price-detail-label-text">Mock Tests</span>
-                      <span class="price-detail-count">{{ exam_count }}</span>
+                      <span class="price-detail-label-text">{{ group.label }}</span>
+                      <span class="price-detail-count">{{ group.count }}</span>
                       <svg class="price-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <div class="price-detail-panel">
                       <div class="price-detail-panel-inner">
                         <ul class="price-feats">
-                          {% for exam in plan.exams.all %}
+                          {% for exam in group.exams %}
                             <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
                           {% endfor %}
                         </ul>
@@ -3332,15 +3332,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   </div>
                   {% else %}
                   <div class="price-detail-static">
-                    <div class="price-detail-label"><span>Mock Tests</span></div>
+                    <div class="price-detail-label"><span>{{ group.label }}</span></div>
                     <ul class="price-feats">
-                      {% for exam in plan.exams.all %}
+                      {% for exam in group.exams %}
                         <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
                       {% endfor %}
                     </ul>
                   </div>
                   {% endif %}
-                {% endif %}
+                {% endfor %}
 
               </div>
             </div>
