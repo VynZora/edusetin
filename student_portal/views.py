@@ -2219,7 +2219,6 @@ def _build_submodule_limit_summary(ordered_submodules):
 
     return "Unlimited questions "
 
-
 @never_cache
 def landing_page(request):
     from student_management.models import SubscriptionPlan
@@ -2252,9 +2251,10 @@ def landing_page(request):
             for row in plan.submodule_limits.all()
         }
 
+        # Group by subject alphabetically, then module name alphabetically within each subject
         ordered_submodules = sorted(
             plan.submodules.all(),
-            key=lambda sm: sm.name.lower()
+            key=lambda sm: (sm.subject.name.lower(), sm.name.lower())
         )
         for sm in ordered_submodules:
             limit = limit_by_submodule_id.get(sm.id)
