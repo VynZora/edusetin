@@ -907,7 +907,18 @@ body.video-modal-lock { overflow: hidden; }
   text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px;
 }
 
-.price-feats { display: flex; flex-direction: column; gap: 10px; }
+.price-feats {
+  display: flex; flex-direction: column; gap: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--blue-light, var(--blue)) transparent;
+}
+.price-feats::-webkit-scrollbar { width: 5px; }
+.price-feats::-webkit-scrollbar-track { background: transparent; }
+.price-feats::-webkit-scrollbar-thumb { background: var(--grey-200); border-radius: 10px; }
+.price-feats::-webkit-scrollbar-thumb:hover { background: var(--blue-light, var(--blue)); }
 .price-feat { display: flex; align-items: center; gap: 9px; font-size: 0.9rem; color: #0B1E3D; font-family: var(--font-body); font-weight: 400; }
 
 .btn-price {
