@@ -87,79 +87,96 @@
         <span class="badge bg-primary fw-normal" id="filterBadgeText"></span>
     </div>
 
-    <!-- Table -->
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle" id="submodulesTable">
-            <thead class="table-light">
-                <tr>
-                    <th style="width:60px;">Image</th>
-                    <th>Name</th>
-                    <th>Subject</th>
-                    <th>Order</th>
-                    <th>Created at</th>
-                    <th>Status</th>
-                    <th class="text-end">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="submodulesTableBody">
-                {% for submodule in submodules %}
-                <tr
-                    data-name="{{ submodule.name|lower }}"
-                    data-subject="{{ submodule.subject.name|lower }}"
-                    data-subject-id="{{ submodule.subject.id }}"
-                    data-status="{% if submodule.is_active %}active{% else %}inactive{% endif %}"
-                     data-created="{{ submodule.created_at|date:'Y-m-d' }}"
-                >
-                    <td>
-                        {% if submodule.image %}
-                            <img src="{{ submodule.image.url }}" alt="{{ submodule.name }}"
-                                 style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
-                        {% else %}
-                            <div class="d-flex align-items-center justify-content-center bg-light rounded"
-                                 style="width:40px;height:40px;">
-                                <i class="fas fa-image text-muted small"></i>
-                            </div>
-                        {% endif %}
-                    </td>
-                    <td class="fw-semibold">{{ submodule.name }}</td>
-                    <td>{{ submodule.subject.name }}</td>
-                    <td>{{ submodule.order }}</td>
-                    <td class="text-muted small">{{ submodule.created_at|date:"M j, Y" }}</td>
-                    <td>
-                        {% if submodule.is_active %}
-                            <span class="badge bg-success">Active</span>
-                        {% else %}
-                            <span class="badge bg-secondary">Inactive</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-end">
-    <a href="{% url 'student_management:submodule_questions_pdf' submodule.slug %}"
-       class="btn btn-sm btn-outline-success" title="Download questions as PDF">
-        <i class="fas fa-file-pdf"></i>
-    </a>
-    <a href="{% url 'student_management:submodule_edit' submodule.slug %}"
-       class="btn btn-sm btn-outline-primary" title="Edit">
-        <i class="fas fa-edit"></i>
-    </a>
-    <form method="post"
-                              action="{% url 'student_management:submodule_delete' submodule.slug %}"
-                              class="d-inline"
-                              onsubmit="return confirm('Delete submodule \"{{ submodule.name|escapejs }}\"? This cannot be undone.');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center py-4 text-muted">No submodules found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Bulk action bar -->
+    <div id="bulkActionBar" class="alert alert-primary d-none d-flex align-items-center justify-content-between py-2 px-3 mb-2">
+        <span><strong id="selectedCount">0</strong> submodule(s) selected</span>
+        <button type="button" class="btn btn-sm btn-danger" id="bulkDeleteTriggerBtn">
+            <i class="fas fa-trash me-1"></i> Delete Selected
+        </button>
     </div>
+
+    <!-- Table -->
+    <form id="submoduleBulkDeleteForm" method="post" action="{% url 'student_management:submodule_bulk_delete' %}">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle" id="submodulesTable">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:36px;">
+                            <input type="checkbox" class="form-check-input" id="selectAllCheckbox">
+                        </th>
+                        <th style="width:60px;">Image</th>
+                        <th>Name</th>
+                        <th>Subject</th>
+                        <th>Order</th>
+                        <th>Created at</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="submodulesTableBody">
+                    {% for submodule in submodules %}
+                    <tr
+                        data-name="{{ submodule.name|lower }}"
+                        data-subject="{{ submodule.subject.name|lower }}"
+                        data-subject-id="{{ submodule.subject.id }}"
+                        data-status="{% if submodule.is_active %}active{% else %}inactive{% endif %}"
+                        data-created="{{ submodule.created_at|date:'Y-m-d' }}"
+                    >
+                        <td>
+                            <input type="checkbox" class="form-check-input row-checkbox"
+                                   name="submodule_slugs" value="{{ submodule.slug }}">
+                        </td>
+                        <td>
+                            {% if submodule.image %}
+                                <img src="{{ submodule.image.url }}" alt="{{ submodule.name }}"
+                                     style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
+                            {% else %}
+                                <div class="d-flex align-items-center justify-content-center bg-light rounded"
+                                     style="width:40px;height:40px;">
+                                    <i class="fas fa-image text-muted small"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="fw-semibold">{{ submodule.name }}</td>
+                        <td>{{ submodule.subject.name }}</td>
+                        <td>{{ submodule.order }}</td>
+                        <td class="text-muted small">{{ submodule.created_at|date:"M j, Y" }}</td>
+                        <td>
+                            {% if submodule.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'student_management:submodule_questions_pdf' submodule.slug %}"
+                               class="btn btn-sm btn-outline-success" title="Download questions as PDF">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                            <a href="{% url 'student_management:submodule_edit' submodule.slug %}"
+                               class="btn btn-sm btn-outline-primary" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger single-delete-btn"
+                                    title="Delete"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    data-name="{{ submodule.name|escapejs }}"
+                                    data-url="{% url 'student_management:submodule_delete' submodule.slug %}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">No submodules found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
 
     <!-- Footer: count + pagination -->
     <div class="d-flex flex-wrap align-items-center justify-content-between mt-2 gap-2">
@@ -167,6 +184,53 @@
         <nav id="paginationNav" aria-label="Submodules pagination"></nav>
     </div>
 
+</div>
+
+<!-- Single-item delete confirmation modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" id="deleteForm" action="">
+                {% csrf_token %}
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Confirm Deletion
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="mb-1">Are you sure you want to delete the submodule <strong id="deleteSubmoduleName"></strong>?</p>
+                    <p class="text-danger small mb-0">This will permanently delete all associated questions. This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Yes, Delete Submodule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk delete confirmation modal -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title text-danger" id="bulkDeleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p class="mb-1">Are you sure you want to delete <strong id="bulkDeleteCount">0</strong> selected submodule(s)?</p>
+                <p class="text-danger small mb-0">This will permanently delete all associated questions. This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmBulkDeleteBtn">Yes, Delete Selected</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -182,6 +246,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const filterBadgeText= document.getElementById("filterBadgeText");
     const rowCountLabel  = document.getElementById("rowCountLabel");
     const paginationNav  = document.getElementById("paginationNav");
+    const bulkActionBar  = document.getElementById("bulkActionBar");
+    const selectedCountEl= document.getElementById("selectedCount");
+    const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+    const bulkDeleteForm = document.getElementById("submoduleBulkDeleteForm");
 
     if (!tableBody) return;
 
@@ -208,7 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function resetHighlights() {
         allRows.forEach(row => {
-            [1, 2].forEach(n => {
+            [3, 4].forEach(n => {
                 const cell = row.querySelector(`td:nth-child(${n})`);
                 if (cell && cell.hasAttribute("data-original"))
                     cell.innerHTML = cell.getAttribute("data-original");
@@ -288,6 +356,70 @@ document.addEventListener("DOMContentLoaded", function () {
         paginationNav.appendChild(ul);
     }
 
+    /* ── bulk selection ── */
+    function getRowCheckboxes() {
+        return Array.from(tableBody.querySelectorAll(".row-checkbox"));
+    }
+
+    function getVisibleRowCheckboxes() {
+        return getRowCheckboxes().filter(cb => cb.closest("tr").style.display !== "none");
+    }
+
+    function updateBulkBar() {
+        const checked = getRowCheckboxes().filter(cb => cb.checked);
+        selectedCountEl.textContent = checked.length;
+        bulkActionBar.classList.toggle("d-none", checked.length === 0);
+
+        const visible = getVisibleRowCheckboxes();
+        const visibleChecked = visible.filter(cb => cb.checked);
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = visible.length > 0 && visibleChecked.length === visible.length;
+            selectAllCheckbox.indeterminate = visibleChecked.length > 0 && visibleChecked.length < visible.length;
+        }
+    }
+
+    tableBody.addEventListener("change", e => {
+        if (e.target.classList.contains("row-checkbox")) updateBulkBar();
+    });
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener("change", () => {
+            getVisibleRowCheckboxes().forEach(cb => { cb.checked = selectAllCheckbox.checked; });
+            updateBulkBar();
+        });
+    }
+
+    /* ── bulk delete modal ── */
+    const bulkDeleteTriggerBtn = document.getElementById("bulkDeleteTriggerBtn");
+    const bulkDeleteModalEl    = document.getElementById("bulkDeleteModal");
+    const bulkDeleteCountEl    = document.getElementById("bulkDeleteCount");
+    const confirmBulkDeleteBtn = document.getElementById("confirmBulkDeleteBtn");
+    const bulkDeleteModal      = new bootstrap.Modal(bulkDeleteModalEl);
+
+    if (bulkDeleteTriggerBtn) {
+        bulkDeleteTriggerBtn.addEventListener("click", () => {
+            const count = getRowCheckboxes().filter(cb => cb.checked).length;
+            if (count === 0) return;
+            bulkDeleteCountEl.textContent = count;
+            bulkDeleteModal.show();
+        });
+    }
+
+    if (confirmBulkDeleteBtn) {
+        confirmBulkDeleteBtn.addEventListener("click", () => {
+            bulkDeleteForm.submit();
+        });
+    }
+
+    /* ── single delete modal ── */
+    document.getElementById('deleteModal').addEventListener('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        const name = btn.getAttribute('data-name');
+        const url  = btn.getAttribute('data-url');
+        document.getElementById('deleteSubmoduleName').textContent = '"' + name + '"';
+        document.getElementById('deleteForm').action = url;
+    });
+
     /* ── main render ── */
     function render() {
         resetHighlights();
@@ -309,8 +441,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (i >= start && i < end) {
                 row.style.display = "";
                 if (activeSearch) {
-                    highlightCell(row.querySelector("td:nth-child(2)"), activeSearch);
                     highlightCell(row.querySelector("td:nth-child(3)"), activeSearch);
+                    highlightCell(row.querySelector("td:nth-child(4)"), activeSearch);
                 }
             }
         });
@@ -318,7 +450,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (total === 0) {
             const tr = document.createElement("tr");
             tr.id = "noResultRow";
-            tr.innerHTML = `<td colspan="7" class="text-center py-5 text-muted">
+            tr.innerHTML = `<td colspan="8" class="text-center py-5 text-muted">
                 <i class="fas fa-search fa-2x mb-2 d-block opacity-25"></i>
                 No submodules match the current filters.
                 <div class="small mt-1">Try adjusting your search or filters.</div>
@@ -332,6 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         updateBadge();
         renderPagination(total);
+        updateBulkBar();
     }
 
     /* ── events ── */

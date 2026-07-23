@@ -58,6 +58,7 @@ urlpatterns = [
     path('submodules/', views.submodule_list, name='submodule_list'),
 path('submodules/add/', views.submodule_add, name='submodule_add'),
 path('submodules/<slug:slug>/edit/', views.submodule_edit, name='submodule_edit'),
+path('submodules/bulk-delete/', views.submodule_bulk_delete, name='submodule_bulk_delete'),
 path('submodules/<slug:slug>/delete/', views.submodule_delete, name='submodule_delete'),
 path(
     'api/submodules-by-subject/',

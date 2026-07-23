@@ -2190,11 +2190,6 @@ from django.views.decorators.cache import never_cache
 from django.shortcuts import render
 
 
-import re
-from django.views.decorators.cache import never_cache
-from django.shortcuts import render
-
-
 def _build_submodule_limit_summary(ordered_submodules):
     """
     Collapses all per-submodule question limits into a single,
@@ -2219,6 +2214,7 @@ def _build_submodule_limit_summary(ordered_submodules):
 
     return "Full Set questions "
 
+
 @never_cache
 def landing_page(request):
     from student_management.models import SubscriptionPlan
@@ -2230,13 +2226,18 @@ def landing_page(request):
         'submodule_limits__submodule',
     ).order_by('price')
 
+    plans_list = list(plans)  # materialize once so we can slice/index for cumulative logic
+
     type_order = ['PYQ', 'MOCK', 'QUIZ', 'CUSTOM']
     type_labels = {
         'PYQ': 'Previous Year Exam',
         'MOCK': 'Mock Tests',
         'QUIZ': 'Quick Quizzes',
-        'CUSTOM': 'Custom Tests',
+        'CUSTOM': 'Custom Tests',  # fallback only, used when custom_name is blank
     }
+
+    # Submodules whose NAME (not subject) matches these go under "Revision"
+    REVISION_NAMES = ['Biology', 'Chemistry', 'Physics', 'Mathematics']
 
     def exam_sort_key(exam):
         display_name = (exam.custom_name or exam.title or '').strip()
@@ -2245,43 +2246,110 @@ def landing_page(request):
             return (0, int(match.group(1)), display_name.lower())
         return (1, display_name.lower(), exam.id)
 
-    for plan in plans:
+    def build_revision_limit_summary(revision_submodules):
+        """
+        e.g. 'Biology: Full Set · Chemistry: 40 Qs · Physics: Full Set · Mathematics: 30 Qs'
+        """
+        if not revision_submodules:
+            return ''
+        parts = []
+        for sm in revision_submodules:
+            limit_txt = 'Full Set' if sm.question_limit is None else f'{sm.question_limit} Qs'
+            parts.append(f'{sm.name}: {limit_txt}')
+        return ' · '.join(parts)
+
+    for i, plan in enumerate(plans_list):
         limit_by_submodule_id = {
             row.submodule_id: row.question_limit
             for row in plan.submodule_limits.all()
         }
 
-        # Group by subject alphabetically, then module name alphabetically within each subject
-        ordered_submodules = sorted(
+        all_submodules = sorted(
             plan.submodules.all(),
             key=lambda sm: (sm.subject.name.lower(), sm.name.lower())
         )
-        for sm in ordered_submodules:
+        for sm in all_submodules:
             limit = limit_by_submodule_id.get(sm.id)
             sm.question_limit = limit
             sm.question_limit_display = 'Unlimited' if limit is None else str(limit)
-        plan.ordered_submodules = ordered_submodules
 
-        plan.submodule_limit_summary = _build_submodule_limit_summary(ordered_submodules)
+        # ── REVISION: submodules named exactly Biology / Chemistry / Physics / Mathematics ──
+        revision_submodules = [sm for sm in all_submodules if sm.name in REVISION_NAMES]
+        name_order = {n: i for i, n in enumerate(REVISION_NAMES)}
+        revision_submodules.sort(key=lambda sm: name_order.get(sm.name, len(REVISION_NAMES)))
+        plan.revision_submodules = revision_submodules
+        plan.revision_limit_summary = build_revision_limit_summary(revision_submodules)
 
+        # Modules list excludes the revision submodules so nothing is duplicated
+        revision_ids = {sm.id for sm in revision_submodules}
+        plan.ordered_submodules = [sm for sm in all_submodules if sm.id not in revision_ids]
+
+        plan.submodule_limit_summary = _build_submodule_limit_summary(all_submodules)
+
+        # ── Group exams by exam_type. For CUSTOM types, split further by the
+        #    individual ExamType (since each can have its own custom_name),
+        #    and label the group with that exact custom_name. ──
         groups = {}
         for exam in plan.exams.all():
-            key = exam.exam_type.name
-            groups.setdefault(key, []).append(exam)
+            et = exam.exam_type
+            if et.name == 'CUSTOM':
+                key = f'CUSTOM-{et.id}'
+                label = (et.custom_name or '').strip() or type_labels['CUSTOM']
+                sort_key = ('CUSTOM', label.lower())
+            else:
+                key = et.name
+                label = type_labels.get(et.name, et.name)
+                sort_key = (et.name,)
+
+            if key not in groups:
+                groups[key] = {'label': label, 'exams': [], 'sort_key': sort_key, 'type_name': et.name}
+            groups[key]['exams'].append(exam)
+
+        base_order = {name: i for i, name in enumerate(type_order)}
+
+        def group_order_key(item):
+            key, data = item
+            base = base_order.get(data['type_name'], len(type_order))
+            if data['type_name'] == 'CUSTOM':
+                return (base, data['label'].lower())
+            return (base, '')
 
         exam_groups = []
-        for key in type_order:
-            if key in groups:
-                sorted_exams = sorted(groups[key], key=exam_sort_key)
-                exam_groups.append({
-                    'key': key,
-                    'label': type_labels.get(key, key),
-                    'exams': sorted_exams,
-                    'count': len(sorted_exams),
-                })
+        for key, data in sorted(groups.items(), key=group_order_key):
+            sorted_exams = sorted(data['exams'], key=exam_sort_key)
+            exam_groups.append({
+                'key': key,
+                'label': data['label'],
+                'exams': sorted_exams,
+                'count': len(sorted_exams),
+            })
         plan.exam_groups = exam_groups
 
-    return render(request, 'student_portal/index.html', {'plans': plans})
+        # ── NEW: cumulative content inherited from cheaper plans ──────────
+        seen_subject_ids   = set(s.id for s in plan.subjects.all())
+        seen_submodule_ids = set(sm.id for sm in plan.submodules.all())
+        seen_exam_ids      = set(e.id for e in plan.exams.all())
+
+        cumulative_count = 0
+        for cheaper in plans_list[:i]:  # every plan priced below this one
+            for subj in cheaper.subjects.all():
+                if subj.id not in seen_subject_ids:
+                    seen_subject_ids.add(subj.id)
+                    cumulative_count += 1
+            for sm in cheaper.submodules.all():
+                if sm.id not in seen_submodule_ids:
+                    seen_submodule_ids.add(sm.id)
+                    cumulative_count += 1
+            for ex in cheaper.exams.all():
+                if ex.id not in seen_exam_ids:
+                    seen_exam_ids.add(ex.id)
+                    cumulative_count += 1
+
+        plan.inherited_plan_names = [p.name for p in plans_list[:i]]
+        plan.cumulative_extra_count = cumulative_count
+        # ── END NEW ─────────────────────────────────────────────────────
+
+    return render(request, 'student_portal/index.html', {'plans': plans_list})
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.urls import reverse_lazy

@@ -16,6 +16,7 @@ from student_portal.models import ExamAttempt,QuizAttempt
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .decorators import admin_login_required
+from openpyxl.utils import get_column_letter
 
 
 
@@ -2312,13 +2313,68 @@ def submodule_delete(request, slug):
 
     if request.method == 'POST':
         name = submodule.name
+        questions = Question.objects.filter(submodule=submodule)
+        question_count = questions.count()
+
+        
+        for question in questions:
+            for media in question.media_files.all():
+                # Only delete the physical file if it's a manual upload —
+                # never delete a MediaLibrary asset's file, since that
+                # asset may be reused by other questions.
+                if not media.media_library_id and media.image:
+                    media.image.delete(save=False)
+
+        # Deleting the questions cascades: QuestionMedia (CASCADE),
+        # PendingMediaReference (CASCADE), and removes them from any
+        # Exam.selected_questions M2M automatically.
+        questions.delete()
+
         if submodule.image:
             submodule.image.delete(save=False)
         submodule.delete()
-        messages.success(request, f'Submodule "{name}" was deleted successfully.')
+
+        if question_count:
+            messages.success(
+                request,
+                f'Submodule "{name}" and its {question_count} question(s) were deleted successfully.'
+            )
+        else:
+            messages.success(request, f'Submodule "{name}" was deleted successfully.')
     else:
         messages.error(request, 'Invalid request method.')
 
+    return redirect('student_management:submodule_list')
+
+
+@admin_login_required
+def submodule_bulk_delete(request):
+    if request.method == 'POST':
+        slugs = request.POST.getlist('submodule_slugs')
+        if not slugs:
+            messages.warning(request, "No submodules were selected.")
+        else:
+            submodules = SubModule.objects.filter(slug__in=slugs)
+            sm_count = submodules.count()
+
+            questions = Question.objects.filter(submodule__in=submodules)
+            q_count = questions.count()
+
+            for question in questions:
+                for media in question.media_files.all():
+                    if not media.media_library_id and media.image:
+                        media.image.delete(save=False)
+            questions.delete()
+
+            for sm in submodules:
+                if sm.image:
+                    sm.image.delete(save=False)
+            submodules.delete()
+
+            messages.success(
+                request,
+                f"{sm_count} submodule(s) and {q_count} related question(s) deleted successfully."
+            )
     return redirect('student_management:submodule_list')
 @login_required(login_url='admin_login')
 def submodules_by_subject_api(request):
@@ -2967,20 +3023,21 @@ def student_export_excel(request):
     wb.save(response)
     return response
 
-admin_login_required
+@admin_login_required
 def question_export_excel(request):
     questions = (
         Question.objects
         .select_related('subject', 'submodule')
+        .prefetch_related('media_files', 'media_files__media_library')
         .order_by('-created_at')
     )
- 
+
     # ── apply the same filters the frontend sends ─────────────────────────
     subject_id   = request.GET.get('subject',   '').strip()
     submodule_id = request.GET.get('submodule', '').strip()
     source       = request.GET.get('source',    '').strip()
     year         = request.GET.get('year',      '').strip()
- 
+
     if subject_id:
         questions = questions.filter(subject_id=subject_id)
     if submodule_id:
@@ -2989,42 +3046,138 @@ def question_export_excel(request):
         questions = questions.filter(source=source)
     if year:
         questions = questions.filter(year=year)
- 
+
+    # Maps requires_* field -> media_type, same as SLOT_MAP used elsewhere
+    MEDIA_SLOTS = [
+        ('requires_question_image',  'QUESTION'),
+        ('requires_option_a_image',  'OPTION_A'),
+        ('requires_option_b_image',  'OPTION_B'),
+        ('requires_option_c_image',  'OPTION_C'),
+        ('requires_option_d_image',  'OPTION_D'),
+        ('requires_option_e_image',  'OPTION_E'),
+    ]
+
     # ── build workbook ────────────────────────────────────────────────────
     wb = Workbook()
     ws = wb.active
     ws.title = "Questions"
- 
-    headers = ["ID", "Subject", "Submodule", "Question Text", "Source", "Year", "Status"]
-    for col, h in enumerate(headers, 1):
-        c = ws.cell(row=1, column=col, value=h)
-        c.font      = Font(bold=True, color="FFFFFF")
-        c.fill      = PatternFill("solid", start_color="2563EB")
-        c.alignment = Alignment(horizontal="center")
- 
+
+    headers = [
+        'Subject',
+        'Submodule',
+        'Question',
+        'Option A',
+        'Option B',
+        'Option C',
+        'Option D',
+        'Option E',
+        'Correct Answer',
+        'Source',
+        'Year',
+        'Explanation',
+        'Has Question Image',
+        'Has Option A Image',
+        'Has Option B Image',
+        'Has Option C Image',
+        'Has Option D Image',
+        'Has Option E Image',
+        'Question Image Name',
+        'Option A Image Name',
+        'Option B Image Name',
+        'Option C Image Name',
+        'Option D Image Name',
+        'Option E Image Name',
+        'Question Image URL',
+        'Option A Image URL',
+        'Option B Image URL',
+        'Option C Image URL',
+        'Option D Image URL',
+        'Option E Image URL',
+    ]
+
+    header_fill = PatternFill(start_color="1D4ED8", end_color="1D4ED8", fill_type="solid")
+    new_col_fill = PatternFill(start_color="7C3AED", end_color="7C3AED", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    center_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+    new_cols = {
+        'Question Image Name', 'Option A Image Name', 'Option B Image Name',
+        'Option C Image Name', 'Option D Image Name', 'Option E Image Name',
+        'Question Image URL', 'Option A Image URL', 'Option B Image URL',
+        'Option C Image URL', 'Option D Image URL', 'Option E Image URL',
+    }
+
+    for col_idx, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_idx, value=header)
+        cell.font = header_font
+        cell.alignment = center_align
+        cell.fill = new_col_fill if header in new_cols else header_fill
+
+    ws.row_dimensions[1].height = 35
+
+    def _absolute_url(file_field):
+        """Build an absolute-ish URL for an image field, falling back to relative path."""
+        if not file_field:
+            return ''
+        try:
+            url = file_field.url
+        except Exception:
+            return ''
+        if url.startswith('http://') or url.startswith('https://'):
+            return url
+        return request.build_absolute_uri(url)
+
     for q in questions:
-        ws.append([
-            q.id,
-            q.subject.name      if q.subject   else "—",
-            q.submodule.name    if q.submodule else "—",
+        media_map = {m.media_type: m for m in q.media_files.all()}
+
+        row = [
+            q.subject.name if q.subject else '',
+            q.submodule.name if q.submodule else '',
             q.question_text,
-            q.source            or "—",
-            q.year              or "—",
-            "Active"            if q.is_active else "Inactive",
-        ])
- 
-    # ── auto-size columns ─────────────────────────────────────────────────
-    for col in ws.columns:
-        max_len = max((len(str(cell.value or "")) for cell in col), default=0)
-        ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 60)
- 
+            q.option_a,
+            q.option_b,
+            q.option_c,
+            q.option_d,
+            q.option_e or '',
+            q.correct_answer,
+            q.source or '',
+            q.year or '',
+            q.explanation or '',
+        ]
+
+        # Has <slot> Image  — YES/NO based on the requires_* flags
+        for field, media_type in MEDIA_SLOTS:
+            row.append('YES' if getattr(q, field) else 'NO')
+
+        # <slot> Image Name — MediaLibrary asset name, if the slot uses one
+        for field, media_type in MEDIA_SLOTS:
+            media_obj = media_map.get(media_type)
+            row.append(media_obj.media_library.name if media_obj and media_obj.media_library_id else '')
+
+        # <slot> Image URL — direct/uploaded image URL (or library asset URL as fallback)
+        for field, media_type in MEDIA_SLOTS:
+            media_obj = media_map.get(media_type)
+            url = ''
+            if media_obj:
+                if media_obj.image:
+                    url = _absolute_url(media_obj.image)
+                elif media_obj.media_library_id and media_obj.media_library.image:
+                    url = _absolute_url(media_obj.media_library.image)
+            row.append(url)
+
+        ws.append(row)
+
+    # ── column widths (match the sample template) ──────────────────────────
+    col_widths = [20, 40, 20, 20, 20, 20, 20, 15, 12, 8, 30, 18, 18, 18, 18, 18, 18, 22, 22, 22, 22, 22, 22, 35, 35, 35, 35, 35, 35]
+    for i, width in enumerate(col_widths, 1):
+        ws.column_dimensions[get_column_letter(i)].width = width
+
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
     response["Content-Disposition"] = 'attachment; filename="questions_export.xlsx"'
     wb.save(response)
     return response
- 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.conf import settings
