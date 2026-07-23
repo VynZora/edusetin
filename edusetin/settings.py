@@ -154,6 +154,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'msvishnu673@gmail.com'
 EMAIL_HOST_PASSWORD = 'sjcf tyva aldr ashi' 
 DEFAULT_FROM_EMAIL = 'EduSetin <msvishnu673@gmail.com>'
+RAZORPAY_KEY_ID = "rzp_live_T6g0mKf9I9cZV9"
+RAZORPAY_KEY_SECRET = "LsITc6tgyzTiBBv9dyf6hEjH"
 
 from celery.schedules import crontab
 
