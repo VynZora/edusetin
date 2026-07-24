@@ -168,6 +168,52 @@
     .ios-switch.on .thumb {
         transform: translateX(24px);
     }
+
+    /* Per-submodule row + override input */
+    .submodule-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .submodule-row:hover {
+        background: #f9fafb;
+    }
+    .submodule-row.has-override {
+        background: #fef9ec;
+        border-color: #fde68a;
+    }
+    .submodule-row .sm-limit-input {
+        width: 78px;
+        flex-shrink: 0;
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        text-align: center;
+    }
+    .submodule-row .form-check {
+        min-width: 0;
+    }
+    .submodule-row .form-check-label {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+    .override-badge {
+        font-size: 10px;
+        font-weight: 700;
+        color: #b45309;
+        background: #fef3c7;
+        border-radius: 6px;
+        padding: 1px 6px;
+        margin-left: 6px;
+        display: none;
+    }
+    .submodule-row.has-override .override-badge {
+        display: inline-block;
+    }
 </style>
 {% endblock %}
 
@@ -274,17 +320,21 @@
                     </button>
                     <div class="accordion-body">
 
-                        <!-- Shared question limit, applies to every submodule checked below -->
+                        <!-- Shared question limit, applies to every submodule checked below
+                             UNLESS that submodule has its own override value set -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold" style="font-size:13px;">
                                 Question Limit Per Submodule
                             </label>
                             <input type="number" min="0" name="submodule_question_limit"
+                                   id="shared-limit-input"
                                    placeholder="No limit"
                                    value="{% if existing_limit_value is not None %}{{ existing_limit_value }}{% endif %}"
                                    class="form-control" style="max-width:200px;">
                             <p class="text-muted small mt-1 mb-0">
-                                Each selected submodule below will allow up to this many questions per quiz. Leave blank for no limit.
+                                Applies to every selected submodule below by default. Give an individual
+                                submodule its own number (in the box next to it) to override this just for
+                                that one — leave that box blank to keep following this shared limit.
                             </p>
                         </div>
 
@@ -292,14 +342,24 @@
                         <div class="row g-2">
                             {% for sm in submodules %}
                             <div class="col-sm-6 col-md-4">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input"
-                                           name="submodules" value="{{ sm.id }}"
-                                           id="sm_{{ sm.id }}"
-                                           {% if sm.id in selected_submodule_ids %}checked{% endif %}>
-                                    <label class="form-check-label" for="sm_{{ sm.id }}">
-                                        {{ sm.subject.name }} → {{ sm.name }}
-                                    </label>
+                                <div class="submodule-row{% if sm.override_limit is not None %} has-override{% endif %}"
+                                     data-sm-row>
+                                    <div class="form-check mb-0">
+                                        <input type="checkbox" class="form-check-input"
+                                               name="submodules" value="{{ sm.id }}"
+                                               id="sm_{{ sm.id }}"
+                                               {% if sm.id in selected_submodule_ids %}checked{% endif %}>
+                                        <label class="form-check-label" for="sm_{{ sm.id }}">
+                                            {{ sm.subject.name }} → {{ sm.name }}
+                                        </label>
+                                        <span class="override-badge">custom</span>
+                                    </div>
+                                    <input type="number" min="0"
+                                           class="form-control sm-limit-input"
+                                           name="submodule_limit_{{ sm.id }}"
+                                           placeholder="Shared"
+                                           title="Leave blank to use the shared limit above"
+                                           {% if sm.override_limit is not None %}value="{{ sm.override_limit }}"{% endif %}>
                                 </div>
                             </div>
                             {% endfor %}
@@ -468,6 +528,22 @@
     if (realCheckbox) {
         applyStatusUI(realCheckbox.checked);
     }
+
+    /* ---------- Per-submodule override highlighting ----------
+       Live-toggles the "has-override" style + "custom" badge as the
+       admin types into a submodule's own limit box, so it's obvious
+       at a glance which ones no longer follow the shared limit. */
+    document.querySelectorAll('[data-sm-row]').forEach(function (row) {
+        var input = row.querySelector('.sm-limit-input');
+        if (!input) return;
+        input.addEventListener('input', function () {
+            if (input.value.trim() !== '') {
+                row.classList.add('has-override');
+            } else {
+                row.classList.remove('has-override');
+            }
+        });
+    });
 
 })();
 </script>

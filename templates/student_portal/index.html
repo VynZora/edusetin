@@ -810,9 +810,26 @@ body.video-modal-lock { overflow: hidden; }
 .price-card.featured { background: #fff; border-color: var(--grey-200); }
 .price-card.featured:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
 .price-popular {
-  display: inline-block; position: absolute; top: 20px; right: -34px; transform: rotate(45deg);
-  background: var(--blue); color: #fff; font-size: 10.5px; font-weight: 800; font-family: var(--font-display);
-  letter-spacing: 1px; text-transform: uppercase; padding: 5px 40px;
+  position: absolute;
+  top: 24px;
+  right: -46px;
+  width: 170px;              /* tweak to fit new text, see options below */
+  transform: rotate(45deg);
+  background: var(--blue);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 7px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .price-popular { top: 18px; right: -40px; width: 150px; font-size: 9.5px; padding: 5px 0; }
 }
 .price-plan { font-size: 0.92rem; font-weight: 800; font-family: var(--font-display); color: var(--blue); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
 .price-amount { font-family: var(--font-display); font-size: 2.6rem; font-weight: 600; color: #0B1E3D; line-height: 1; margin-bottom: 7px; letter-spacing: -3px; }
@@ -2199,30 +2216,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <div class="why-grid subject-grid">
 
+          <!-- Row 1: Biology · Chemistry · Physics & Mathematics -->
           <div class="subject-row row-3">
             <div class="why-card sr sr-left d1">
-              <div class="why-card-header">
-                <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-2-8-1v13c3-1 6-.5 8 1 2-1.5 5-2 8-1V5c-3-1-6-.5-8 1Z"/><path d="M12 6v13"/></svg></div>
-                <h3>Reading &amp; General Knowledge</h3>
-              </div>
-              <div class="q-count-row">
-                <span class="q-count-num">4</span>
-                <span class="q-count-label">questions</span>
-              </div>
-            </div>
-
-            <div class="why-card sr sr-up d2">
-              <div class="why-card-header">
-                <div class="why-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></div>
-                <h3>Logical Reasoning &amp; Problem Solving</h3>
-              </div>
-              <div class="q-count-row">
-                <span class="q-count-num">5</span>
-                <span class="q-count-label">questions</span>
-              </div>
-            </div>
-
-            <div class="why-card sr sr-right d3">
               <div class="why-card-header">
                 <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M6 3c0 6 12 12 12 18M18 3c0 6-12 12-12 18"/><path d="M7.5 6.5h3M7.5 17.5h3M13.5 6.5h3M13.5 17.5h3M9 11h1.5M13.5 11H15M9 13h1.5M13.5 13H15"/></svg></div>
                 <h3>Biology</h3>
@@ -2232,10 +2228,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <span class="q-count-label">questions</span>
               </div>
             </div>
-          </div>
 
-          <div class="subject-row row-2">
-            <div class="why-card sr sr-left d2">
+            <div class="why-card sr sr-up d2">
               <div class="why-card-header">
                 <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M10 2v6.2L4.5 18.3A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.8-2.7L14 8.2V2"/><path d="M9 2h6"/><path d="M8.5 15h7"/></svg></div>
                 <h3>Chemistry</h3>
@@ -2246,13 +2240,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               </div>
             </div>
 
-            <div class="why-card sr sr-up d3">
+            <div class="why-card sr sr-right d3">
               <div class="why-card-header">
                 <div class="why-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg></div>
                 <h3>Physics &amp; Mathematics</h3>
               </div>
               <div class="q-count-row">
                 <span class="q-count-num">13</span>
+                <span class="q-count-label">questions</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Logical Reasoning · Reading & General Knowledge -->
+          <div class="subject-row row-2">
+            <div class="why-card sr sr-left d2">
+              <div class="why-card-header">
+                <div class="why-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></div>
+                <h3>Logical Reasoning &amp; Problem Solving</h3>
+              </div>
+              <div class="q-count-row">
+                <span class="q-count-num">5</span>
+                <span class="q-count-label">questions</span>
+              </div>
+            </div>
+
+            <div class="why-card sr sr-up d3">
+              <div class="why-card-header">
+                <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-2-8-1v13c3-1 6-.5 8 1 2-1.5 5-2 8-1V5c-3-1-6-.5-8 1Z"/><path d="M12 6v13"/></svg></div>
+                <h3>Reading &amp; General Knowledge</h3>
+              </div>
+              <div class="q-count-row">
+                <span class="q-count-num">4</span>
                 <span class="q-count-label">questions</span>
               </div>
             </div>
@@ -2318,7 +2337,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   </div>
 </section>
-
 <style>
   /* ===== Exam stat cards — joined edge-to-edge, no gaps ===== */
   .stat-cards{
@@ -3301,7 +3319,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         {% for plan in plans %}
           {% with total=plans|length subj_count=plan.subjects.count sub_count=plan.ordered_submodules|length rev_count=plan.revision_submodules|length exam_count=plan.exams.count %}
           {% with item_count=subj_count|add:sub_count|add:rev_count|add:exam_count %}
-          <div class="price-card {% if total >= 3 and forloop.counter == 2 %}featured{% elif total < 3 and forloop.last %}featured{% endif %} sr {% cycle 'sr-left' 'sr-up' 'sr-right' %} d{{ forloop.counter }}">
+          <div class="price-card {% if plan.price == 3999 %}featured{% elif total >= 3 and forloop.counter == 2 %}featured{% elif total < 3 and forloop.last %}featured{% endif %} sr {% cycle 'sr-left' 'sr-up' 'sr-right' %} d{{ forloop.counter }}">
+
+            <!-- ── "Most Popular" ribbon — shown only on the ₹3999 plan ── -->
+            {% if plan.price == 3999 %}
+           <span class="price-popular">Recommended</span>
+            {% endif %}
 
             <!-- ── ALWAYS VISIBLE: plan summary ── -->
             <div class="price-plan">{{ plan.name }}</div>
@@ -3335,15 +3358,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               {% endif %}
 
               <!-- ══ Inherited-from-cheaper-plans line — sits right under Study Content Access ══ -->
-              <!-- ══ Inherited-from-cheaper-plans line — sits right under Study Content Access ══ -->
-{% if plan.inherited_plan_names %}
-<div class="price-included-line price-inherited-line">
-  <div class="price-check price-inherited-check">
-    <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg>
-  </div>
-  <span>All {{ plan.inherited_plan_names|join:" & " }} features + more</span>
-</div>
-{% endif %}
+              {% if plan.inherited_plan_names %}
+              <div class="price-included-line price-inherited-line">
+                <div class="price-check price-inherited-check">
+                  <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg>
+                </div>
+                <span>Keep everything from {{ plan.inherited_plan_names|join:" & " }}, unlock more on top</span>
+              </div>
+              {% endif %}
               <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Student Dashboard</div>
               <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Performance Reports</div>
               <div class="price-included-line"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Progress Tracking</div>
@@ -3356,13 +3378,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               </div>
               {% endif %}
 
-              <!-- ── Revision limit summary line — always visible, above the dropdown ── -->
-              {% if plan.revision_limit_summary %}
-              <div class="price-included-line price-qlimit-line price-revlimit-line">
-                <div class="price-check price-qlimit-check"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-                <span>Revision — {{ plan.revision_limit_summary }}</span>
-              </div>
-              {% endif %}
+              <!-- ══ Revision limit summary line REMOVED — was showing raw per-subject
+                   Qs counts (e.g. "Biology: 500 Qs · Chemistry: 300 Qs...") which
+                   looked cluttered on the card. The Revision dropdown further below
+                   still lists the same info per-subject if the admin wants detail. ══ -->
+
             </div>
 
             <!-- ── STUDY CONTENT: each group is its own dropdown ── -->
@@ -3436,7 +3456,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   {% endif %}
                 {% endif %}
 
-                <!-- ── REVISION: submodules named exactly Biology / Chemistry / Physics / Mathematics ── -->
+                <!-- ── REVISION: submodules named exactly Biology / Chemistry / Physics / Mathematics ──
+                     (This dropdown remains — the per-subject Qs badges live here now, not on the
+                     always-visible card face.) -->
                 {% if plan.revision_submodules %}
                   {% if rev_count > 1 %}
                   <div class="price-detail-group">
@@ -3511,9 +3533,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             <!-- ── CTA ── -->
             {% if user.is_authenticated %}
-              <a href="{% url 'student_portal:plan_checkout' plan.uuid %}" class="btn-price {% if total >= 3 and forloop.counter == 2 %}white-inv{% elif total < 3 and forloop.last %}white-inv{% endif %}">{% if plan.price == 0 %}Get Started Free{% else %}Upgrade Now{% endif %}</a>
+              <a href="{% url 'student_portal:plan_checkout' plan.uuid %}" class="btn-price {% if plan.price == 3999 %}white-inv{% elif total >= 3 and forloop.counter == 2 %}white-inv{% elif total < 3 and forloop.last %}white-inv{% endif %}">{% if plan.price == 0 %}Get Started Free{% else %}Upgrade Now{% endif %}</a>
             {% else %}
-              <a href="{% url 'student_portal:register' %}?next={% url 'student_portal:plan_checkout' plan.uuid %}" class="btn-price {% if total >= 3 and forloop.counter == 2 %}white-inv{% elif total < 3 and forloop.last %}white-inv{% endif %}">{% if plan.price == 0 %}Get Started Free{% else %}Get Started{% endif %}</a>
+              <a href="{% url 'student_portal:register' %}?next={% url 'student_portal:plan_checkout' plan.uuid %}" class="btn-price {% if plan.price == 3999 %}white-inv{% elif total >= 3 and forloop.counter == 2 %}white-inv{% elif total < 3 and forloop.last %}white-inv{% endif %}">{% if plan.price == 0 %}Get Started Free{% else %}Get Started{% endif %}</a>
             {% endif %}
           </div>
           {% endwith %}

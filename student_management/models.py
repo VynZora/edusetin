@@ -375,6 +375,16 @@ class PlanSubmoduleLimit(models.Model):
         null=True, blank=True,
         help_text="Max questions available per quiz for this submodule on this plan. Blank = no limit."
     )
+    is_override = models.BooleanField(
+    default=False,
+    help_text=(
+        "True: this submodule was given its own explicit limit and "
+        "always uses question_limit, ignoring the plan's shared limit. "
+        "False: this submodule has no explicit limit of its own and "
+        "simply follows the plan's shared limit (question_limit here "
+        "is just a copy of that shared value)."
+    ),
+)
 
     class Meta:
         unique_together = ('plan', 'submodule')

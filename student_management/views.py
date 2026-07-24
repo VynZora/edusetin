@@ -2691,24 +2691,36 @@ def plan_detail(request, pk):
     return render(request, "student_management/plan_detail.html", {"plan": plan})
 
 
+from collections import Counter  # no longer needed, but harmless if left from before
+
+
 def _save_submodule_limits(request, plan):
     """
-    Sync PlanSubmoduleLimit rows: every checked submodule gets the SAME
-    question_limit value (one shared limit for the whole plan, applied
-    per-submodule independently — not a combined total).
+    Sync PlanSubmoduleLimit rows.
+
+    Priority rule:
+      - If a submodule's OWN box has a number typed in, that number is
+        used and stored with is_override=True — it always uses that
+        number, regardless of what the shared box says, now or later.
+      - If a submodule's own box is left BLANK, it follows the shared
+        "submodule_question_limit" value and is stored with
+        is_override=False, even when the shared value itself is None
+        (no limit).
     """
     selected_ids = set(request.POST.getlist('submodules'))
     existing = {pl.submodule_id: pl for pl in plan.submodule_limits.all()}
 
-    limit_raw = request.POST.get('submodule_question_limit', '').strip()
-    limit = None
-    if limit_raw:
+    def _parse_limit(raw):
+        raw = (raw or '').strip()
+        if not raw:
+            return None
         try:
-            limit = int(limit_raw)
-            if limit < 0:
-                limit = None
+            val = int(raw)
+            return val if val >= 0 else None
         except ValueError:
-            limit = None
+            return None
+
+    shared_limit = _parse_limit(request.POST.get('submodule_question_limit', ''))
 
     for sm_id_str in selected_ids:
         try:
@@ -2718,26 +2730,55 @@ def _save_submodule_limits(request, plan):
         if not SubModule.objects.filter(id=sm_id).exists():
             continue
 
+        override_raw = request.POST.get(f'submodule_limit_{sm_id}', '').strip()
+        has_override = bool(override_raw)
+        limit = _parse_limit(override_raw) if has_override else shared_limit
+
         if sm_id in existing:
-            if existing[sm_id].question_limit != limit:
-                existing[sm_id].question_limit = limit
-                existing[sm_id].save(update_fields=['question_limit'])
+            row = existing[sm_id]
+            changed_fields = []
+            if row.question_limit != limit:
+                row.question_limit = limit
+                changed_fields.append('question_limit')
+            if row.is_override != has_override:
+                row.is_override = has_override
+                changed_fields.append('is_override')
+            if changed_fields:
+                row.save(update_fields=changed_fields)
         else:
-            PlanSubmoduleLimit.objects.create(plan=plan, submodule_id=sm_id, question_limit=limit)
+            PlanSubmoduleLimit.objects.create(
+                plan=plan,
+                submodule_id=sm_id,
+                question_limit=limit,
+                is_override=has_override,
+            )
 
     # Remove rows for submodules that were unchecked
     for sm_id, row in existing.items():
         if str(sm_id) not in selected_ids:
             row.delete()
+
+
 @admin_login_required
 def plan_update(request, name):
     plan = get_object_or_404(SubscriptionPlan, name=name)
     submodules = SubModule.objects.filter(is_active=True).select_related('subject').order_by('subject__name', 'order', 'name')
-    existing_limits = {pl.submodule_id: pl.question_limit for pl in plan.submodule_limits.all()}
-    selected_submodule_ids = set(existing_limits.keys())
 
-    # Pull one representative limit value to prefill the shared input
-    existing_limit_value = next(iter(existing_limits.values()), None) if existing_limits else None
+    limit_rows = {pl.submodule_id: pl for pl in plan.submodule_limits.all()}
+    selected_submodule_ids = set(limit_rows.keys())
+
+    # Every non-override row was set FROM the shared box on the last save,
+    # so any one of them tells us what the shared box should show now.
+    # If every selected submodule has its own override, there's nothing
+    # to infer the shared value from — leave it blank ("No limit").
+    shared_rows = [pl for pl in limit_rows.values() if not pl.is_override]
+    existing_limit_value = shared_rows[0].question_limit if shared_rows else None
+
+    # Only rows explicitly flagged is_override=True prefill their own box.
+    # Everything else stays blank ("Shared" placeholder).
+    for sm in submodules:
+        row = limit_rows.get(sm.id)
+        sm.override_limit = row.question_limit if (row and row.is_override) else None
 
     form = SubscriptionPlanForm(request.POST or None, instance=plan)
 
@@ -2761,6 +2802,10 @@ def plan_update(request, name):
 def plan_create(request):
     form = SubscriptionPlanForm(request.POST or None)
     submodules = SubModule.objects.filter(is_active=True).select_related('subject').order_by('subject__name', 'order', 'name')
+
+    # No saved limits yet on create, so no submodule has an override.
+    for sm in submodules:
+        sm.override_limit = None
 
     if request.method == 'POST' and form.is_valid():
         plan = form.save()

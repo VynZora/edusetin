@@ -68,6 +68,8 @@
                 <option value="10" selected>10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="all">All</option>
             </select>
         </div>
 
@@ -88,8 +90,12 @@
     </div>
 
     <!-- Bulk action bar -->
-    <div id="bulkActionBar" class="alert alert-primary d-none d-flex align-items-center justify-content-between py-2 px-3 mb-2">
-        <span><strong id="selectedCount">0</strong> submodule(s) selected</span>
+    <div id="bulkActionBar" class="alert alert-primary d-none d-flex align-items-center justify-content-between py-2 px-3 mb-2 flex-wrap gap-2">
+        <span>
+            <strong id="selectedCount">0</strong> submodule(s) selected
+            <a href="#" id="selectAllMatchingLink" class="ms-2 d-none"></a>
+            <a href="#" id="clearSelectionLink" class="ms-2">Clear selection</a>
+        </span>
         <button type="button" class="btn btn-sm btn-danger" id="bulkDeleteTriggerBtn">
             <i class="fas fa-trash me-1"></i> Delete Selected
         </button>
@@ -250,11 +256,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedCountEl= document.getElementById("selectedCount");
     const selectAllCheckbox = document.getElementById("selectAllCheckbox");
     const bulkDeleteForm = document.getElementById("submoduleBulkDeleteForm");
+    const selectAllMatchingLink = document.getElementById("selectAllMatchingLink");
+    const clearSelectionLink    = document.getElementById("clearSelectionLink");
 
     if (!tableBody) return;
 
+    /* ── page size: "all" (or anything non-numeric) means show everything ── */
+    function parsePageSize(val) {
+        if (val === "all") return Infinity;
+        const n = parseInt(val, 10);
+        return isNaN(n) ? Infinity : n;
+    }
+
     let currentPage  = 1;
-    let pageSize     = parseInt(pageSizeSelect.value);
+    let pageSize     = parsePageSize(pageSizeSelect.value);
     let activeSearch = "";
     let activeSubject= "";
     let activeStatus = "";
@@ -321,6 +336,7 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ── pagination ── */
     function renderPagination(total) {
         paginationNav.innerHTML = "";
+        if (!isFinite(pageSize)) return; // "All" mode — nothing to paginate
         const totalPages = Math.ceil(total / pageSize);
         if (totalPages <= 1) return;
 
@@ -365,6 +381,13 @@ document.addEventListener("DOMContentLoaded", function () {
         return getRowCheckboxes().filter(cb => cb.closest("tr").style.display !== "none");
     }
 
+    // Checkboxes belonging to rows that match the CURRENT FILTER,
+    // regardless of which page they're currently sitting on.
+    function getFilteredRowCheckboxes() {
+        const filteredRows = new Set(getFiltered());
+        return getRowCheckboxes().filter(cb => filteredRows.has(cb.closest("tr")));
+    }
+
     function updateBulkBar() {
         const checked = getRowCheckboxes().filter(cb => cb.checked);
         selectedCountEl.textContent = checked.length;
@@ -376,6 +399,20 @@ document.addEventListener("DOMContentLoaded", function () {
             selectAllCheckbox.checked = visible.length > 0 && visibleChecked.length === visible.length;
             selectAllCheckbox.indeterminate = visibleChecked.length > 0 && visibleChecked.length < visible.length;
         }
+
+        // Show the "select all N matching" link only when the current page's
+        // selection is full AND there are more matching rows beyond this page
+        // (relevant when a fixed page size like 10/25/50/100 is chosen).
+        const filteredCbs = getFilteredRowCheckboxes();
+        const filteredTotal = filteredCbs.length;
+        const filteredChecked = filteredCbs.filter(cb => cb.checked).length;
+
+        if (visible.length > 0 && visibleChecked.length === visible.length && filteredChecked < filteredTotal) {
+            selectAllMatchingLink.textContent = `Select all ${filteredTotal} matching submodule(s)`;
+            selectAllMatchingLink.classList.remove("d-none");
+        } else {
+            selectAllMatchingLink.classList.add("d-none");
+        }
     }
 
     tableBody.addEventListener("change", e => {
@@ -385,6 +422,22 @@ document.addEventListener("DOMContentLoaded", function () {
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener("change", () => {
             getVisibleRowCheckboxes().forEach(cb => { cb.checked = selectAllCheckbox.checked; });
+            updateBulkBar();
+        });
+    }
+
+    if (selectAllMatchingLink) {
+        selectAllMatchingLink.addEventListener("click", e => {
+            e.preventDefault();
+            getFilteredRowCheckboxes().forEach(cb => { cb.checked = true; });
+            updateBulkBar();
+        });
+    }
+
+    if (clearSelectionLink) {
+        clearSelectionLink.addEventListener("click", e => {
+            e.preventDefault();
+            getRowCheckboxes().forEach(cb => { cb.checked = false; });
             updateBulkBar();
         });
     }
@@ -426,11 +479,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const filtered   = getFiltered();
         const total      = filtered.length;
-        const totalPages = Math.ceil(total / pageSize);
-        if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+        const totalPages = isFinite(pageSize) ? Math.max(1, Math.ceil(total / pageSize)) : 1;
+        if (currentPage > totalPages) currentPage = totalPages;
 
-        const start = (currentPage - 1) * pageSize;
-        const end   = start + pageSize;
+        const start = isFinite(pageSize) ? (currentPage - 1) * pageSize : 0;
+        const end   = isFinite(pageSize) ? start + pageSize : total;
 
         const old = document.getElementById("noResultRow");
         if (old) old.remove();
@@ -459,7 +512,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         rowCountLabel.textContent = total > 0
-            ? `${start + 1}–${Math.min(end, total)} of ${total} submodule${total !== 1 ? "s" : ""}`
+            ? (isFinite(pageSize)
+                ? `${start + 1}–${Math.min(end, total)} of ${total} submodule${total !== 1 ? "s" : ""}`
+                : `Showing all ${total} submodule${total !== 1 ? "s" : ""}`)
             : "";
 
         updateBadge();
@@ -492,7 +547,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     pageSizeSelect.addEventListener("change", () => {
-        pageSize    = parseInt(pageSizeSelect.value);
+        pageSize    = parsePageSize(pageSizeSelect.value);
         currentPage = 1;
         render();
     });

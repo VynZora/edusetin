@@ -2284,7 +2284,10 @@ def landing_page(request):
         revision_ids = {sm.id for sm in revision_submodules}
         plan.ordered_submodules = [sm for sm in all_submodules if sm.id not in revision_ids]
 
-        plan.submodule_limit_summary = _build_submodule_limit_summary(all_submodules)
+        # Summary badge must only reflect actual "modules" — exclude revision
+        # submodules (Biology/Chemistry/Physics/Mathematics), which already
+        # get their own dedicated "Revision — ..." line above.
+        plan.submodule_limit_summary = _build_submodule_limit_summary(plan.ordered_submodules)
 
         # ── Group exams by exam_type. For CUSTOM types, split further by the
         #    individual ExamType (since each can have its own custom_name),
