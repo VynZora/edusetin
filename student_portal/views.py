@@ -2186,6 +2186,7 @@ def mark_notifications_read(request):
 
     return JsonResponse({'ok': True})
 import re
+import copy
 from django.views.decorators.cache import never_cache
 from django.shortcuts import render
 
@@ -2239,12 +2240,37 @@ def landing_page(request):
     # Submodules whose NAME (not subject) matches these go under "Revision"
     REVISION_NAMES = ['Biology', 'Chemistry', 'Physics', 'Mathematics']
 
+    # Fixed display order for the Subjects list on each pricing card.
+    # Matched case-insensitively against the subject name; anything not
+    # in this list falls to the end, alphabetically.
+    SUBJECT_ORDER = [
+        'Biology',
+        'Chemistry',
+        'Physics',
+        'Mathematics',
+        'Logical Reasoning',
+        'Reading',
+    ]
+
+    def subject_sort_key(subject):
+        name_lower = subject.name.lower()
+        for idx, ordered_name in enumerate(SUBJECT_ORDER):
+            if ordered_name.lower() in name_lower:
+                return (0, idx, name_lower)
+        return (1, 0, name_lower)
+
     def exam_sort_key(exam):
+        """
+        Orders exams primarily by whatever number appears in their name
+        (e.g. "Mock Test 7", "IMAT Mock #12 - Pattern B" -> 12), so mock
+        tests display in a sane numeric sequence regardless of extra
+        wording around the number.
+        """
         display_name = (exam.custom_name or exam.title or '').strip()
-        match = re.search(r'(\d+)\s*$', display_name)
-        if match:
-            return (0, int(match.group(1)), display_name.lower())
-        return (1, display_name.lower(), exam.id)
+        matches = re.findall(r'\d+', display_name)
+        if matches:
+            return (0, int(matches[-1]), exam.id)
+        return (1, exam.id, 0)
 
     def build_revision_limit_summary(revision_submodules):
         """
@@ -2258,7 +2284,15 @@ def landing_page(request):
             parts.append(f'{sm.name}: {limit_txt}')
         return ' · '.join(parts)
 
+    # ── Running cumulative EXAM set only, carried forward as we walk
+    #    plans cheapest -> most expensive. Subjects/submodules/revision
+    #    stay per-plan (own content only) — no change there.
+    cumulative_exams = {}  # id -> Exam (pristine instance)
+
     for i, plan in enumerate(plans_list):
+        # ═══════════════════════════════════════════
+        # SUBJECTS / MODULES / REVISION — per-plan only, unchanged
+        # ═══════════════════════════════════════════
         limit_by_submodule_id = {
             row.submodule_id: row.question_limit
             for row in plan.submodule_limits.all()
@@ -2283,17 +2317,22 @@ def landing_page(request):
         # Modules list excludes the revision submodules so nothing is duplicated
         revision_ids = {sm.id for sm in revision_submodules}
         plan.ordered_submodules = [sm for sm in all_submodules if sm.id not in revision_ids]
-
-        # Summary badge must only reflect actual "modules" — exclude revision
-        # submodules (Biology/Chemistry/Physics/Mathematics), which already
-        # get their own dedicated "Revision — ..." line above.
         plan.submodule_limit_summary = _build_submodule_limit_summary(plan.ordered_submodules)
 
-        # ── Group exams by exam_type. For CUSTOM types, split further by the
-        #    individual ExamType (since each can have its own custom_name),
-        #    and label the group with that exact custom_name. ──
+        # ── Subjects list in fixed display order ──────────────────
+        plan.ordered_subjects = sorted(plan.subjects.all(), key=subject_sort_key)
+
+        # ═══════════════════════════════════════════
+        # EXAMS — cumulative: this plan's own exams + every cheaper
+        # plan's exams, with Mock Tests renumbered 1..N over that
+        # combined set. Free's Mock 1-5 show up (renumbered if needed)
+        # inside Foundation, Foundation's inside Standard, etc.
+        # ═══════════════════════════════════════════
+        for e in plan.exams.all():
+            cumulative_exams[e.id] = e
+
         groups = {}
-        for exam in plan.exams.all():
+        for exam in cumulative_exams.values():
             et = exam.exam_type
             if et.name == 'CUSTOM':
                 key = f'CUSTOM-{et.id}'
@@ -2320,37 +2359,35 @@ def landing_page(request):
         exam_groups = []
         for key, data in sorted(groups.items(), key=group_order_key):
             sorted_exams = sorted(data['exams'], key=exam_sort_key)
+
+            # Copy each exam before tagging a display_label — cumulative_exams
+            # holds the SAME instance across every plan that inherits it, so
+            # mutating it directly would let a later (pricier) plan's
+            # renumbering overwrite what a cheaper plan already displayed.
+            display_exams = [copy.copy(e) for e in sorted_exams]
+
+            if data['type_name'] == 'MOCK':
+                # Renumber 1..N over the cumulative set for THIS plan.
+                # Free: Mock 1-5. Foundation: Free's 5 + its own -> 1-15.
+                # Standard: Free + Foundation + its own -> 1-45. Etc.
+                for idx, exam in enumerate(display_exams, start=1):
+                    exam.display_label = f'Mock Test {idx}'
+            else:
+                for exam in display_exams:
+                    exam.display_label = exam.custom_name or exam.title
+
             exam_groups.append({
                 'key': key,
                 'label': data['label'],
-                'exams': sorted_exams,
-                'count': len(sorted_exams),
+                'exams': display_exams,
+                'count': len(display_exams),
             })
         plan.exam_groups = exam_groups
+        plan.total_exam_count = sum(g['count'] for g in exam_groups)
 
-        # ── NEW: cumulative content inherited from cheaper plans ──────────
-        seen_subject_ids   = set(s.id for s in plan.subjects.all())
-        seen_submodule_ids = set(sm.id for sm in plan.submodules.all())
-        seen_exam_ids      = set(e.id for e in plan.exams.all())
-
-        cumulative_count = 0
-        for cheaper in plans_list[:i]:  # every plan priced below this one
-            for subj in cheaper.subjects.all():
-                if subj.id not in seen_subject_ids:
-                    seen_subject_ids.add(subj.id)
-                    cumulative_count += 1
-            for sm in cheaper.submodules.all():
-                if sm.id not in seen_submodule_ids:
-                    seen_submodule_ids.add(sm.id)
-                    cumulative_count += 1
-            for ex in cheaper.exams.all():
-                if ex.id not in seen_exam_ids:
-                    seen_exam_ids.add(ex.id)
-                    cumulative_count += 1
-
+        # ── informational "inherits from" note (exams only, since that's
+        #    the only thing actually carried forward now) ──────────────
         plan.inherited_plan_names = [p.name for p in plans_list[:i]]
-        plan.cumulative_extra_count = cumulative_count
-        # ── END NEW ─────────────────────────────────────────────────────
 
     return render(request, 'student_portal/index.html', {'plans': plans_list})
 from django.contrib.auth import views as auth_views

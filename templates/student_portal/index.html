@@ -3317,13 +3317,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     {% if plans %}
       <div class="pricing-grid">
         {% for plan in plans %}
-          {% with total=plans|length subj_count=plan.subjects.count sub_count=plan.ordered_submodules|length rev_count=plan.revision_submodules|length exam_count=plan.exams.count %}
+          {% with total=plans|length subj_count=plan.subjects.count sub_count=plan.ordered_submodules|length rev_count=plan.revision_submodules|length exam_count=plan.total_exam_count %}
           {% with item_count=subj_count|add:sub_count|add:rev_count|add:exam_count %}
           <div class="price-card {% if plan.price == 3999 %}featured{% elif total >= 3 and forloop.counter == 2 %}featured{% elif total < 3 and forloop.last %}featured{% endif %} sr {% cycle 'sr-left' 'sr-up' 'sr-right' %} d{{ forloop.counter }}">
 
-            <!-- ── "Most Popular" ribbon — shown only on the ₹3999 plan ── -->
+            <!-- ── Ribbon — shown only on the ₹3999 plan ── -->
             {% if plan.price == 3999 %}
-           <span class="price-popular">Recommended</span>
+            <span class="price-popular">Recommended</span>
             {% endif %}
 
             <!-- ── ALWAYS VISIBLE: plan summary ── -->
@@ -3378,11 +3378,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               </div>
               {% endif %}
 
-              <!-- ══ Revision limit summary line REMOVED — was showing raw per-subject
-                   Qs counts (e.g. "Biology: 500 Qs · Chemistry: 300 Qs...") which
-                   looked cluttered on the card. The Revision dropdown further below
-                   still lists the same info per-subject if the admin wants detail. ══ -->
-
             </div>
 
             <!-- ── STUDY CONTENT: each group is its own dropdown ── -->
@@ -3401,7 +3396,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="price-detail-panel">
                       <div class="price-detail-panel-inner">
                         <ul class="price-feats">
-                          {% for subject in plan.subjects.all %}
+                          {% for subject in plan.ordered_subjects %}
                             <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
                           {% endfor %}
                         </ul>
@@ -3412,7 +3407,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   <div class="price-detail-static">
                     <div class="price-detail-label"><span>Subjects</span></div>
                     <ul class="price-feats">
-                      {% for subject in plan.subjects.all %}
+                      {% for subject in plan.ordered_subjects %}
                         <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
                       {% endfor %}
                     </ul>
@@ -3456,9 +3451,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   {% endif %}
                 {% endif %}
 
-                <!-- ── REVISION: submodules named exactly Biology / Chemistry / Physics / Mathematics ──
-                     (This dropdown remains — the per-subject Qs badges live here now, not on the
-                     always-visible card face.) -->
+                <!-- ── REVISION: submodules named exactly Biology / Chemistry / Physics / Mathematics ── -->
                 {% if plan.revision_submodules %}
                   {% if rev_count > 1 %}
                   <div class="price-detail-group">
@@ -3509,7 +3502,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       <div class="price-detail-panel-inner">
                         <ul class="price-feats">
                           {% for exam in group.exams %}
-                            <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
+                            <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.display_label }}</li>
                           {% endfor %}
                         </ul>
                       </div>
@@ -3520,7 +3513,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="price-detail-label"><span>{{ group.label }}</span></div>
                     <ul class="price-feats">
                       {% for exam in group.exams %}
-                        <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.custom_name|default:exam.title }}</li>
+                        <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ exam.display_label }}</li>
                       {% endfor %}
                     </ul>
                   </div>
