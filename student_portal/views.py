@@ -2299,9 +2299,9 @@ def landing_page(request):
         }
 
         all_submodules = sorted(
-            plan.submodules.all(),
-            key=lambda sm: (sm.subject.name.lower(), sm.name.lower())
-        )
+    plan.submodules.all(),
+    key=lambda sm: (*subject_sort_key(sm.subject), sm.name.lower())
+)
         for sm in all_submodules:
             limit = limit_by_submodule_id.get(sm.id)
             sm.question_limit = limit
@@ -2466,4 +2466,205 @@ def skip_exam_review(request, attempt_slug):
     """No DB write needed for skip — just acknowledges the client-side dismiss."""
     return JsonResponse({"status": "skipped"})
 
+from django.http import HttpResponse
+@never_cache
+def download_syllabus_pdf(request):
+    """Generate and serve the IMAT syllabus as a structured PDF."""
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import cm
+        from reportlab.lib.colors import HexColor, white
+        from reportlab.platypus import (
+            SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
+        )
+        import io
 
+        SYLLABUS = [
+            {
+                'subject': 'Biology',
+                'meta': '23 questions in the exam',
+                'topics': [
+                    'The Chemistry of Living Things',
+                    'The Cell as the Basis of Life',
+                    'Cell Cycle and Cell Division',
+                    'Bioenergetics',
+                    'Reproduction and Inheritance',
+                    'Inheritance and Environment',
+                    'Anatomy & Physiology of Animals and Humans',
+                ],
+            },
+            {
+                'subject': 'Chemistry',
+                'meta': '15 questions in the exam',
+                'topics': [
+                    'Composition of Matter',
+                    'Ideal Gas Laws',
+                    'Atomic Structure',
+                    'The Periodic Table',
+                    'The Chemical Bond',
+                    'Fundamentals of Inorganic Chemistry',
+                    'Chemical Reactions and Stoichiometry',
+                    'Solutions',
+                    'Oxidation and Reduction',
+                    'Acids and Bases',
+                    'Fundamentals of Organic Chemistry',
+                ],
+            },
+            {
+                'subject': 'Physics',
+                'meta': 'Shares 13 questions with Mathematics',
+                'topics': [
+                    'Physical Quantities and Their Measurement',
+                    'Kinematics',
+                    'Dynamics',
+                    'Fluid Mechanics',
+                    'Thermodynamics',
+                    'Electricity and Electromagnetism',
+                ],
+            },
+            {
+                'subject': 'Mathematics',
+                'meta': 'Shares 13 questions with Physics',
+                'topics': [
+                    'Numbers, Exponents and Logarithms',
+                    'Combinatorics and Polynomials',
+                    'Equations, Inequalities and Systems',
+                    'Functions',
+                    'Trigonometry',
+                    'Geometry',
+                    'Probability and Statistics',
+                ],
+            },
+            {
+                'subject': 'Logical Reasoning & Problem Solving',
+                'meta': '5 questions in the exam',
+                'topics': [
+                    'Verbal and numerical reasoning',
+                    'Pattern and sequence problems',
+                    'Logical deduction and inference',
+                    'Problem-solving under time pressure',
+                ],
+            },
+            {
+                'subject': 'Reading & General Knowledge',
+                'meta': '4 questions in the exam',
+                'topics': [
+                    'Reading comprehension passages',
+                    'Vocabulary and inference',
+                    'General knowledge and current awareness',
+                ],
+            },
+        ]
+
+        buffer = io.BytesIO()
+        page_w, page_h = A4
+        blue        = HexColor('#1447b3')
+        black_color = HexColor('#0B1E3D')
+        gray        = HexColor('#6B7280')
+        light_gray  = HexColor('#F5F7FC')
+        border_gray = HexColor('#DDE3F0')
+
+        def add_footer(canvas, doc):
+            canvas.saveState()
+            canvas.setFont('Helvetica', 8)
+            canvas.setFillColor(gray)
+            canvas.drawCentredString(
+                page_w / 2, 1.2 * cm,
+                f"Page {canvas.getPageNumber()}  |  Edusetin — IMAT Syllabus"
+            )
+            canvas.setStrokeColor(border_gray)
+            canvas.setLineWidth(0.5)
+            canvas.line(2 * cm, 1.5 * cm, page_w - 2 * cm, 1.5 * cm)
+            canvas.restoreState()
+
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A4,
+            rightMargin=2 * cm, leftMargin=2 * cm,
+            topMargin=2 * cm, bottomMargin=2.2 * cm,
+        )
+
+        styles = getSampleStyleSheet()
+        usable_width = page_w - 4 * cm
+
+        title_style = ParagraphStyle(
+            'Title', parent=styles['Normal'],
+            fontSize=22, fontName='Helvetica-Bold',
+            textColor=black_color, alignment=1, leading=26,
+        )
+        sub_style = ParagraphStyle(
+            'Sub', parent=styles['Normal'],
+            fontSize=11, fontName='Helvetica',
+            textColor=gray, alignment=1, leading=15,
+        )
+        subject_style = ParagraphStyle(
+            'Subject', parent=styles['Normal'],
+            fontSize=13.5, fontName='Helvetica-Bold',
+            textColor=white,
+        )
+        meta_style = ParagraphStyle(
+            'Meta', parent=styles['Normal'],
+            fontSize=9, fontName='Helvetica',
+            textColor=white, alignment=2,
+        )
+        topic_style = ParagraphStyle(
+            'Topic', parent=styles['Normal'],
+            fontSize=10.5, fontName='Helvetica',
+            textColor=black_color, leading=16,
+        )
+
+        story = [
+            Paragraph("IMAT Syllabus", title_style),
+            Paragraph("International Medical Admission Test — Full Topic Breakdown", sub_style),
+            Spacer(1, 0.3 * cm),
+            Paragraph("60 questions &bull; 100 minutes &bull; 90 marks maximum", sub_style),
+            Spacer(1, 0.8 * cm),
+        ]
+
+        for subject in SYLLABUS:
+            block = []
+
+            header_row = Table(
+                [[Paragraph(subject['subject'], subject_style),
+                  Paragraph(subject['meta'], meta_style)]],
+                colWidths=[usable_width * 0.6, usable_width * 0.4],
+            )
+            header_row.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), blue),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (0, 0), 14),
+                ('RIGHTPADDING', (1, 0), (1, 0), 14),
+                ('TOPPADDING', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ]))
+            block.append(header_row)
+
+            topic_rows = [
+                [Paragraph(f"{i}.", topic_style), Paragraph(topic, topic_style)]
+                for i, topic in enumerate(subject['topics'], 1)
+            ]
+            topic_table = Table(topic_rows, colWidths=[1.2 * cm, usable_width - 1.2 * cm])
+            topic_table.setStyle(TableStyle([
+                ('BOX', (0, 0), (-1, -1), 0.8, border_gray),
+                ('INNERGRID', (0, 0), (-1, -1), 0.4, border_gray),
+                ('BACKGROUND', (0, 0), (-1, -1), light_gray),
+                ('LEFTPADDING', (0, 0), (-1, -1), 10),
+                ('TOPPADDING', (0, 0), (-1, -1), 7),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ]))
+            block.append(topic_table)
+            block.append(Spacer(1, 0.5 * cm))
+
+            story.append(KeepTogether(block))
+
+        doc.build(story, onFirstPage=add_footer, onLaterPages=add_footer)
+        buffer.seek(0)
+
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="edusetin_imat_syllabus.pdf"'
+        return response
+
+    except ImportError:
+        messages.error(request, "ReportLab is not installed. Run: pip install reportlab")
+        return redirect('student_portal:home')

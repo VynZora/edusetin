@@ -185,6 +185,31 @@ src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
     [data-theme="dark"] .h-topbar-search .search-input { background: #0d1a3a; border-color: #1a2a5e; color: #90CAF9; }
     [data-theme="dark"] #searchCount { background: #1a2a5e; color: #90CAF9; }
 
+    /* ─── SYLLABUS DOWNLOAD BUTTON ─── */
+    .h-syllabus-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: 9px;
+      background: #E3F0FB; border: 1px solid #b0cef0;
+      color: #1565C0; font-size: 13.5px; font-weight: 700;
+      white-space: nowrap; flex-shrink: 0; text-decoration: none;
+      transition: background .15s, transform .15s, box-shadow .15s;
+    }
+    .h-syllabus-btn:hover {
+      background: #1565C0; color: #fff; border-color: #1565C0;
+      transform: translateY(-1px); box-shadow: 0 4px 14px rgba(21,101,192,.28);
+    }
+    .h-syllabus-btn svg { flex-shrink: 0; }
+    .h-syllabus-btn span.h-syllabus-label { display: inline; }
+    [data-theme="dark"] .h-syllabus-btn { background: rgba(21,101,192,.20); border-color: #1a2a5e; color: #64B5F6; }
+    [data-theme="dark"] .h-syllabus-btn:hover { background: #1565C0; color: #fff; }
+    @media (max-width: 1199px) {
+      .h-syllabus-btn span.h-syllabus-label { display: none; }
+      .h-syllabus-btn { padding: 8px 10px; }
+    }
+    @media (max-width: 767px) {
+      .h-syllabus-btn { display: none; }
+    }
+
     /* ─── RIGHT ACTIONS ─── */
     .h-topbar-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-shrink: 0; }
     .h-topbar-divider { width: 1px; height: 24px; background: #dde3f0; flex-shrink: 0; }
@@ -473,6 +498,16 @@ src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
       </button>
     </div>
 
+    <!-- SYLLABUS DOWNLOAD BUTTON (next to search) -->
+    <a href="{% url 'student_portal:download_syllabus' %}" class="h-syllabus-btn" title="Download IMAT Syllabus PDF">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      <span class="h-syllabus-label">Syllabus</span>
+    </a>
+
     <!-- Right actions -->
     <div class="h-topbar-actions">
 
@@ -666,6 +701,11 @@ src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
     <a href="{{ url_student_detail }}"
        class="h-mobile-direct {% if request.path == url_student_detail or request.path == url_student_update %}active{% endif %}">
       <i class="icon-users"></i> Profile
+    </a>
+
+    <!-- SYLLABUS DOWNLOAD — MOBILE -->
+    <a href="{% url 'student_portal:download_syllabus' %}" class="h-mobile-direct">
+      <i class="icon-download"></i> Download Syllabus
     </a>
 
   </div><!-- /h-navbar-menu-mobile -->
