@@ -48,6 +48,12 @@ path('plans/<uuid:plan_uuid>/checkout/', views.plan_checkout, name='plan_checkou
     path('exam/review/<uuid:attempt_slug>/submit/', views.submit_exam_review, name='exam_review_submit'),
     path('exam/review/<uuid:attempt_slug>/skip/', views.skip_exam_review, name='exam_review_skip'),
     path('syllabus/download/', views.download_syllabus_pdf, name='download_syllabus'),
+    path('syllabus/', views.syllabus_view, name='syllabus'),
+    path(
+        'syllabus/download/<path:file_path>/',
+        views.download_topic_pdf,
+        name='download_topic_pdf',
+    ),
     
     # Password Reset URLs
     path('password-reset/', 

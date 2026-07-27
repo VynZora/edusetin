@@ -198,7 +198,7 @@ def verify_otp(request):
             next_url = request.session.pop('post_auth_redirect', '')
             if next_url:
                 return redirect(next_url)
-            return redirect('student_portal:plan_list')
+            return redirect('student_portal:dashboard')
 
         else:
             # ── Wrong OTP ────────────────────────────────────────────────
@@ -375,7 +375,7 @@ def student_dashboard(request):
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
     from django.db.models import Avg, Sum, Case, When, IntegerField
-    from student_management.models import Payment, Exam
+    from student_management.models import Payment, Exam, SubscriptionPlan
     from .models import ExamAttempt, AttemptResponse, QuizAttempt
 
     # ── Active payments & accessible exams ──────────────────────────────────
@@ -709,6 +709,9 @@ def student_dashboard(request):
         'student':                  student,
         'active_payments':          active_payments,
         'has_active_subscription':  bool(active_payments),
+        'plans':                    SubscriptionPlan.objects.filter(is_active=True)
+                                        .prefetch_related('subjects', 'submodules', 'exams')
+                                        .order_by('price'),
         'exams_by_type':            exams_by_type,
 
         'accuracy_rate':            accuracy_rate,
@@ -2668,3 +2671,188 @@ def download_syllabus_pdf(request):
     except ImportError:
         messages.error(request, "ReportLab is not installed. Run: pip install reportlab")
         return redirect('student_portal:home')
+
+# ─────────────────────────────────────────────
+# SYLLABUS PAGE  — add this to student_portal/views.py
+# ─────────────────────────────────────────────
+
+import os
+from django.conf import settings
+from django.http import FileResponse, Http404
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
+
+
+SYLLABUS = [
+    {
+        'subject': 'Biology',
+        'icon': 'ti-microscope',
+        'count': 23,
+        'count_label': 'questions in the exam',
+        'topics': [
+            {'name': 'The Chemistry of Living Things',
+             'file': 'biology/1. The Chemistry of Living Things.pdf'},
+            {'name': 'The Cell as the Basis of Life',
+             'file': 'biology/2. The Cell as the Basis of Life.pdf'},
+            {'name': 'Cell Cycle and Cell Division',
+             'file': 'biology/3. Cell Cycle and Cell Division.pdf'},
+            {'name': 'Bioenergetics',
+             'file': 'biology/4. Bioenergetics.pdf'},
+            {'name': 'Reproduction and Inheritance',
+             'file': 'biology/5. Reproduction and Inheritance.pdf'},
+            {'name': 'Inheritance and Environment',
+             'file': 'biology/6. Inheritance and Environment.pdf'},
+            {'name': 'Anatomy & Physiology of Animals and Humans',
+             'file': 'biology/7. Anatomy and Physiology of Animals and Humans.pdf'},
+        ],
+    },
+    {
+    'subject': 'Chemistry',
+    'icon': 'ti-flask',
+    'count': 15,
+    'count_label': 'questions in the exam',
+    'topics': [
+        {'name': 'Composition of Matter',
+         'file': 'chemistry/Module_01_Composition_of_Matter.pdf'},
+        {'name': 'Ideal Gas Laws',
+         'file': 'chemistry/Module_02_Ideal_Gas_Laws.pdf'},
+        {'name': 'Atomic Structure',
+         'file': 'chemistry/Module_03_Atomic_Structure.pdf'},
+        {'name': 'The Periodic Table',
+         'file': 'chemistry/Module_04_The_Periodic_Table.pdf'},
+        {'name': 'The Chemical Bond',
+         'file': 'chemistry/Module_05_The_Chemical_Bond.pdf'},
+        {'name': 'Fundamentals of Inorganic Chemistry',
+         'file': 'chemistry/Module_06_Fundamentals_of_Inorganic_Chemistry.pdf'},
+        {'name': 'Chemical Reactions and Stoichiometry',
+         'file': 'chemistry/Module_07_Chemical_Reactions_and_Stoichiometry.pdf'},
+        {'name': 'Solutions',
+         'file': 'chemistry/Module_08_Solutions.pdf'},
+        {'name': 'Oxidation and Reduction',
+         'file': 'chemistry/Module_09_Oxidation_and_Reduction.pdf'},
+        {'name': 'Acids and Bases',
+         'file': 'chemistry/Module_10_Acids_and_Bases.pdf'},
+        {'name': 'Fundamentals of Organic Chemistry',
+         'file': 'chemistry/Module_11_Fundamentals_of_Organic_Chemistry.pdf'},
+    ],
+},
+   {
+    'subject': 'Physics',
+    'icon': 'ti-atom-2',
+    'count': 13,
+    'count_label': 'questions (shared with Mathematics)',
+    'topics': [
+        {'name': 'Physical Quantities and Their Measurement',
+         'file': 'physics/Module_01_Physical_Quantities_and_Measurement.pdf'},
+        {'name': 'Kinematics',
+         'file': 'physics/Module_02_Kinematics.pdf'},
+        {'name': 'Dynamics',
+         'file': 'physics/Module_03_Dynamics.pdf'},
+        {'name': 'Fluid Mechanics',
+         'file': 'physics/Module_04_Fluid_Mechanics.pdf'},
+        {'name': 'Thermodynamics',
+         'file': 'physics/Module_05_Thermodynamics.pdf'},
+        {'name': 'Electricity and Electromagnetism',
+         'file': 'physics/Module_06_Electricity_and_Electromagnetism.pdf'},
+    ],
+},
+    {
+        'subject': 'Mathematics',
+        'icon': 'ti-math-function',
+        'count': 13,
+        'count_label': 'questions (shared with Physics)',
+        'topics': [
+            {'name': 'Numbers, Exponents and Logarithms',
+             'file': 'mathematics/Module_01_Numbers_Exponents_and_Logarithms.pdf'},
+            {'name': 'Combinatorics and Polynomials',
+             'file': 'mathematics/Module_02_Combinatorics_and_Polynomials.pdf'},
+            {'name': 'Equations, Inequalities and Systems',
+             'file': 'mathematics/Module_03_Equations_Inequalities_and_Systems.pdf'},
+            {'name': 'Functions',
+             'file': 'mathematics/Module_04_Functions.pdf'},
+            {'name': 'Trigonometry',
+             'file': 'mathematics/Module_05_Trigonometry.pdf'},
+            {'name': 'Geometry',
+             'file': 'mathematics/Module_06_Geometry.pdf'},
+            {'name': 'Probability and Statistics',
+             'file': 'mathematics/Module_07_Probability_and_Statistics.pdf'},
+        ],
+    },
+    {
+        'subject': 'Logical Reasoning & Problem Solving',
+        'icon': 'ti-brain',
+        'count': 5,
+        'count_label': 'questions in the exam',
+        'topics': [
+            {'name': t, 'file': None} for t in [
+                'Verbal and numerical reasoning',
+                'Pattern and sequence problems',
+                'Logical deduction and inference',
+                'Problem-solving under time pressure',
+            ]
+        ],
+    },
+    {
+        'subject': 'Reading & General Knowledge',
+        'icon': 'ti-book',
+        'count': 4,
+        'count_label': 'questions in the exam',
+        'topics': [
+            {'name': t, 'file': None} for t in [
+                'Reading comprehension passages',
+                'Vocabulary and inference',
+                'General knowledge and current awareness',
+            ]
+        ],
+    },
+]
+
+@never_cache
+@login_required(login_url='student_portal:login')
+def syllabus_view(request):
+    student = _get_student_or_redirect(request)
+    if not student:
+        return redirect('student_portal:login')
+
+    total_questions = sum(
+        s['count'] for s in SYLLABUS
+        if 'shared' not in s['count_label']
+    ) + 13  # Physics & Mathematics share 13, counted once
+
+    context = {
+        'student': student,
+        'syllabus': SYLLABUS,
+        'total_subjects': len(SYLLABUS),
+        'total_questions': total_questions,
+    }
+    return render(request, 'student_portal/syllabus.html', context)
+
+
+@never_cache
+@login_required(login_url='student_portal:login')
+def download_topic_pdf(request, file_path):
+    student = _get_student_or_redirect(request)
+    if not student:
+        return redirect('student_portal:login')
+
+    # Prevent path traversal (e.g. ../../../etc/passwd)
+    safe_path = os.path.normpath(file_path).lstrip('/').lstrip('\\')
+    full_path = os.path.abspath(
+        os.path.join(settings.SYLLABUS_PDF_ROOT, safe_path)
+    )
+    root = os.path.abspath(settings.SYLLABUS_PDF_ROOT)
+
+    if not full_path.startswith(root):
+        raise Http404("Study material not found.")
+    if not os.path.isfile(full_path):
+        raise Http404("Study material not found.")
+    if not full_path.lower().endswith('.pdf'):
+        raise Http404("Study material not found.")
+
+    return FileResponse(
+        open(full_path, 'rb'),
+        as_attachment=True,
+        filename=os.path.basename(full_path),
+        content_type='application/pdf',
+    )

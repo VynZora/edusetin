@@ -1,0 +1,376 @@
+{% extends "student_portal/base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+<style>
+  :root {
+    --blue-50:  #e6f1fb;
+    --blue-100: #b5d4f4;
+    --blue-200: #85b7eb;
+    --blue-400: #378add;
+    --blue-600: #185fa5;
+    --blue-800: #0c447c;
+  }
+
+  #imat-bg-canvas {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+
+  .sd-btn-edit {
+    background: var(--blue-600); color: #fff; border: none;
+    border-radius: 8px; padding: 8px 20px;
+    font-size: .875rem; font-weight: 600; cursor: pointer;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+    transition: background .15s, transform .15s, box-shadow .15s;
+  }
+  .sd-btn-edit:hover {
+    background: var(--blue-800); color: #fff; text-decoration: none;
+    transform: translateY(-1px); box-shadow: 0 6px 18px rgba(21,101,192,.28);
+  }
+
+  /* ═══════════════════════════════════════════════
+     Intro line — same tone as index.html's
+     "Tap any subject below to see its full topic list"
+  ═══════════════════════════════════════════════ */
+  .syl-intro {
+    font-size: .92rem; font-weight: 600; color: var(--blue-600);
+    margin-bottom: 22px; display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ═══════════════════════════════════════════════
+     ACCORDION CARDS — same pattern as index.html
+     .syllabus-card, adapted to the admio card system
+  ═══════════════════════════════════════════════ */
+  .syl-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    align-items: start; /* prevent grid from stretching every card in a row to match the tallest one when it expands */
+  }
+  .syl-card {
+    background: #fff;
+    border: 1px solid var(--blue-100);
+    border-radius: 16px;
+    overflow: hidden;
+    height: fit-content; /* card hugs its own content height, independent of siblings */
+    transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease, border-color .25s ease;
+  }
+  .syl-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(21,101,192,.14); }
+  .syl-card.expanded { border-color: var(--blue-400); }
+
+  .syl-card-head {
+    width: 100%; display: flex; align-items: center; gap: 14px;
+    padding: 20px 20px; background: transparent; border: none;
+    cursor: pointer; text-align: left; transition: background-color .2s ease;
+  }
+  .syl-card-head:hover { background: var(--blue-50); }
+  .syl-card.expanded .syl-card-head:hover { background: transparent; }
+
+  .syl-icon {
+    width: 46px; height: 46px; border-radius: 12px;
+    background: var(--blue-50);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: background .25s ease;
+  }
+  .syl-icon i { font-size: 21px; color: var(--blue-600); transition: color .25s ease; }
+  .syl-card.expanded .syl-icon { background: var(--blue-600); }
+  .syl-card.expanded .syl-icon i { color: #fff; }
+
+  .syl-card-title { flex: 1; min-width: 0; }
+  .syl-card-title h3 {
+    font-size: 1rem; font-weight: 700; color: #0B1E3D;
+    margin-bottom: 3px; letter-spacing: -.2px; line-height: 1.25;
+  }
+  .syl-preview { font-size: .74rem; font-weight: 700; color: var(--blue-600); }
+
+  .syl-chevron {
+    width: 17px; height: 17px; color: var(--blue-600); flex-shrink: 0;
+    transition: transform .3s cubic-bezier(.22,1,.36,1);
+  }
+  .syl-card-head[aria-expanded="true"] .syl-chevron { transform: rotate(180deg); }
+
+  .syl-panel {
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: max-height .4s cubic-bezier(.22,1,.36,1), opacity .3s ease;
+  }
+  .syl-card.expanded .syl-panel { opacity: 1; }
+  .syl-panel-inner { padding: 0 20px 20px; border-top: 1px solid var(--blue-100); }
+
+  .syl-topic-list {
+    display: flex; flex-direction: column; gap: 9px; padding-top: 16px;
+    counter-reset: syl-topic;
+  }
+  .syl-topic-list li {
+    counter-increment: syl-topic;
+    position: relative; padding-left: 28px;
+    font-size: .84rem; color: #374151; line-height: 1.5;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .3s ease, transform .3s ease;
+  }
+  .syl-card.expanded .syl-topic-list li { opacity: 1; transform: translateY(0); }
+  .syl-topic-list li::before {
+    content: counter(syl-topic);
+    position: absolute; left: 0; top: 0;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--blue-50); color: var(--blue-600);
+    font-size: .64rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ═══════════════════════════════════════════════
+     NEW: per-topic row + download button
+  ═══════════════════════════════════════════════ */
+  .syl-topic-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; min-height: 18px;
+  }
+  .syl-topic-text { flex: 1; min-width: 0; }
+  .syl-topic-dl {
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--blue-50); color: var(--blue-600);
+    transition: background .15s ease, color .15s ease, transform .15s ease;
+  }
+  .syl-topic-dl:hover {
+    background: var(--blue-600); color: #fff; transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .syl-topic-dl i { font-size: 13px; }
+  .syl-topic-nodl {
+    flex-shrink: 0; font-size: .68rem; font-weight: 600; color: #9ca3af;
+    white-space: nowrap;
+  }
+
+  .syl-card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; border-top: 1px solid var(--blue-100);
+    background: var(--blue-50);
+  }
+  .syl-count-badge {
+    font-size: .72rem; font-weight: 800; color: var(--blue-800);
+    background: #fff; border: 1px solid var(--blue-100);
+    padding: 3px 10px; border-radius: 20px;
+  }
+
+  @media (max-width: 992px) { .syl-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .syl-grid { grid-template-columns: 1fr; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .syl-card, .syl-panel, .syl-chevron, .syl-topic-list li { transition: none !important; }
+  }
+</style>
+
+<!-- Page header -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Syllabus</h1>
+    <p class="page-subtitle">Every subject and topic tested in the IMAT</p>
+  </div>
+ 
+</div>
+
+<canvas id="imat-bg-canvas" aria-hidden="true"></canvas>
+
+<div class="admio-card" style="position:relative; z-index:1;">
+  <div class="admio-card-body">
+
+    <div class="syl-intro">
+      <i class="ti ti-hand-click" style="font-size:18px;"></i>
+      Tap any subject below to see its full topic list
+    </div>
+
+    <div class="syl-grid" id="syllabusGrid">
+      {% for s in syllabus %}
+      <div class="syl-card" data-subject-idx="{{ forloop.counter0 }}">
+        <button class="syl-card-head" type="button" aria-expanded="false">
+          <div class="syl-icon"><i class="ti {{ s.icon }}"></i></div>
+          <div class="syl-card-title">
+            <h3>{{ s.subject }}</h3>
+            <span class="syl-preview">{{ s.topics|length }} topic{{ s.topics|length|pluralize }} · {{ s.count }} {{ s.count_label }}</span>
+          </div>
+          <svg class="syl-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="syl-panel">
+          <div class="syl-panel-inner">
+            <ul class="syl-topic-list">
+              {% for topic in s.topics %}
+              <li>
+                <div class="syl-topic-row">
+                  <span class="syl-topic-text">{{ topic.name }}</span>
+                  {% if topic.file %}
+                  <a href="{% url 'student_portal:download_topic_pdf' topic.file %}"
+                     class="syl-topic-dl"
+                     title="Download study material for {{ topic.name }}"
+                     onclick="event.stopPropagation();">
+                    <i class="ti ti-download"></i>
+                  </a>
+                  {% else %}
+                 
+                  {% endif %}
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        <div class="syl-card-footer">
+          <span style="font-size:.78rem;color:#6b7280;font-weight:600;">{{ s.subject }}</span>
+          <span class="syl-count-badge">{{ s.count }} Qs</span>
+        </div>
+      </div>
+      {% empty %}
+      <p style="color:#9ca3af;">No syllabus data available.</p>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ══ ACCORDION TOGGLE — same interaction pattern as index.html ══ */
+  (function () {
+    var grid = document.getElementById('syllabusGrid');
+    if (!grid) return;
+
+    grid.addEventListener('click', function (e) {
+      var headBtn = e.target.closest('.syl-card-head');
+      if (!headBtn || !grid.contains(headBtn)) return;
+
+      var card = headBtn.closest('.syl-card');
+      var panel = card.querySelector('.syl-panel');
+      var isOpen = card.classList.contains('expanded');
+
+      if (isOpen) {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+        panel.offsetHeight; /* force reflow */
+        requestAnimationFrame(function () { panel.style.maxHeight = '0px'; });
+        card.classList.remove('expanded');
+        headBtn.setAttribute('aria-expanded', 'false');
+        return;
+      }
+
+      card.classList.add('expanded');
+      headBtn.setAttribute('aria-expanded', 'true');
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+
+      var onEnd = function (ev) {
+        if (ev.propertyName !== 'max-height') return;
+        if (card.classList.contains('expanded')) panel.style.maxHeight = 'none';
+        panel.removeEventListener('transitionend', onEnd);
+      };
+      panel.addEventListener('transitionend', onEnd);
+    });
+  })();
+</script>
+
+<script>
+  /* ══ ANIMATED BACKGROUND ENGINE (same as student_detail.html) ══ */
+(function(){
+  var canvas = document.getElementById('imat-bg-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var TAU = Math.PI * 2;
+  var W, H;
+  var DARK = function() { return document.documentElement.getAttribute('data-theme') === 'dark'; };
+  var PAL = {
+    bio:   function() { return DARK() ? 'rgba(16,185,129,'  : 'rgba(5,150,105,'; },
+    chem:  function() { return DARK() ? 'rgba(139,92,246,'  : 'rgba(124,58,237,'; },
+    phys:  function() { return DARK() ? 'rgba(59,130,246,'  : 'rgba(26,86,219,'; },
+    math:  function() { return DARK() ? 'rgba(245,158,11,'  : 'rgba(217,119,6,'; },
+    logic: function() { return DARK() ? 'rgba(236,72,153,'  : 'rgba(219,39,119,'; },
+    grid:  function() { return DARK() ? 'rgba(91,141,238,'  : 'rgba(26,86,219,'; },
+  };
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  var rng = function(s) { var x = Math.sin(s*9301+49297)*233280; return x-Math.floor(x); };
+
+  function drawGrid(t) {
+    var gs=36, pulse=0.04+0.02*Math.sin(t*0.0005);
+    ctx.save(); ctx.globalAlpha=pulse; ctx.fillStyle=PAL.grid()+'1)';
+    for(var x=0;x<W;x+=gs) for(var y=0;y<H;y+=gs){
+      var r=1.3+0.4*Math.sin(t*0.001+x*0.05+y*0.04);
+      ctx.beginPath(); ctx.arc(x,y,r,0,TAU); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  var helixData=[
+    {x:W*0.06,y0:0,y1:H,speed:0.006,cA:'#10b981',cB:'#3b82f6',t:0},
+    {x:W*0.94,y0:0,y1:H,speed:0.005,cA:'#8b5cf6',cB:'#ec4899',t:0}
+  ];
+  function drawHelix(h) {
+    h.t += h.speed;
+    var amp=26,freq=0.042,steps=80,segH=(h.y1-h.y0)/steps;
+    ctx.save();
+    for(var i=0;i<=steps;i++){
+      var y=h.y0+i*segH, ph=h.t+i*freq*TAU;
+      var x1=h.x+Math.sin(ph)*amp, x2=h.x+Math.sin(ph+Math.PI)*amp;
+      if(i>0){
+        var py=h.y0+(i-1)*segH;
+        var px1=h.x+Math.sin(h.t+(i-1)*freq*TAU)*amp;
+        var px2=h.x+Math.sin(h.t+Math.PI+(i-1)*freq*TAU)*amp;
+        ctx.globalAlpha=DARK()?0.22:0.14;
+        ctx.beginPath();ctx.moveTo(px1,py);ctx.lineTo(x1,y);ctx.strokeStyle=h.cA;ctx.lineWidth=1.6;ctx.stroke();
+        ctx.beginPath();ctx.moveTo(px2,py);ctx.lineTo(x2,y);ctx.strokeStyle=h.cB;ctx.lineWidth=1.6;ctx.stroke();
+      }
+      if(i%5===0){
+        ctx.globalAlpha=DARK()?0.3:0.18;
+        ctx.beginPath();ctx.arc(x1,y,2.5,0,TAU);ctx.fillStyle=h.cA;ctx.fill();
+        ctx.beginPath();ctx.arc(x2,y,2.5,0,TAU);ctx.fillStyle=h.cB;ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  var SYMS=['Σ','∫','π','λ','α','β','γ','H₂O','CO₂','ATP','DNA','E=mc²','F=ma','pH','A','B','C','D','?','✓'];
+  var SYM_COLS=[PAL.bio,PAL.chem,PAL.phys,PAL.math,PAL.logic];
+  var floatSyms = [];
+  for(var _i=0;_i<30;_i++){
+    floatSyms.push({
+      x:rng(_i*3)*(window.innerWidth||1200), y:rng(_i*7)*(window.innerHeight||900),
+      vy:-(0.12+rng(_i*5)*0.28), vx:(rng(_i*9)-0.5)*0.18,
+      life:Math.floor(rng(_i*11)*400), maxLife:280+rng(_i*17)*500,
+      text:SYMS[Math.floor(rng(_i*19)*SYMS.length)], size:11+rng(_i*23)*9,
+      palIdx:Math.floor(rng(_i*29)*5), maxA:0.08+rng(_i*13)*0.12
+    });
+  }
+  function drawSyms(){
+    ctx.save();
+    floatSyms.forEach(function(s,i){
+      s.x+=s.vx; s.y+=s.vy; s.life++;
+      if(s.life>s.maxLife){ s.x=rng(s.life*3+i)*W; s.y=H+20; s.life=0; s.text=SYMS[Math.floor(rng(s.life+i*7)*SYMS.length)]; }
+      var tv=s.life/s.maxLife, a=tv<0.1?s.maxA*(tv/0.1):tv>0.82?s.maxA*(1-(tv-0.82)/0.18):s.maxA;
+      ctx.globalAlpha=a;
+      ctx.font=s.size+"px 'JetBrains Mono',monospace";
+      ctx.fillStyle=SYM_COLS[s.palIdx]()+'1)';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(s.text,s.x,s.y);
+    });
+    ctx.restore();
+  }
+
+  var scanY = -40;
+  function drawScan(){
+    scanY+=0.6; if(scanY>H+40) scanY=-40;
+    ctx.save(); ctx.globalAlpha=DARK()?0.05:0.03;
+    ctx.beginPath(); ctx.moveTo(0,scanY); ctx.lineTo(W,scanY);
+    ctx.strokeStyle='#5b9cf6'; ctx.lineWidth=1.8; ctx.stroke(); ctx.restore();
+  }
+
+  var frame=0;
+  function tick(){
+    frame++;
+    ctx.clearRect(0,0,W,H);
+    drawGrid(frame);
+    helixData.forEach(drawHelix);
+    drawSyms();
+    drawScan();
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+</script>
+{% endblock %}

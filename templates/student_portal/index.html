@@ -2157,9 +2157,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="glance-wrap">
     <div class="guide-mascot-wrap">
       <!-- TODO: replace these 4 paths with your real per-card mascot images, in card order (date, duration, questions, score) -->
-      <img src="{% static 'student_portal/assets/img/char8.png' %}" alt="Guide mascot for exam date" class="guide-mascot mascot-img is-active" data-mascot-idx="0" />
+      <img src="{% static 'student_portal/assets/img/char 9.png' %}" alt="Guide mascot for exam date" class="guide-mascot mascot-img is-active" data-mascot-idx="0" />
       <img src="{% static 'student_portal/assets/img/char6.png' %}" alt="Guide mascot for duration" class="guide-mascot mascot-img" data-mascot-idx="1" />
-      <img src="{% static 'student_portal/assets/img/char5.png' %}" alt="Guide mascot for total questions" class="guide-mascot mascot-img" data-mascot-idx="2" />
+      <img src="{% static 'student_portal/assets/img/char 11.png' %}" alt="Guide mascot for total questions" class="guide-mascot mascot-img" data-mascot-idx="2" />
       <img src="{% static 'student_portal/assets/img/chat4.png' %}" alt="Guide mascot for max score" class="guide-mascot mascot-img" data-mascot-idx="3" />
     </div>
     <p class="sr sr-fade d1" style="text-align:center;margin:0 0 14px;font:700 .72rem/1 'Courier New',monospace;letter-spacing:.14em;text-transform:uppercase;color:#8A94A6;">— Your Exam At A Glance —</p>
@@ -2447,13 +2447,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     .stat-card:last-child{border-bottom:none;}
   }
 
-  /* ═══ Guide character tracking ═══ */
+ /* ═══ Guide character tracking ═══ */
   .glance-wrap{
     position:relative;
-    padding-bottom:150px;
+    padding-bottom:210px;
   }
-  @media (max-width:960px){ .glance-wrap{ padding-bottom:120px; } }
-  @media (max-width:560px){ .glance-wrap{ padding-bottom:100px; } }
+  @media (max-width:960px){ .glance-wrap{ padding-bottom:170px; } }
+  @media (max-width:560px){ .glance-wrap{ padding-bottom:140px; } }
 
   /* Position/size of the mascot wrap — initial values before JS positions it under the active card */
   .guide-mascot-wrap{
@@ -2470,8 +2470,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      and cross-fades via opacity — only one is visible (.is-active) at a time */
   .guide-mascot{
     display:block;
-    width:220px;
-    height:auto;
+    width:auto;
+    height:180px;
+    max-width:220px;
     filter:drop-shadow(0 12px 20px rgba(11,30,61,.18));
   }
   .mascot-img{
@@ -2485,18 +2486,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     position:relative;
     opacity:1;
   }
-  @media (max-width:960px){ .guide-mascot{ width:180px; } }
-  @media (max-width:560px){ .guide-mascot{ width:140px; } }
-  @media (max-width:380px){ .guide-mascot{ width:110px; } }
-
-  @keyframes mascotFloat{
-    0%, 100%{ transform:translateY(0) rotate(0deg); }
-    50%{ transform:translateY(-12px) rotate(-3deg); }
+  @media (max-width:960px){ .guide-mascot{ height:150px; } }
+  @media (max-width:560px){ .guide-mascot{ height:120px; } }
+  @media (max-width:380px){ .guide-mascot{ height:95px; } }
+  /* Bigger size just for the "Total questions" mascot */
+  .guide-mascot[data-mascot-idx="2"]{
+    height:260px;
+    max-width:300px;
   }
-  @media (prefers-reduced-motion: reduce){
-    .guide-mascot-wrap{ animation:none; }
-  }
-
+  @media (max-width:960px){ .guide-mascot[data-mascot-idx="2"]{ height:210px; } }
+  @media (max-width:560px){ .guide-mascot[data-mascot-idx="2"]{ height:160px; } }
+  @media (max-width:380px){ .guide-mascot[data-mascot-idx="2"]{ height:130px; } }
   /* ═══════════════════════════════════════════════════════════
      SUBJECT BREAKDOWN + MARKING SCHEME — SIDE-BY-SIDE LAYOUT
      ═══════════════════════════════════════════════════════════ */
@@ -2896,7 +2896,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </script>
 
-<!--
+
 
 <section class="section syllabus-section" id="syllabus" style="background:#f5f7fc;padding:64px 0;">
   <div class="container">
@@ -3225,7 +3225,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   })();
 </script>
 
--->
 <!-- EVERYTHING YOU NEED -->
 <section class="section everything" id="features">
   <div class="container">

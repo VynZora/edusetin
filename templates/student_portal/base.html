@@ -432,6 +432,7 @@ src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
     }
     @media (max-width: 575px) { .h-navbar-top { height: 54px; padding: 0 10px; gap: 8px; } .h-navbar-brand-text { font-size: 1.25rem; } .h-navbar-brand img { width: 28px; } .admio-content { padding: 14px 12px; } .stat-value { font-size: 1.65rem !important; } }
     @media (max-width: 479px) { .h-ai-pill { display: none !important; } .h-navbar-brand-text { font-size: 1.15rem; } .admio-content { padding: 12px 10px; } .stat-value { font-size: 1.5rem !important; } .h-topbar-actions .h-topbar-divider { display: none; } .h-topbar-actions { gap: 4px; } }
+    
   </style>
 
   {% block extra_css %}{% endblock %}
@@ -612,6 +613,7 @@ src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
     {% url 'student_portal:quiz_setup'     as url_quiz_setup %}
     {% url 'student_portal:quiz_history'   as url_quiz_history %}
     {% url 'student_portal:student_detail' as url_student_detail %}
+    {% url 'student_portal:syllabus' as url_syllabus %}
 
     <div class="h-nav-item">
       <a href="{{ url_dashboard }}"
@@ -651,7 +653,14 @@ src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
         </a>
       </div>
     </div>
+   
 
+<div class="h-nav-item">
+  <a href="{{ url_syllabus }}"
+     class="h-nav-link {% if request.path == url_syllabus %}active{% endif %}">
+    <i class="icon-book"></i> Syllabus
+  </a>
+</div>
     <div class="h-nav-item">
       <a href="{{ url_student_detail }}"
          class="h-nav-link {% if request.path == url_student_detail or request.path == url_student_update %}active{% endif %}">
@@ -698,7 +707,10 @@ src="https://www.facebook.com/tr?id=1503469751038597&ev=PageView&noscript=1"
         </a>
       </div>
     </div>
-
+    <a href="{{ url_syllabus }}"
+   class="h-mobile-direct {% if request.path == url_syllabus %}active{% endif %}">
+  <i class="icon-book"></i> Syllabus
+</a>
     <a href="{{ url_student_detail }}"
        class="h-mobile-direct {% if request.path == url_student_detail or request.path == url_student_update %}active{% endif %}">
       <i class="icon-users"></i> Profile

@@ -140,6 +140,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # production
 
 MEDIA_URL = '/media/' 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+SYLLABUS_PDF_ROOT = os.path.join(BASE_DIR, 'private_media', 'syllabus_pdfs')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -154,7 +155,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'msvishnu673@gmail.com'
 EMAIL_HOST_PASSWORD = 'sjcf tyva aldr ashi' 
 DEFAULT_FROM_EMAIL = 'EduSetin <msvishnu673@gmail.com>'
-
 
 from celery.schedules import crontab
 
