@@ -41,21 +41,30 @@
   }
 
   /* ═══════════════════════════════════════════════
-     ACCORDION CARDS — same pattern as index.html
-     .syllabus-card, adapted to the admio card system
+     ACCORDION CARDS — masonry-style independent
+     flex columns (built by JS) so an expanded card
+     never leaves dead space in sibling columns.
   ═══════════════════════════════════════════════ */
   .syl-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
     gap: 22px;
-    align-items: start; /* prevent grid from stretching every card in a row to match the tallest one when it expands */
+    align-items: flex-start;
   }
+  .syl-grid-col {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  @media (max-width: 992px) { .syl-grid { flex-wrap: wrap; } }
+
   .syl-card {
     background: #fff;
     border: 1px solid var(--blue-100);
     border-radius: 16px;
     overflow: hidden;
-    height: fit-content; /* card hugs its own content height, independent of siblings */
     transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease, border-color .25s ease;
   }
   .syl-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(21,101,192,.14); }
@@ -99,10 +108,23 @@
   .syl-card.expanded .syl-panel { opacity: 1; }
   .syl-panel-inner { padding: 0 20px 20px; border-top: 1px solid var(--blue-100); }
 
+  /* Topic list — internal scroll instead of unbounded growth */
   .syl-topic-list {
     display: flex; flex-direction: column; gap: 9px; padding-top: 16px;
     counter-reset: syl-topic;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--blue-200) transparent;
   }
+  .syl-topic-list::-webkit-scrollbar { width: 6px; }
+  .syl-topic-list::-webkit-scrollbar-track { background: transparent; }
+  .syl-topic-list::-webkit-scrollbar-thumb {
+    background: var(--blue-200); border-radius: 10px;
+  }
+  .syl-topic-list::-webkit-scrollbar-thumb:hover { background: var(--blue-400); }
+
   .syl-topic-list li {
     counter-increment: syl-topic;
     position: relative; padding-left: 28px;
@@ -121,7 +143,7 @@
   }
 
   /* ═══════════════════════════════════════════════
-     NEW: per-topic row + download button
+     per-topic row + download button
   ═══════════════════════════════════════════════ */
   .syl-topic-row {
     display: flex; align-items: center; justify-content: space-between;
@@ -155,9 +177,6 @@
     padding: 3px 10px; border-radius: 20px;
   }
 
-  @media (max-width: 992px) { .syl-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 640px) { .syl-grid { grid-template-columns: 1fr; } }
-
   @media (prefers-reduced-motion: reduce) {
     .syl-card, .syl-panel, .syl-chevron, .syl-topic-list li { transition: none !important; }
   }
@@ -169,7 +188,7 @@
     <h1 class="page-title">Syllabus</h1>
     <p class="page-subtitle">Every subject and topic tested in the IMAT</p>
   </div>
- 
+
 </div>
 
 <canvas id="imat-bg-canvas" aria-hidden="true"></canvas>
@@ -208,7 +227,7 @@
                     <i class="ti ti-download"></i>
                   </a>
                   {% else %}
-                 
+
                   {% endif %}
                 </div>
               </li>
@@ -228,6 +247,61 @@
 
   </div>
 </div>
+
+<script>
+  /* ══ MASONRY COLUMN LAYOUT ══
+     Distributes .syl-card elements into independent
+     .syl-grid-col flex columns (round-robin, left-to-right
+     reading order) so an expanded card never leaves dead
+     space in the sibling columns. Re-runs on resize when
+     the column count changes (3 → 2 → 1 breakpoints).
+  */
+  (function () {
+    var grid = document.getElementById('syllabusGrid');
+    if (!grid) return;
+
+    var cards = Array.prototype.slice.call(grid.children).filter(function (el) {
+      return el.classList.contains('syl-card');
+    });
+    if (!cards.length) return;
+
+    function colCount() {
+      var w = window.innerWidth;
+      if (w <= 640) return 1;
+      if (w <= 992) return 2;
+      return 3;
+    }
+
+    var currentCols = null;
+
+    function layout() {
+      var n = colCount();
+      if (n === currentCols) return; /* avoid unnecessary re-layout / losing expanded state on unrelated resizes */
+      currentCols = n;
+
+      grid.innerHTML = '';
+      var cols = [];
+      for (var i = 0; i < n; i++) {
+        var col = document.createElement('div');
+        col.className = 'syl-grid-col';
+        grid.appendChild(col);
+        cols.push(col);
+      }
+      /* round-robin distribution preserves left-to-right reading order per row */
+      cards.forEach(function (card, idx) {
+        cols[idx % n].appendChild(card);
+      });
+    }
+
+    layout();
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(layout, 150);
+    });
+  })();
+</script>
 
 <script>
   /* ══ ACCORDION TOGGLE — same interaction pattern as index.html ══ */
