@@ -169,6 +169,176 @@
         transform: translateX(24px);
     }
 
+    /* Chapter-based submodule selection */
+    .subject-chapters-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 14px;
+        background: #f9fafb;
+    }
+    .subject-chapters-header {
+        font-size: 13px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .subject-chapters-header i {
+        color: #6366f1;
+    }
+    .add-chapter-row {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    .add-chapter-row input {
+        flex: 1;
+        font-size: 13px;
+        padding: 6px 10px !important;
+    }
+    .add-chapter-btn {
+        flex-shrink: 0;
+        border: none;
+        background: #4f46e5;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 7px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s;
+    }
+    .add-chapter-btn:hover {
+        background: #4338ca;
+    }
+
+    .chapter-item-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        background: #fff;
+    }
+    .chapter-item-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .chapter-item-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .chapter-item-title i {
+        color: #7c3aed;
+    }
+    .chapter-remove-btn {
+        border: none;
+        background: transparent;
+        color: #ef4444;
+        font-size: 18px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+    .chapter-remove-btn:hover {
+        background: #fee2e2;
+    }
+
+    .chapter-submodules {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 8px;
+    }
+    .chapter-submodule-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        background: #f3f4f6;
+    }
+    .chapter-submodule-row.has-override {
+        background: #fef9ec;
+        border-color: #fde68a;
+    }
+    .chapter-submodule-row .form-check {
+        min-width: 0;
+        flex: 1;
+    }
+    .chapter-submodule-row .form-check-label {
+        font-size: 12px;
+        margin-bottom: 0;
+    }
+    .sm-limit-input-chapter {
+    width: 60px !important;
+    flex: 0 0 60px;
+    flex-shrink: 0;
+    padding: 4px 6px !important;
+    font-size: 12px !important;
+    text-align: center;
+}
+    .override-badge {
+        font-size: 10px;
+        font-weight: 700;
+        color: #b45309;
+        background: #fef3c7;
+        border-radius: 6px;
+        padding: 1px 6px;
+        margin-left: 4px;
+        display: none;
+    }
+    .chapter-submodule-row.has-override .override-badge {
+        display: inline-block;
+    }
+
+    .chapter-empty {
+        font-size: 12px;
+        color: #9ca3af;
+        font-style: italic;
+        padding: 8px 0;
+    }
+
+    .shared-limit-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        background: #f0fdf4;
+        margin-bottom: 12px;
+    }
+    .shared-limit-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #15803d;
+        margin-bottom: 8px;
+    }
+    .shared-limit-input {
+        max-width: 150px;
+    }
+    .shared-limit-hint {
+        font-size: 11px;
+        color: #4b5563;
+        margin-top: 6px;
+    }
+
+    .chapters-submodules-empty {
+        font-size: 13px;
+        color: #9ca3af;
+        font-style: italic;
+        padding: 20px 0;
+        text-align: center;
+    }
+
     /* Per-submodule row + override input */
     .submodule-row {
         display: flex;
@@ -201,16 +371,6 @@
         font-size: 14px;
         overflow-wrap: anywhere;
     }
-    .override-badge {
-        font-size: 10px;
-        font-weight: 700;
-        color: #b45309;
-        background: #fef3c7;
-        border-radius: 6px;
-        padding: 1px 6px;
-        margin-left: 6px;
-        display: none;
-    }
     .submodule-row.has-override .override-badge {
         display: inline-block;
     }
@@ -233,6 +393,9 @@
             <i class="fas fa-arrow-left me-1"></i> Back to Plans
         </a>
     </div>
+
+    {{ existing_subject_chapters|json_script:"existing-chapters-data" }}
+    {{ submodules_by_subject|json_script:"submodules-by-subject-data" }}
 
     <form method="post">
         {% csrf_token %}
@@ -271,12 +434,12 @@
                     </div>
                 </div>
 
-                <!-- Subjects Accordion -->
-                <div class="section-accordion" id="accordion-subjects">
-                    <button type="button" class="accordion-toggle" onclick="toggleAccordion('accordion-subjects')">
+                <!-- Subjects & Chapters Accordion -->
+                <div class="section-accordion" id="accordion-subjects-chapters">
+                    <button type="button" class="accordion-toggle" onclick="toggleAccordion('accordion-subjects-chapters')">
                         <span class="acc-title">
                             <i class="fas fa-book-open" style="color:#6366f1;"></i>
-                            Subjects
+                            Subjects & Chapters & Submodules
                         </span>
                         <span class="acc-meta">
                             <span class="acc-badge none" id="badge-subjects">0 selected</span>
@@ -284,25 +447,47 @@
                         </span>
                     </button>
                     <div class="accordion-body">
-                        {% if form.subjects.field.queryset.exists %}
-                        <div class="row g-2">
-                            {% for choice in form.subjects %}
-                            <div class="col-sm-6 col-md-4">
-                                <div class="form-check">
-                                    {{ choice.tag }}
-                                    <label class="form-check-label" for="{{ choice.id_for_label }}">
-                                        {{ choice.choice_label }}
-                                    </label>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold" style="font-size:13px;">Select Subjects</label>
+                            {% if form.subjects.field.queryset.exists %}
+                            <div class="row g-2" id="subjects-grid">
+                                {% for choice in form.subjects %}
+                                <div class="col-sm-6 col-md-4">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
                                 </div>
+                                {% endfor %}
                             </div>
-                            {% endfor %}
+                            {% else %}
+                            <p class="text-muted small mb-0">No active subjects available.</p>
+                            {% endif %}
                         </div>
-                        {% else %}
-                        <p class="text-muted small mb-0">No active subjects available.</p>
-                        {% endif %}
-                        {% if form.subjects.errors %}
-                            <div class="text-danger small mt-1">{{ form.subjects.errors.0 }}</div>
-                        {% endif %}
+
+                        <!-- Shared Question Limit (applies to all submodules unless overridden) -->
+                        <div class="shared-limit-card">
+                            <div class="shared-limit-title">
+                                <i class="fas fa-sliders-h me-1"></i> Default Question Limit Per Submodule
+                            </div>
+                            <input type="number" min="0" name="submodule_question_limit"
+                                   id="shared-limit-input"
+                                   placeholder="No limit"
+                                   value="{% if existing_limit_value is not None %}{{ existing_limit_value }}{% endif %}"
+                                   class="form-control shared-limit-input">
+                            <div class="shared-limit-hint">
+                                Leave blank for no limit. Each submodule can override this below.
+                            </div>
+                        </div>
+
+                        <!-- Chapters & Submodules Panel -->
+                        <div id="chapters-submodules-panel">
+                            <div class="chapters-submodules-empty">
+                                Select subjects above to add chapters and choose submodules for each chapter.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -326,8 +511,8 @@
                             <label class="form-label fw-semibold" style="font-size:13px;">
                                 Question Limit Per Submodule
                             </label>
-                            <input type="number" min="0" name="submodule_question_limit"
-                                   id="shared-limit-input"
+                            <input type="number" min="0" name="submodule_question_limit_flat"
+                                   id="shared-limit-input-flat"
                                    placeholder="No limit"
                                    value="{% if existing_limit_value is not None %}{{ existing_limit_value }}{% endif %}"
                                    class="form-control" style="max-width:200px;">
@@ -367,7 +552,6 @@
                         {% else %}
                         <p class="text-muted small mb-0">No active submodules available.</p>
                         {% endif %}
-
                     </div>
                 </div>
 
@@ -414,10 +598,8 @@
                     <div class="card-body">
                         <h6 class="fw-semibold mb-3 text-muted text-uppercase" style="font-size:12px; letter-spacing:.05em;">Status</h6>
 
-                        <!-- Hidden real checkbox rendered by Django -->
                         {{ form.is_active }}
 
-                        <!-- iOS-style toggle switch -->
                         <div class="toggle-row" id="status-toggle-row" onclick="toggleStatus()">
                             <div class="toggle-info">
                                 <span class="toggle-title" id="status-label">Inactive</span>
@@ -449,11 +631,11 @@
         </div>
     </form>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
 (function () {
-
     /* ---------- Accordion ---------- */
     function toggleAccordion(id) {
         var el = document.getElementById(id);
@@ -476,7 +658,7 @@
         }
     }
 
-    function bindGroupBadge(groupName, badgeId, accordionId) {
+    function bindGroupBadge(groupName, badgeId) {
         var checkboxes = document.querySelectorAll('input[name="' + groupName + '"]');
         checkboxes.forEach(function (cb) {
             cb.addEventListener('change', function () {
@@ -486,16 +668,19 @@
         updateBadge(groupName, badgeId);
     }
 
-    bindGroupBadge('subjects',   'badge-subjects',   'accordion-subjects');
-    bindGroupBadge('submodules', 'badge-submodules', 'accordion-submodules');
-    bindGroupBadge('exams',      'badge-exams',      'accordion-exams');
+    bindGroupBadge('subjects', 'badge-subjects');
+    bindGroupBadge('exams', 'badge-exams');
+    bindGroupBadge('submodules', 'badge-submodules');
 
-    /* ---------- Open accordions that have errors or pre-selected items ---------- */
-    ['subjects', 'submodules', 'exams'].forEach(function (name) {
-        var hasChecked = document.querySelectorAll('input[name="' + name + '"]:checked').length > 0;
-        var accordionId = 'accordion-' + name;
+    /* Open accordions with pre-selected items */
+    [
+        { name: 'subjects', accordionId: 'accordion-subjects-chapters' },
+        { name: 'exams', accordionId: 'accordion-exams' },
+        { name: 'submodules', accordionId: 'accordion-submodules' }
+    ].forEach(function (entry) {
+        var hasChecked = document.querySelectorAll('input[name="' + entry.name + '"]:checked').length > 0;
         if (hasChecked) {
-            var el = document.getElementById(accordionId);
+            var el = document.getElementById(entry.accordionId);
             if (el) el.classList.add('open');
         }
     });
@@ -524,15 +709,11 @@
     }
     window.toggleStatus = toggleStatus;
 
-    /* Sync on page load (handles edit mode where checkbox is pre-checked) */
     if (realCheckbox) {
         applyStatusUI(realCheckbox.checked);
     }
 
-    /* ---------- Per-submodule override highlighting ----------
-       Live-toggles the "has-override" style + "custom" badge as the
-       admin types into a submodule's own limit box, so it's obvious
-       at a glance which ones no longer follow the shared limit. */
+    /* ---------- Per-submodule override highlighting ---------- */
     document.querySelectorAll('[data-sm-row]').forEach(function (row) {
         var input = row.querySelector('.sm-limit-input');
         if (!input) return;
@@ -545,8 +726,320 @@
         });
     });
 
+    /* ========== Chapter-based Submodule Selection ========== */
+    var existingChaptersDataEl = document.getElementById('existing-chapters-data');
+    var submodulesBySubjectEl = document.getElementById('submodules-by-subject-data');
+
+    var existingChaptersData = {};
+    var submodulesBySubject = {};
+
+    if (existingChaptersDataEl) {
+        try {
+            existingChaptersData = JSON.parse(existingChaptersDataEl.textContent) || {};
+        } catch (e) {}
+    }
+
+    if (submodulesBySubjectEl) {
+        try {
+            submodulesBySubject = JSON.parse(submodulesBySubjectEl.textContent) || {};
+        } catch (e) {}
+    }
+
+    var panel = document.getElementById('chapters-submodules-panel');
+    var subjectChapterState = {}; // subjectId -> { chapters: [] }
+
+    function buildSubjectCard(subjectId, subjectLabel, submodules) {
+        var card = document.createElement('div');
+        card.className = 'subject-chapters-card';
+        card.setAttribute('data-subject-card', subjectId);
+
+        var header = document.createElement('div');
+        header.className = 'subject-chapters-header';
+        header.innerHTML = '<i class="fas fa-book"></i> ' + subjectLabel;
+        card.appendChild(header);
+
+        // Add Chapter Row
+        var addRow = document.createElement('div');
+        addRow.className = 'add-chapter-row';
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control';
+        input.placeholder = 'Chapter name (e.g., Chapter 1: Cells)';
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'add-chapter-btn';
+        btn.innerHTML = '<i class="fas fa-plus me-1"></i>Add Chapter';
+
+        addRow.appendChild(input);
+        addRow.appendChild(btn);
+        card.appendChild(addRow);
+
+        var chaptersContainer = document.createElement('div');
+        chaptersContainer.className = 'chapters-container';
+        card.appendChild(chaptersContainer);
+
+        var state = {
+            subjectId: subjectId,
+            chapters: [],
+            chaptersContainer: chaptersContainer,
+            input: input,
+            submodules: submodules || [],
+        };
+
+        // Load existing chapters for this subject
+        if (existingChaptersData[subjectId]) {
+            var existing = existingChaptersData[subjectId];
+            if (typeof existing === 'object' && !Array.isArray(existing)) {
+                // New format: { chapterKey: [...submodule_ids], ... }
+                Object.keys(existing).forEach(function (chKey) {
+                    var smIds = existing[chKey];
+                    if (Array.isArray(smIds)) {
+                        state.chapters.push({
+                            id: chKey,
+                            name: chKey, // fallback, ideally extract chapter name
+                            submoduleIds: smIds,
+                            limits: {}
+                        });
+                    }
+                });
+            } else if (typeof existing === 'string') {
+                // Old format: newline-separated chapter names (no submodule data)
+                var lines = existing.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+                lines.forEach(function (name, idx) {
+                    var chKey = name.replace(/\s+/g, '_') + '_' + idx;
+                    state.chapters.push({
+                        id: chKey,
+                        name: name,
+                        submoduleIds: [],
+                        limits: {}
+                    });
+                });
+            }
+        }
+
+        function renderChapters() {
+            chaptersContainer.innerHTML = '';
+            if (state.chapters.length === 0) {
+                chaptersContainer.innerHTML = '<div class="chapter-empty">No chapters yet. Add one above.</div>';
+                return;
+            }
+
+            // Which submodule ids are already claimed by chapters OTHER than the one being rendered.
+            // A submodule can only belong to one chapter at a time — whichever chapter grabs it
+            // first "owns" it until it's unchecked there, at which point it's free again.
+            function claimedElsewhere(currentChapterId) {
+                var claimed = {};
+                state.chapters.forEach(function (c) {
+                    if (c.id === currentChapterId) return;
+                    c.submoduleIds.forEach(function (id) { claimed[id] = true; });
+                });
+                return claimed;
+            }
+
+            state.chapters.forEach(function (ch, idx) {
+                ch.limits = ch.limits || {}; // preserves typed limit values across re-renders
+
+                var chCard = document.createElement('div');
+                chCard.className = 'chapter-item-card';
+                chCard.setAttribute('data-chapter-id', ch.id);
+
+                var chHeader = document.createElement('div');
+                chHeader.className = 'chapter-item-header';
+
+                var chTitle = document.createElement('div');
+                chTitle.className = 'chapter-item-title';
+                chTitle.innerHTML = '<i class="fas fa-layer-group"></i> ' + ch.name;
+
+                var chRemoveBtn = document.createElement('button');
+                chRemoveBtn.type = 'button';
+                chRemoveBtn.className = 'chapter-remove-btn';
+                chRemoveBtn.innerHTML = '&times;';
+                chRemoveBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    state.chapters.splice(idx, 1);
+                    renderChapters();
+                    syncHidden();
+                });
+
+                chHeader.appendChild(chTitle);
+                chHeader.appendChild(chRemoveBtn);
+                chCard.appendChild(chHeader);
+
+                // Submodule selector for this chapter — only submodules not already
+                // taken by another chapter are offered here.
+                var claimed = claimedElsewhere(ch.id);
+                var availableSubmodules = (state.submodules || []).filter(function (sm) {
+                    return !claimed[sm.id];
+                });
+
+                if (availableSubmodules.length > 0) {
+                    var smGrid = document.createElement('div');
+                    smGrid.className = 'chapter-submodules';
+
+                    availableSubmodules.forEach(function (sm) {
+                        var smRow = document.createElement('div');
+                        smRow.className = 'chapter-submodule-row';
+                        var isChecked = ch.submoduleIds.indexOf(sm.id) > -1;
+                        if (isChecked) {
+                            smRow.classList.add('selected');
+                        }
+
+                        var checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'form-check-input';
+                        checkbox.value = sm.id;
+                        checkbox.id = 'sm_ch_' + ch.id + '_' + sm.id;
+                        checkbox.checked = isChecked;
+
+                        var label = document.createElement('label');
+                        label.className = 'form-check-label';
+                        label.setAttribute('for', checkbox.id);
+                        label.textContent = sm.name;
+
+                        var checkDiv = document.createElement('div');
+                        checkDiv.className = 'form-check mb-0';
+                        checkDiv.appendChild(checkbox);
+                        checkDiv.appendChild(label);
+
+                        // Per-submodule question limit input — same field name/behavior as before
+                        var limitInput = document.createElement('input');
+                        limitInput.type = 'number';
+                        limitInput.min = '0';
+                        limitInput.className = 'form-control sm-limit-input-chapter';
+                        limitInput.placeholder = 'Shared';
+                        limitInput.title = 'Override shared limit';
+                        limitInput.name = 'submodule_limit_' + sm.id;
+                        if (ch.limits[sm.id] !== undefined) {
+                            limitInput.value = ch.limits[sm.id];
+                        }
+                        limitInput.addEventListener('input', function () {
+                            ch.limits[sm.id] = limitInput.value;
+                        });
+
+                        smRow.appendChild(checkDiv);
+                        smRow.appendChild(limitInput);
+                        smGrid.appendChild(smRow);
+
+                        checkbox.addEventListener('change', function () {
+                            if (checkbox.checked) {
+                                if (ch.submoduleIds.indexOf(sm.id) === -1) {
+                                    ch.submoduleIds.push(sm.id);
+                                }
+                            } else {
+                                var pos = ch.submoduleIds.indexOf(sm.id);
+                                if (pos > -1) {
+                                    ch.submoduleIds.splice(pos, 1);
+                                }
+                            }
+                            syncHidden();
+                            renderChapters(); // moves the submodule off/back onto other chapters' lists
+                        });
+                    });
+
+                    chCard.appendChild(smGrid);
+                } else {
+                    var noneLeft = document.createElement('div');
+                    noneLeft.className = 'chapter-empty';
+                    noneLeft.textContent = (state.submodules && state.submodules.length)
+                        ? 'All submodules for this subject are already assigned to another chapter.'
+                        : 'No submodules available for this subject.';
+                    chCard.appendChild(noneLeft);
+                }
+
+                chaptersContainer.appendChild(chCard);
+            });
+        }
+
+        function syncHidden() {
+            // Generate hidden inputs for form submission
+            // Format: chapters_<subjectId> JSON with chapter name and submodule ids
+            var existingHidden = document.querySelector('input[name="chapters_' + subjectId + '"]');
+            if (existingHidden) existingHidden.remove();
+
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'chapters_' + subjectId;
+            hiddenInput.value = JSON.stringify(state.chapters);
+            card.appendChild(hiddenInput);
+        }
+
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var val = input.value.trim();
+            if (!val) {
+                alert('Please enter a chapter name');
+                return;
+            }
+            var chKey = val.replace(/\s+/g, '_') + '_' + Date.now();
+            state.chapters.push({
+                id: chKey,
+                name: val,
+                submoduleIds: [],
+                limits: {}
+            });
+            input.value = '';
+            input.focus();
+            renderChapters();
+            syncHidden();
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btn.click();
+            }
+        });
+
+        renderChapters();
+        syncHidden();
+
+        subjectChapterState[subjectId] = state;
+        return card;
+    }
+
+    function refreshChaptersPanel() {
+        var checkedBoxes = document.querySelectorAll('input[name="subjects"]:checked');
+        var checkedIds = [];
+        checkedBoxes.forEach(function (cb) { checkedIds.push(cb.value); });
+
+        // Remove cards for unchecked subjects
+        Object.keys(subjectChapterState).forEach(function (sid) {
+            if (checkedIds.indexOf(sid) === -1) {
+                var card = document.querySelector('[data-subject-card="' + sid + '"]');
+                if (card) card.remove();
+                delete subjectChapterState[sid];
+            }
+        });
+
+        // Add cards for newly checked subjects
+        checkedBoxes.forEach(function (cb) {
+            var sid = cb.value;
+            if (subjectChapterState[sid]) return;
+
+            var labelEl = document.querySelector('label[for="' + cb.id + '"]');
+            var subjectLabel = labelEl ? labelEl.textContent.trim() : ('Subject #' + sid);
+            var submodules = submodulesBySubject[sid] || [];
+
+            var card = buildSubjectCard(sid, subjectLabel, submodules);
+            panel.appendChild(card);
+        });
+
+        // Update empty state
+        var emptyEl = panel.querySelector('.chapters-submodules-empty');
+        if (emptyEl) {
+            emptyEl.style.display = checkedIds.length ? 'none' : 'block';
+        }
+    }
+
+    document.querySelectorAll('input[name="subjects"]').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            refreshChaptersPanel();
+        });
+    });
+
+    // Initial render for edit mode
+    refreshChaptersPanel();
+
 })();
 </script>
-{% endblock %}
-
 {% endblock %}

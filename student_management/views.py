@@ -2691,14 +2691,55 @@ def plan_detail(request, pk):
     return render(request, "student_management/plan_detail.html", {"plan": plan})
 
 
-from collections import Counter  # no longer needed, but harmless if left from before
+import json
+from collections import defaultdict
 
 
-def _save_submodule_limits(request, plan):
+def _parse_chapters_post(request):
+    """
+    Parses the `chapters_<subjectId>` hidden JSON inputs produced by the
+    chapter/submodule picker on the plan form (one hidden input per
+    selected subject, value = JSON array of
+    {id, name, submoduleIds, limits}).
+
+    Returns:
+        { subject_id(int): [ {id, name, submoduleIds, limits}, ... ], ... }
+    """
+    chapters_by_subject = {}
+    for key, raw_value in request.POST.items():
+        if not key.startswith('chapters_'):
+            continue
+        sid_str = key[len('chapters_'):]
+        try:
+            sid = int(sid_str)
+        except ValueError:
+            continue
+        try:
+            chapters = json.loads(raw_value or '[]')
+        except (ValueError, TypeError):
+            chapters = []
+        if isinstance(chapters, list):
+            chapters_by_subject[sid] = chapters
+    return chapters_by_subject
+
+
+def _build_submodules_by_subject(submodules):
+    """
+    Groups an iterable of SubModule instances into
+    { "<subject_id>": [ {"id": sm.id, "name": sm.name}, ... ], ... }
+    for the chapter/submodule picker JS (`submodules_by_subject` context var).
+    """
+    grouped = defaultdict(list)
+    for sm in submodules:
+        grouped[str(sm.subject_id)].append({"id": sm.id, "name": sm.name})
+    return dict(grouped)
+
+
+def _save_submodule_limits(request, plan, chapters_by_subject):
     """
     Sync PlanSubmoduleLimit rows.
 
-    Priority rule:
+    Priority rule (unchanged):
       - If a submodule's OWN box has a number typed in, that number is
         used and stored with is_override=True — it always uses that
         number, regardless of what the shared box says, now or later.
@@ -2706,8 +2747,20 @@ def _save_submodule_limits(request, plan):
         "submodule_question_limit" value and is stored with
         is_override=False, even when the shared value itself is None
         (no limit).
+
+    Which submodules are "selected" comes from the chapter picker's JSON
+    (union of every chapter's submoduleIds across every subject), since
+    the picker's checkboxes are no longer a flat `submodules` field.
     """
-    selected_ids = set(request.POST.getlist('submodules'))
+    selected_ids = set()
+    for chapters in chapters_by_subject.values():
+        for ch in chapters:
+            for sm_id in (ch.get('submoduleIds') or []):
+                try:
+                    selected_ids.add(str(int(sm_id)))
+                except (TypeError, ValueError):
+                    continue
+
     existing = {pl.submodule_id: pl for pl in plan.submodule_limits.all()}
 
     def _parse_limit(raw):
@@ -2759,6 +2812,49 @@ def _save_submodule_limits(request, plan):
             row.delete()
 
 
+def _save_subject_chapters(request, plan, chapters_by_subject):
+    """
+    Sync SubscriptionPlan.subject_chapters JSON field.
+
+    Stored shape (matches what the picker JS expects back as
+    `existing_subject_chapters` on next edit):
+        { "<subject_id>": { "<chapter_name>": [submodule_id, ...], ... }, ... }
+
+    Only kept for subjects that are selected and have at least one chapter
+    with at least one submodule; dropped automatically otherwise.
+    """
+    selected_subject_ids = set(request.POST.getlist('subjects'))
+    chapters_data = {}
+
+    for sid_str in selected_subject_ids:
+        try:
+            sid = int(sid_str)
+        except ValueError:
+            continue
+        if not Subject.objects.filter(id=sid).exists():
+            continue
+
+        chapters = chapters_by_subject.get(sid, [])
+        subject_map = {}
+        for ch in chapters:
+            name = (ch.get('name') or '').strip()
+            raw_ids = ch.get('submoduleIds') or []
+            sm_ids = []
+            for x in raw_ids:
+                try:
+                    sm_ids.append(int(x))
+                except (TypeError, ValueError):
+                    continue
+            if name and sm_ids:
+                subject_map[name] = sm_ids
+
+        if subject_map:
+            chapters_data[str(sid)] = subject_map
+
+    plan.subject_chapters = chapters_data
+    plan.save(update_fields=['subject_chapters'])
+
+
 @admin_login_required
 def plan_update(request, name):
     plan = get_object_or_404(SubscriptionPlan, name=name)
@@ -2767,24 +2863,26 @@ def plan_update(request, name):
     limit_rows = {pl.submodule_id: pl for pl in plan.submodule_limits.all()}
     selected_submodule_ids = set(limit_rows.keys())
 
-    # Every non-override row was set FROM the shared box on the last save,
-    # so any one of them tells us what the shared box should show now.
-    # If every selected submodule has its own override, there's nothing
-    # to infer the shared value from — leave it blank ("No limit").
     shared_rows = [pl for pl in limit_rows.values() if not pl.is_override]
     existing_limit_value = shared_rows[0].question_limit if shared_rows else None
 
-    # Only rows explicitly flagged is_override=True prefill their own box.
-    # Everything else stays blank ("Shared" placeholder).
     for sm in submodules:
         row = limit_rows.get(sm.id)
         sm.override_limit = row.question_limit if (row and row.is_override) else None
 
+    # Existing chapter -> submodule mapping keyed by subject id (string keys, from JSONField)
+    existing_subject_chapters = plan.subject_chapters or {}
+
+    # NEW: feeds the picker's per-subject submodule lists
+    submodules_by_subject = _build_submodules_by_subject(submodules)
+
     form = SubscriptionPlanForm(request.POST or None, instance=plan)
 
     if request.method == 'POST' and form.is_valid():
+        chapters_by_subject = _parse_chapters_post(request)
         plan = form.save()
-        _save_submodule_limits(request, plan)
+        _save_submodule_limits(request, plan, chapters_by_subject)
+        _save_subject_chapters(request, plan, chapters_by_subject)   # NEW
         messages.success(request, f'Plan "{plan.name}" updated successfully.')
         return redirect("student_management:plan_list")
 
@@ -2795,6 +2893,8 @@ def plan_update(request, name):
         "submodules": submodules,
         "selected_submodule_ids": selected_submodule_ids,
         "existing_limit_value": existing_limit_value,
+        "existing_subject_chapters": existing_subject_chapters,   # NEW
+        "submodules_by_subject": submodules_by_subject,   # NEW
     })
 
 
@@ -2803,13 +2903,17 @@ def plan_create(request):
     form = SubscriptionPlanForm(request.POST or None)
     submodules = SubModule.objects.filter(is_active=True).select_related('subject').order_by('subject__name', 'order', 'name')
 
-    # No saved limits yet on create, so no submodule has an override.
     for sm in submodules:
         sm.override_limit = None
 
+    # NEW: feeds the picker's per-subject submodule lists
+    submodules_by_subject = _build_submodules_by_subject(submodules)
+
     if request.method == 'POST' and form.is_valid():
+        chapters_by_subject = _parse_chapters_post(request)
         plan = form.save()
-        _save_submodule_limits(request, plan)
+        _save_submodule_limits(request, plan, chapters_by_subject)
+        _save_subject_chapters(request, plan, chapters_by_subject)   # NEW
         messages.success(request, f'Plan "{plan.name}" created successfully.')
         return redirect("student_management:plan_list")
 
@@ -2819,7 +2923,11 @@ def plan_create(request):
         "submodules": submodules,
         "selected_submodule_ids": set(),
         "existing_limit_value": None,
+        "existing_subject_chapters": {},   # NEW
+        "submodules_by_subject": submodules_by_subject,   # NEW
     })
+
+
 @admin_login_required
 def plan_delete(request, pk):
     plan = get_object_or_404(SubscriptionPlan, pk=pk)
@@ -2827,7 +2935,6 @@ def plan_delete(request, pk):
     plan.delete()
     messages.success(request, f'Plan "{name}" deleted.')
     return redirect("student_management:plan_list")
-
 from student_portal.models import Student
 from .models import Payment, SubscriptionPlan
 
@@ -3618,3 +3725,89 @@ def exam_review_delete(request, review_id):
     review = get_object_or_404(ExamReview, pk=review_id)
     review.delete()
     return JsonResponse({"status": "success"})
+
+
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import JsonResponse
+from django.utils import timezone
+from django.urls import reverse
+from .models import Payment
+
+REMINDER_DAYS_BEFORE = 2
+
+
+def send_expiry_reminders(request):
+    # Simple shared-secret so randoms can't hit this and spam your users/email quota
+    if request.GET.get('key') != settings.CRON_SECRET_KEY:
+        return JsonResponse({'error': 'forbidden'}, status=403)
+
+    now = timezone.now()
+    today = now.date()
+    sent, skipped = 0, 0
+
+    # Build an absolute URL to the student-facing plans page.
+    plans_path = reverse('student_portal:plan_list')
+    plans_url = request.build_absolute_uri(plans_path)
+
+    # Pick each student's MOST RECENT successful payment only.
+    # Ordering ascending by expires_at means the last write per student_id
+    # wins — i.e. the one with the greatest expires_at (their "current" plan).
+    latest_by_student = {}
+    qs = (
+        Payment.objects
+        .filter(status=Payment.STATUS_SUCCESS)
+        .select_related('student__user', 'plan')
+        .order_by('expires_at')
+    )
+    for p in qs:
+        latest_by_student[p.student_id] = p
+
+    for payment in latest_by_student.values():
+        if not payment.expires_at:
+            continue
+
+        # Already emailed today for this payment? skip.
+        if payment.last_expiry_reminder_sent == today:
+            continue
+
+        days_left = (payment.expires_at.date() - today).days
+
+        # Not close enough to expiry yet -> nothing to do
+        if days_left > REMINDER_DAYS_BEFORE:
+            continue
+
+        student = payment.student
+        email = student.user.email
+        if not email:
+            continue
+
+        if days_left >= 0:
+            subject = f"Your {payment.plan.name} plan expires in {days_left} day(s)"
+            message = (
+                f"Hi {student.full_name},\n\n"
+                f"Your subscription to \"{payment.plan.name}\" will expire on "
+                f"{timezone.localtime(payment.expires_at).strftime('%d %b %Y')}.\n"
+                f"Renew now to keep uninterrupted access.\n\n"
+                f"Explore Plans:\n{plans_url}\n\n"
+                f"Thanks,\nThe Team"
+            )
+        else:
+            subject = f"Your {payment.plan.name} plan has expired"
+            message = (
+                f"Hi {student.full_name},\n\n"
+                f"Your subscription to \"{payment.plan.name}\" expired "
+                f"{abs(days_left)} day(s) ago. Renew now to regain access.\n\n"
+                f"Explore Plans:\n{plans_url}\n\n"
+                f"Thanks,\nThe Team"
+            )
+
+        try:
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+            payment.last_expiry_reminder_sent = today
+            payment.save(update_fields=['last_expiry_reminder_sent'])
+            sent += 1
+        except Exception:
+            skipped += 1
+
+    return JsonResponse({'sent': sent, 'skipped': skipped})

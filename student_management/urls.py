@@ -89,4 +89,5 @@ path(
     views.exam_review_delete,
     name="exam_review_delete",
 ),
+path('cron/send-expiry-reminders/', views.send_expiry_reminders, name='send_expiry_reminders'),
 ]

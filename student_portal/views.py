@@ -2325,6 +2325,56 @@ def landing_page(request):
         # ── Subjects list in fixed display order ──────────────────
         plan.ordered_subjects = sorted(plan.subjects.all(), key=subject_sort_key)
 
+        # ── Chapters, grouped by subject ────────────────────────────
+        # Reuses the SAME subject order as plan.ordered_subjects above
+        # (SUBJECT_ORDER), so Chapters lists subjects in the identical
+        # Biology / Chemistry / Physics / Mathematics / Logical
+        # Reasoning / Reading sequence. Only subjects that actually
+        # have chapter text typed in admin show up here — subjects
+        # with nothing entered are silently skipped. Within a subject,
+        # chapters keep the exact order typed/added in admin
+        # (chapters_with_submodules_for_subject() must not sort/reorder
+        # them).
+        #
+        # Each chapter now also carries the submodule names picked
+        # under it in admin, so the template can render:
+        #   1. Cells
+        #      1.1 Cell structure
+        #      1.2 Cell division
+        #
+        # Any leading number the admin typed into a chapter name
+        # ("1. Cell the unit of life", "2) Algebra", etc.) is stripped
+        # here so the template's CSS counter is the ONLY numbering
+        # rendered — otherwise it shows as "1. 1. Algebra".
+        submodule_by_id = {sm.id: sm for sm in all_submodules}
+
+        plan.subject_chapter_groups = []
+        for subject in plan.ordered_subjects:
+            raw_chapters = plan.chapters_with_submodules_for_subject(subject.id)
+            chapters = []
+            for ch in raw_chapters:
+                name = re.sub(r'^\s*\d+[\.\)]\s*', '', ch['name']).strip()
+                if not name:
+                    continue
+                submodule_names = [
+                    submodule_by_id[sm_id].name
+                    for sm_id in ch.get('submodule_ids', [])
+                    if sm_id in submodule_by_id
+                ]
+                chapters.append({'name': name, 'submodules': submodule_names})
+            if chapters:
+                plan.subject_chapter_groups.append({
+                    'subject': subject,
+                    'chapters': chapters,
+                })
+
+        # Total chapter count across ALL subjects combined
+        # (e.g. Biology 2 + Mathematics 2 = 4), used for the badge
+        # count instead of the number of subject groups.
+        plan.total_chapter_count = sum(
+            len(group['chapters']) for group in plan.subject_chapter_groups
+        )
+
         # ═══════════════════════════════════════════
         # EXAMS — cumulative: this plan's own exams + every cheaper
         # plan's exams, with Mock Tests renumbered 1..N over that

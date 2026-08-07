@@ -337,6 +337,11 @@ class SubscriptionPlan(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    subject_chapters = models.JSONField(
+        blank=True, null=True, default=dict,
+        help_text="Optional manual chapter names per subject. "
+                   "Format: {subject_id: 'one chapter per line'}."
+    )
 
     class Meta:
         ordering = ["price"]
@@ -351,6 +356,7 @@ class SubscriptionPlan(models.Model):
             "submodules": self.submodules.filter(is_active=True).count(),
             "exams": self.exams.filter(is_active=True).count(),
         }
+
     @property
     def submodule_question_limit(self):
         """
@@ -359,6 +365,38 @@ class SubscriptionPlan(models.Model):
         """
         first_row = self.submodule_limits.first()
         return first_row.question_limit if first_row else None
+
+    def chapters_for_subject(self, subject_id):
+        """Returns a numbered list of chapter names typed for a subject, e.g. ['1. Algebra', '2. Geometry']."""
+        raw = (self.subject_chapters or {}).get(str(subject_id), '')
+        lines = [line.strip() for line in raw.splitlines() if line.strip()]
+        return [f"{i}. {line}" for i, line in enumerate(lines, 1)]
+
+    def chapters_with_submodules_for_subject(self, subject_id):
+        """
+        Returns an ordered list of {'name': chapter_name, 'submodule_ids': [...]}
+        for the given subject, in the exact order the chapters were
+        typed/added in admin.
+
+        Handles both stored shapes of subject_chapters:
+          - New format (chapter picker): {'<subject_id>': {chapter_name: [sm_id, ...], ...}}
+          - Old format (plain typed text, no submodule data):
+            {'<subject_id>': 'Chapter 1\\nChapter 2\\n...'}
+        """
+        raw = (self.subject_chapters or {}).get(str(subject_id))
+        if not raw:
+            return []
+
+        if isinstance(raw, dict):
+            return [
+                {'name': name, 'submodule_ids': ids if isinstance(ids, list) else []}
+                for name, ids in raw.items()
+            ]
+
+        # Old format: newline-separated chapter names, no submodule data
+        lines = [line.strip() for line in raw.splitlines() if line.strip()]
+        return [{'name': line, 'submodule_ids': []} for line in lines]
+
 class PlanSubmoduleLimit(models.Model):
     """
     Through-model for SubscriptionPlan.submodules.

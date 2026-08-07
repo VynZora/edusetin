@@ -3636,7 +3636,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </section>
-
 <section class="section pricing" id="pricing">
   <div class="container">
     <div class="section-head center">
@@ -3725,9 +3724,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </button>
                     <div class="price-detail-panel">
                       <div class="price-detail-panel-inner">
-                        <ul class="price-feats">
+                        <ul class="price-feats price-subject-list">
                           {% for subject in plan.ordered_subjects %}
-                            <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
+                            <li class="price-feat price-subject-feat">{{ subject.name }}</li>
                           {% endfor %}
                         </ul>
                       </div>
@@ -3736,15 +3735,81 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   {% else %}
                   <div class="price-detail-static">
                     <div class="price-detail-label"><span>Subjects</span></div>
-                    <ul class="price-feats">
+                    <ul class="price-feats price-subject-list">
                       {% for subject in plan.ordered_subjects %}
-                        <li class="price-feat"><div class="price-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>{{ subject.name }}</li>
+                        <li class="price-feat price-subject-feat">{{ subject.name }}</li>
                       {% endfor %}
                     </ul>
                   </div>
                   {% endif %}
                 {% endif %}
 
+                <!-- ── CHAPTERS: subject name, chapters numbered "1.", submodules under each chapter numbered "1.1", "1.2" ── -->
+                {% if plan.subject_chapter_groups %}
+                  {% if plan.subject_chapter_groups|length > 1 %}
+                  <div class="price-detail-group">
+                    <button class="price-detail-toggle" type="button" onclick="toggleGroupDetails(this)" aria-expanded="false">
+                      <span class="price-detail-label-text">Modules</span>
+                      <span class="price-detail-count">{{ plan.total_chapter_count }}</span>
+                      <svg class="price-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="price-detail-panel">
+                      <div class="price-detail-panel-inner">
+                        <div class="price-chapter-wrap">
+                          {% for group in plan.subject_chapter_groups %}
+                            <div class="price-chapter-subject">
+                              <div class="price-chapter-subject-name">{{ group.subject.name }}</div>
+                              <ul class="price-chapter-list">
+                                {% for chapter in group.chapters %}
+                                  <li>
+                                    {{ chapter.name }}
+                                    {% if chapter.submodules %}
+                                    <ul class="price-submodule-list">
+                                      {% for sm_name in chapter.submodules %}
+                                        <li>{{ sm_name }}</li>
+                                      {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% else %}
+                  <div class="price-detail-static">
+                    <div class="price-detail-label">
+                      <span>Modules</span>
+                      <span class="price-detail-count">{{ plan.total_chapter_count }}</span>
+                    </div>
+                    <div class="price-chapter-wrap">
+                      {% for group in plan.subject_chapter_groups %}
+                        <div class="price-chapter-subject">
+                          <div class="price-chapter-subject-name">{{ group.subject.name }}</div>
+                          <ul class="price-chapter-list">
+                            {% for chapter in group.chapters %}
+                              <li>
+                                {{ chapter.name }}
+                                {% if chapter.submodules %}
+                                <ul class="price-submodule-list">
+                                  {% for sm_name in chapter.submodules %}
+                                    <li>{{ sm_name }}</li>
+                                  {% endfor %}
+                                </ul>
+                                {% endif %}
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+                {% endif %}
+                {% comment %}
                 {% if plan.ordered_submodules %}
                   {% if sub_count > 1 %}
                   <div class="price-detail-group">
@@ -3780,7 +3845,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   </div>
                   {% endif %}
                 {% endif %}
-
+                 {% endcomment %}
                 <!-- ── REVISION: submodules named exactly Biology / Chemistry / Physics / Mathematics ── -->
                 {% if plan.revision_submodules %}
                   {% if rev_count > 1 %}
@@ -3944,6 +4009,101 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   .price-feat-limit.unlimited {
     color: #2E7D32;
     background: rgba(46, 125, 50, 0.10);
+  }
+
+  /* ── Subjects list: plain names, no numbering ── */
+  .price-subject-feat {
+    font-size: 0.9rem;
+    color: #0B1E3D;
+    font-weight: 600;
+  }
+
+  /* ── Chapters block: subject name plain, chapters below it numbered ── */
+  .price-chapter-subject {
+    margin-bottom: 14px;
+  }
+  .price-chapter-subject:last-child {
+    margin-bottom: 0;
+  }
+  .price-chapter-subject-name {
+    font-size: 0.85rem;
+    font-weight: 800;
+    font-family: var(--font-display);
+    color: #0B1E3D;
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
+  }
+  .price-chapter-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: chapter-item;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .price-chapter-list li {
+    counter-increment: chapter-item;
+    position: relative;
+    padding-left: 22px;
+    font-size: 0.875rem;
+    color: #4B5563;
+    line-height: 1.5;
+    font-family: var(--font-body);
+  }
+  .price-chapter-list li::before {
+    content: counter(chapter-item) ".";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-weight: 700;
+    color: var(--blue);
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+  }
+  .price-chapter-wrap {
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--blue-light, var(--blue)) transparent;
+}
+.price-chapter-wrap::-webkit-scrollbar { width: 5px; }
+.price-chapter-wrap::-webkit-scrollbar-track { background: transparent; }
+.price-chapter-wrap::-webkit-scrollbar-thumb { background: var(--grey-200); border-radius: 10px; }
+.price-chapter-wrap::-webkit-scrollbar-thumb:hover { background: var(--blue-light, var(--blue)); }
+
+  /* ── Submodules nested under each chapter: numbered "1.1", "1.2" using
+     the same chapter-item counter from .price-chapter-list above,
+     since this list sits inside that counter's scope (the parent <li>). */
+  .price-submodule-list {
+    list-style: none;
+    margin: 4px 0 0 0;
+    padding: 0;
+    counter-reset: submodule-item;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .price-submodule-list li {
+    counter-increment: submodule-item;
+    position: relative;
+    padding-left: 34px;
+    font-size: 0.8rem;
+    color: #6B7280;
+    line-height: 1.5;
+    font-family: var(--font-body);
+  }
+  .price-submodule-list li::before {
+    content: counter(chapter-item) "." counter(submodule-item);
+    position: absolute;
+    left: 12px;
+    top: 0;
+    font-weight: 600;
+    color: var(--blue);
+    opacity: 0.75;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
   }
 </style>
 <!-- FAQ -->

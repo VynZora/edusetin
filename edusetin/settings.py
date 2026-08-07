@@ -169,3 +169,4 @@ CELERY_BEAT_SCHEDULE = {
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_TIMEZONE = TIME_ZONE  # keep it consistent with your Django TIME_ZONE
+CRON_SECRET_KEY = "3e64cc7b6e21ca3a87f603b7d13ea1ef00417e3cba6470bfdc00959dd061a2fc"

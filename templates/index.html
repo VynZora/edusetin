@@ -35,7 +35,7 @@
     <div class="banner-fade">
       <!-- Additional required wrapper -->
       <div class="swiper-wrapper">
-        <div class="swiper-slide banner-style-three shadow-left">
+       <div class="swiper-slide banner-style-three shadow-left" data-slide-type="imat">
   <div class="item bg-cover" style="background: url('{% static 'assets/img/banner/edu.jpeg' %}');">
     <div class="banner-syle-thee-shape">
       <img src="{% static 'assets/img/shape/3.png' %}" alt="Image Not Found" />
@@ -1805,4 +1805,35 @@ document.addEventListener('DOMContentLoaded', function() {
 </style>
  
   <!-- End Blog -->
+<script>
+window.addEventListener('load', function() {
+    const NORMAL = 1500, IMAT = 10000;
+    const el = document.querySelector('.banner-fade');
+    const swiper = el?.swiper;
+    
+    if (swiper) {
+        const firstSlide = swiper.slides[0];
+        const isFirstImat = firstSlide?.getAttribute('data-slide-type') === 'imat';
+        
+        // Set initial delay
+        if (swiper.params.autoplay) {
+            swiper.params.autoplay.delay = isFirstImat ? IMAT : NORMAL;
+        }
+        
+        // Stop and restart to apply new delay
+        swiper.autoplay.stop();
+        setTimeout(() => {
+            swiper.autoplay.start();
+        }, 50);
+        
+        // Update delay on slide change
+        swiper.on('slideChangeTransitionStart', function() {
+            const isImat = this.slides[this.activeIndex]?.getAttribute('data-slide-type') === 'imat';
+            if (this.params.autoplay) {
+                this.params.autoplay.delay = isImat ? IMAT : NORMAL;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
