@@ -3809,7 +3809,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   </div>
                   {% endif %}
                 {% endif %}
-               
+               {% comment %}
                 {% if plan.ordered_submodules %}
                   {% if sub_count > 1 %}
                   <div class="price-detail-group">
@@ -3845,7 +3845,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   </div>
                   {% endif %}
                 {% endif %}
-                
+                {% endcomment %}
                 <!-- ── REVISION: submodules named exactly Biology / Chemistry / Physics / Mathematics ── -->
                 {% if plan.revision_submodules %}
                   {% if rev_count > 1 %}
