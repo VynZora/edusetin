@@ -2219,6 +2219,167 @@ def _build_submodule_limit_summary(ordered_submodules):
     return "Full Set questions "
 
 
+# ─────────────────────────────────────────────
+# FIXED CHAPTER ORDER PER SUBJECT
+# ─────────────────────────────────────────────
+# The admin's chapter picker lets chapters be typed/added in any order,
+# but the pricing page must always DISPLAY them in this fixed, canonical
+# sequence regardless of typing order. Keys here are matched against the
+# Subject name (case-insensitive substring match, same style as
+# `subject_sort_key`); values are the canonical chapter names in display
+# order, all lowercased for matching purposes.
+#
+# Any chapter typed in admin that doesn't match one of these canonical
+# names is NOT dropped — it's appended after all recognized chapters, in
+# whichever order it was typed in relative to other unmatched chapters
+# (so a mistyped or extra chapter never disappears, it just doesn't jump
+# ahead of the canonical ones).
+CHAPTER_ORDER = {
+    'biology': [
+        'the chemistry of living things',
+        'the cell as the basis of life',
+        'cell cycle and cell division',
+        'bioenergetics',
+        'reproduction and inheritance',
+        'inheritance and environment',
+        'anatomy and physiology of animals and humans',
+    ],
+    'chemistry': [
+        'composition of matter',
+        'ideal gas laws',
+        'atomic structure',
+        'the periodic table',
+        'the chemical bond',
+        'fundamentals of inorganic chemistry',
+        'chemical reactions and stoichiometry',
+        'solutions',
+        'oxidation and reduction',
+        'acids and bases',
+        'fundamentals of organic chemistry',
+    ],
+    'physics': [
+        'physical quantities and measurement',
+        'kinematics',
+        'dynamics',
+        'fluid mechanics',
+        'thermodynamics',
+        'electricity and electromagnetism',
+    ],
+    # Real module topics, matching the 1_..7_ numbered question-bank
+    # filenames (1 = Numbers... through 7 = Probability and Statistics).
+    'mathematics': [
+        'numbers, exponents and algorithms',
+        'combinatorics and polynomials',
+        'equations, inequalities and systems',
+        'functions',
+        'trigonometry',
+        'geometry',
+        'probability and statistics',
+    ],
+    # Derived from the "Problem Solving" question bank's Submodule column,
+    # in first-appearance order.
+    'logical reasoning': [
+        'constructing equations, rates and money',
+        'ordering, position and sequence',
+        'scheduling, rotas and constraints',
+        'categorisation and venn logic',
+        'time, logistics and sequencing',
+        'spatial and visual reasoning',
+    ],
+    'problem solving': [
+        'constructing equations, rates and money',
+        'ordering, position and sequence',
+        'scheduling, rotas and constraints',
+        'categorisation and venn logic',
+        'time, logistics and sequencing',
+        'spatial and visual reasoning',
+    ],
+    # Derived from the "Critical Thinking" question bank's Submodule
+    # column, in first-appearance order.
+    'reading': [
+        'identifying conclusions',
+        'identifying assumptions',
+        'identifying flaws',
+        'strengthening arguments',
+        'weakening arguments',
+        'inference and deduction',
+    ],
+    'critical thinking': [
+        'identifying conclusions',
+        'identifying assumptions',
+        'identifying flaws',
+        'strengthening arguments',
+        'weakening arguments',
+        'inference and deduction',
+    ],
+}
+
+
+def _normalize_chapter_name(raw_name, subject_name):
+    """
+    Normalizes an admin-typed chapter name so it can be matched against
+    CHAPTER_ORDER regardless of exact formatting. Strips:
+      - a leading number the admin typed ("1.", "2)")
+      - an optional "<SUBJECT> - " / "<SUBJECT> – " prefix
+      - a trailing "- FULL SET" / "- Full Set" style suffix
+    then lowercases and collapses whitespace.
+
+    e.g. "BIOLOGY – THE CHEMISTRY OF LIVING THINGS- FULL SET"
+         -> "the chemistry of living things"
+    """
+    name = re.sub(r'^\s*\d+[\.\)]\s*', '', raw_name or '').strip()
+    name = re.sub(
+        r'^\s*' + re.escape(subject_name) + r'\s*[-\u2013]\s*',
+        '',
+        name,
+        flags=re.IGNORECASE,
+    ).strip()
+    name = re.sub(r'\s*[-\u2013]\s*full\s*set\s*$', '', name, flags=re.IGNORECASE).strip()
+    return re.sub(r'\s+', ' ', name).lower()
+
+
+def _chapter_order_key(subject_name):
+    """
+    Maps a Subject's name to a key in CHAPTER_ORDER, or None if unlisted.
+    Longer/more specific keys are checked first so e.g. 'critical
+    thinking' doesn't accidentally get shadowed by a shorter unrelated
+    key that also happens to substring-match.
+    """
+    name_lower = subject_name.lower()
+    for key in sorted(CHAPTER_ORDER, key=len, reverse=True):
+        if key in name_lower:
+            return key
+    return None
+
+
+def _sort_chapters_to_canonical_order(chapters, subject_name):
+    """
+    Reorders `chapters` (list of {'name', 'submodules'}) to match the
+    fixed CHAPTER_ORDER sequence for this subject. Chapters matching a
+    canonical name are placed in that exact order; anything unmatched is
+    appended afterward, keeping its original relative order (stable
+    sort) so nothing typed in admin is ever silently lost — it just
+    won't jump ahead of the recognized chapters.
+
+    Subjects with no CHAPTER_ORDER entry are returned unchanged,
+    preserving admin-typed order.
+    """
+    order_key = _chapter_order_key(subject_name)
+    canonical_order = CHAPTER_ORDER.get(order_key) if order_key else None
+    if not canonical_order:
+        return chapters
+
+    order_index = {name: i for i, name in enumerate(canonical_order)}
+
+    def _sort_key(chapter):
+        normalized = _normalize_chapter_name(chapter['name'], subject_name)
+        if normalized in order_index:
+            return (0, order_index[normalized])
+        return (1, 0)  # unmatched: pushed after all canonical chapters
+
+    return sorted(chapters, key=_sort_key)
+
+
 @never_cache
 def landing_page(request):
     from student_management.models import SubscriptionPlan
@@ -2331,10 +2492,19 @@ def landing_page(request):
         # Biology / Chemistry / Physics / Mathematics / Logical
         # Reasoning / Reading sequence. Only subjects that actually
         # have chapter text typed in admin show up here — subjects
-        # with nothing entered are silently skipped. Within a subject,
-        # chapters keep the exact order typed/added in admin
-        # (chapters_with_submodules_for_subject() must not sort/reorder
-        # them).
+        # with nothing entered are silently skipped.
+        #
+        # Within a subject, chapters are re-sorted to match the FIXED
+        # canonical order in CHAPTER_ORDER (e.g. Mathematics always
+        # shows Numbers/Exponents/Algorithms -> ... -> Probability and
+        # Statistics, in that 1-7 order, no matter what order they were
+        # typed/added in admin; Reading and Logical Reasoning follow the
+        # same principle using their own canonical topic order). Any
+        # chapter typed in admin that doesn't match a canonical name is
+        # appended after the recognized ones, in its original relative
+        # order — it's never dropped, just pushed to the end. Subjects
+        # with no entry in CHAPTER_ORDER keep the admin-typed order as
+        # before.
         #
         # Each chapter now also carries the submodule names picked
         # under it in admin, so the template can render:
@@ -2362,6 +2532,11 @@ def landing_page(request):
                     if sm_id in submodule_by_id
                 ]
                 chapters.append({'name': name, 'submodules': submodule_names})
+
+            # Enforce the fixed canonical chapter order for this subject
+            # (no-op for subjects without a CHAPTER_ORDER entry).
+            chapters = _sort_chapters_to_canonical_order(chapters, subject.name)
+
             if chapters:
                 plan.subject_chapter_groups.append({
                     'subject': subject,

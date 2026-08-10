@@ -786,24 +786,55 @@
             submodules: submodules || [],
         };
 
-        // Load existing chapters for this subject
+        // ── Load existing chapters for this subject ─────────────────────
+        // Storage/order note: `existing_subject_chapters` is written server
+        // side by `_save_subject_chapters()` as an ORDERED LIST per subject:
+        //   { "<subjectId>": [ {"name": "...", "submoduleIds": [...]}, ... ] }
+        // This is deliberate — PostgreSQL's `jsonb` column type (used by
+        // Django's JSONField on Postgres) does NOT preserve the insertion
+        // order of *object keys*, but it DOES preserve the order of *array
+        // elements*. Storing chapters as an array (rather than as dict keys
+        // keyed by chapter name) is what keeps "Chapter 1, Chapter 2, ..."
+        // showing up in the order they were added, even after repeated
+        // saves/reloads. The two branches below the array check are kept
+        // only as backward-compatible fallbacks for data saved under older
+        // (order-unsafe) formats; any plan loaded through the array branch
+        // and re-saved will be persisted in the new ordered format.
         if (existingChaptersData[subjectId]) {
             var existing = existingChaptersData[subjectId];
-            if (typeof existing === 'object' && !Array.isArray(existing)) {
-                // New format: { chapterKey: [...submodule_ids], ... }
+
+            if (Array.isArray(existing)) {
+                // Current, order-safe format: [{name, submoduleIds}, ...]
+                existing.forEach(function (chObj, idx) {
+                    var chName = (chObj && chObj.name) ? chObj.name : ('Chapter ' + (idx + 1));
+                    var rawIds = (chObj && chObj.submoduleIds) ? chObj.submoduleIds : [];
+                    var smIds = rawIds.map(function (x) { return parseInt(x, 10); }).filter(function (n) {
+                        return !isNaN(n);
+                    });
+                    state.chapters.push({
+                        id: chName.replace(/\s+/g, '_') + '_' + idx,
+                        name: chName,
+                        submoduleIds: smIds,
+                        limits: {}
+                    });
+                });
+            } else if (typeof existing === 'object') {
+                // Legacy format: { chapterName: [submodule_ids], ... }
+                // Order is NOT guaranteed here since it depends on whatever
+                // order Postgres jsonb happens to return the keys in.
                 Object.keys(existing).forEach(function (chKey) {
                     var smIds = existing[chKey];
                     if (Array.isArray(smIds)) {
                         state.chapters.push({
                             id: chKey,
-                            name: chKey, // fallback, ideally extract chapter name
+                            name: chKey,
                             submoduleIds: smIds,
                             limits: {}
                         });
                     }
                 });
             } else if (typeof existing === 'string') {
-                // Old format: newline-separated chapter names (no submodule data)
+                // Oldest format: newline-separated chapter names, no submodule data
                 var lines = existing.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
                 lines.forEach(function (name, idx) {
                     var chKey = name.replace(/\s+/g, '_') + '_' + idx;
@@ -952,7 +983,9 @@
 
         function syncHidden() {
             // Generate hidden inputs for form submission
-            // Format: chapters_<subjectId> JSON with chapter name and submodule ids
+            // Format: chapters_<subjectId> = JSON array of {id, name, submoduleIds, limits},
+            // in the same order the chapters appear in state.chapters (i.e. the order the
+            // admin added/arranged them in). The server persists this array order as-is.
             var existingHidden = document.querySelector('input[name="chapters_' + subjectId + '"]');
             if (existingHidden) existingHidden.remove();
 

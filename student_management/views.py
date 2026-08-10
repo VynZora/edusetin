@@ -2818,7 +2818,22 @@ def _save_subject_chapters(request, plan, chapters_by_subject):
 
     Stored shape (matches what the picker JS expects back as
     `existing_subject_chapters` on next edit):
-        { "<subject_id>": { "<chapter_name>": [submodule_id, ...], ... }, ... }
+        {
+          "<subject_id>": [
+              {"name": "<chapter_name>", "submoduleIds": [submodule_id, ...]},
+              ...
+          ],
+          ...
+        }
+
+    IMPORTANT: chapters are stored as an ORDERED LIST, not as a dict keyed
+    by chapter name. PostgreSQL's `jsonb` column type (which JSONField uses
+    on Postgres) does NOT preserve the insertion order of object keys — it
+    can silently reorder them on write/read. Arrays, however, DO preserve
+    element order in jsonb. Since chapter order matters to the admin (it's
+    the order chapters were added in), we must store chapters as an array
+    of {name, submoduleIds} objects rather than as dict keys, or the order
+    will scramble after every save/reload cycle.
 
     Only kept for subjects that are selected and have at least one chapter
     with at least one submodule; dropped automatically otherwise.
@@ -2835,7 +2850,7 @@ def _save_subject_chapters(request, plan, chapters_by_subject):
             continue
 
         chapters = chapters_by_subject.get(sid, [])
-        subject_map = {}
+        chapter_list = []  # ordered list — preserves insertion order in jsonb
         for ch in chapters:
             name = (ch.get('name') or '').strip()
             raw_ids = ch.get('submoduleIds') or []
@@ -2846,10 +2861,10 @@ def _save_subject_chapters(request, plan, chapters_by_subject):
                 except (TypeError, ValueError):
                     continue
             if name and sm_ids:
-                subject_map[name] = sm_ids
+                chapter_list.append({'name': name, 'submoduleIds': sm_ids})
 
-        if subject_map:
-            chapters_data[str(sid)] = subject_map
+        if chapter_list:
+            chapters_data[str(sid)] = chapter_list
 
     plan.subject_chapters = chapters_data
     plan.save(update_fields=['subject_chapters'])

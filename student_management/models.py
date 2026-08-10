@@ -303,7 +303,6 @@ class Exam(models.Model):
 
 from django.core.validators import MinValueValidator
 
-
 class SubscriptionPlan(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     name = models.CharField(max_length=200, unique=True)
@@ -378,22 +377,46 @@ class SubscriptionPlan(models.Model):
         for the given subject, in the exact order the chapters were
         typed/added in admin.
 
-        Handles both stored shapes of subject_chapters:
-          - New format (chapter picker): {'<subject_id>': {chapter_name: [sm_id, ...], ...}}
-          - Old format (plain typed text, no submodule data):
+        Handles all three historical shapes of subject_chapters:
+          - CURRENT format (order-safe list, from the chapter picker):
+            {'<subject_id>': [{'name': chapter_name, 'submoduleIds': [sm_id, ...]}, ...]}
+          - LEGACY format (dict keyed by chapter name — order not
+            guaranteed once round-tripped through Postgres jsonb):
+            {'<subject_id>': {chapter_name: [sm_id, ...], ...}}
+          - OLDEST format (plain typed text, no submodule data):
             {'<subject_id>': 'Chapter 1\\nChapter 2\\n...'}
         """
         raw = (self.subject_chapters or {}).get(str(subject_id))
         if not raw:
             return []
 
+        if isinstance(raw, list):
+            # Current, order-safe format
+            chapters = []
+            for ch in raw:
+                if not isinstance(ch, dict):
+                    continue
+                name = (ch.get('name') or '').strip()
+                if not name:
+                    continue
+                ids_raw = ch.get('submoduleIds') or ch.get('submodule_ids') or []
+                ids = []
+                for x in ids_raw:
+                    try:
+                        ids.append(int(x))
+                    except (TypeError, ValueError):
+                        continue
+                chapters.append({'name': name, 'submodule_ids': ids})
+            return chapters
+
         if isinstance(raw, dict):
+            # Legacy format: dict keyed by chapter name
             return [
                 {'name': name, 'submodule_ids': ids if isinstance(ids, list) else []}
                 for name, ids in raw.items()
             ]
 
-        # Old format: newline-separated chapter names, no submodule data
+        # Oldest format: newline-separated chapter names, no submodule data
         lines = [line.strip() for line in raw.splitlines() if line.strip()]
         return [{'name': line, 'submodule_ids': []} for line in lines]
 
