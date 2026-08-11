@@ -2739,27 +2739,39 @@ def _save_submodule_limits(request, plan, chapters_by_subject):
     """
     Sync PlanSubmoduleLimit rows.
 
+    A submodule can be "selected" two ways:
+      1. Via the chapter picker (assigned to a chapter's submoduleIds).
+      2. Via the flat "Submodules" section's plain checkboxes.
+    Both are unioned together below.
+
     Priority rule (unchanged):
       - If a submodule's OWN box has a number typed in, that number is
-        used and stored with is_override=True — it always uses that
-        number, regardless of what the shared box says, now or later.
-      - If a submodule's own box is left BLANK, it follows the shared
-        "submodule_question_limit" value and is stored with
-        is_override=False, even when the shared value itself is None
-        (no limit).
-
-    Which submodules are "selected" comes from the chapter picker's JSON
-    (union of every chapter's submoduleIds across every subject), since
-    the picker's checkboxes are no longer a flat `submodules` field.
+        used and stored with is_override=True.
+      - If a submodule's own box is left BLANK, it follows whichever
+        shared limit applies to it:
+          * submodules selected via a chapter -> the chapter section's
+            shared limit ("submodule_question_limit")
+          * submodules selected only via the flat section -> the flat
+            section's shared limit ("submodule_question_limit_flat")
+        stored with is_override=False.
     """
-    selected_ids = set()
+    chapter_selected_ids = set()
     for chapters in chapters_by_subject.values():
         for ch in chapters:
             for sm_id in (ch.get('submoduleIds') or []):
                 try:
-                    selected_ids.add(str(int(sm_id)))
+                    chapter_selected_ids.add(int(sm_id))
                 except (TypeError, ValueError):
                     continue
+
+    flat_selected_ids = set()
+    for sm_id_str in request.POST.getlist('submodules'):
+        try:
+            flat_selected_ids.add(int(sm_id_str))
+        except (TypeError, ValueError):
+            continue
+
+    selected_ids = chapter_selected_ids | flat_selected_ids
 
     existing = {pl.submodule_id: pl for pl in plan.submodule_limits.all()}
 
@@ -2773,19 +2785,22 @@ def _save_submodule_limits(request, plan, chapters_by_subject):
         except ValueError:
             return None
 
-    shared_limit = _parse_limit(request.POST.get('submodule_question_limit', ''))
+    chapter_shared_limit = _parse_limit(request.POST.get('submodule_question_limit', ''))
+    flat_shared_limit = _parse_limit(request.POST.get('submodule_question_limit_flat', ''))
 
-    for sm_id_str in selected_ids:
-        try:
-            sm_id = int(sm_id_str)
-        except ValueError:
-            continue
+    for sm_id in selected_ids:
         if not SubModule.objects.filter(id=sm_id).exists():
             continue
 
         override_raw = request.POST.get(f'submodule_limit_{sm_id}', '').strip()
         has_override = bool(override_raw)
-        limit = _parse_limit(override_raw) if has_override else shared_limit
+
+        if has_override:
+            limit = _parse_limit(override_raw)
+        elif sm_id in chapter_selected_ids:
+            limit = chapter_shared_limit
+        else:
+            limit = flat_shared_limit
 
         if sm_id in existing:
             row = existing[sm_id]
@@ -2806,9 +2821,8 @@ def _save_submodule_limits(request, plan, chapters_by_subject):
                 is_override=has_override,
             )
 
-    # Remove rows for submodules that were unchecked
     for sm_id, row in existing.items():
-        if str(sm_id) not in selected_ids:
+        if sm_id not in selected_ids:
             row.delete()
 
 
