@@ -3756,18 +3756,22 @@ def exam_review_delete(request, review_id):
     return JsonResponse({"status": "success"})
 
 
-from django.core.mail import send_mail
+import logging
+from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils import timezone
 from django.urls import reverse
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from .models import Payment
+
+logger = logging.getLogger(__name__)
 
 REMINDER_DAYS_BEFORE = 2
 
 
 def send_expiry_reminders(request):
-    # Simple shared-secret so randoms can't hit this and spam your users/email quota
     if request.GET.get('key') != settings.CRON_SECRET_KEY:
         return JsonResponse({'error': 'forbidden'}, status=403)
 
@@ -3775,13 +3779,9 @@ def send_expiry_reminders(request):
     today = now.date()
     sent, skipped = 0, 0
 
-    # Build an absolute URL to the student-facing plans page.
     plans_path = reverse('student_portal:plan_list')
     plans_url = request.build_absolute_uri(plans_path)
 
-    # Pick each student's MOST RECENT successful payment only.
-    # Ordering ascending by expires_at means the last write per student_id
-    # wins — i.e. the one with the greatest expires_at (their "current" plan).
     latest_by_student = {}
     qs = (
         Payment.objects
@@ -3795,14 +3795,10 @@ def send_expiry_reminders(request):
     for payment in latest_by_student.values():
         if not payment.expires_at:
             continue
-
-        # Already emailed today for this payment? skip.
         if payment.last_expiry_reminder_sent == today:
             continue
 
         days_left = (payment.expires_at.date() - today).days
-
-        # Not close enough to expiry yet -> nothing to do
         if days_left > REMINDER_DAYS_BEFORE:
             continue
 
@@ -3811,32 +3807,56 @@ def send_expiry_reminders(request):
         if not email:
             continue
 
-        if days_left >= 0:
-            subject = f"Your {payment.plan.name} plan expires in {days_left} day(s)"
-            message = (
-                f"Hi {student.full_name},\n\n"
-                f"Your subscription to \"{payment.plan.name}\" will expire on "
-                f"{timezone.localtime(payment.expires_at).strftime('%d %b %Y')}.\n"
-                f"Renew now to keep uninterrupted access.\n\n"
-                f"Explore Plans:\n{plans_url}\n\n"
-                f"Thanks,\nThe Team"
-            )
-        else:
-            subject = f"Your {payment.plan.name} plan has expired"
-            message = (
-                f"Hi {student.full_name},\n\n"
-                f"Your subscription to \"{payment.plan.name}\" expired "
-                f"{abs(days_left)} day(s) ago. Renew now to regain access.\n\n"
-                f"Explore Plans:\n{plans_url}\n\n"
-                f"Thanks,\nThe Team"
-            )
+        expired = days_left < 0
+        subject = (
+            f"Your {payment.plan.name} subscription has expired — access paused"
+            if expired else
+            f"Your {payment.plan.name} subscription expires in {days_left} day(s)"
+        )
+
+        context = {
+            'student_name': student.full_name,
+            'plan_name': payment.plan.name,
+            'expires_on': timezone.localtime(payment.expires_at).strftime('%d %b %Y'),
+            'days_left': abs(days_left),
+            'expired': expired,
+            'plans_url': plans_url,
+        }
 
         try:
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+            html_content = render_to_string('student_management/expiry_reminder.html', context)
+        except Exception:
+            logger.exception(f"Template render failed for payment {payment.id}")
+            skipped += 1
+            continue
+
+        text_content = strip_tags(html_content)
+
+        # Only attach List-Unsubscribe header if SUPPORT_EMAIL is configured
+        support_email = getattr(settings, 'SUPPORT_EMAIL', None)
+        headers = {}
+        if support_email:
+            headers = {
+                'List-Unsubscribe': f'<mailto:{support_email}?subject=unsubscribe>',
+                'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+            }
+
+        try:
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email],
+                headers=headers,
+            )
+            msg.attach_alternative(html_content, "text/html")
+            msg.send(fail_silently=False)
+
             payment.last_expiry_reminder_sent = today
             payment.save(update_fields=['last_expiry_reminder_sent'])
             sent += 1
         except Exception:
+            logger.exception(f"Failed to send expiry reminder to {email} for payment {payment.id}")
             skipped += 1
 
     return JsonResponse({'sent': sent, 'skipped': skipped})
