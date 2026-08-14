@@ -2338,6 +2338,18 @@ def _normalize_chapter_name(raw_name, subject_name):
     return re.sub(r'\s+', ' ', name).lower()
 
 
+def _names_are_equivalent(a, b):
+    """
+    True if two strings are 'the same' once whitespace/punctuation/case
+    differences are ignored — used to detect a chapter whose only
+    submodule is just a restatement of the chapter's own name (e.g.
+    chapter 'Composition of Matter' -> submodule 'Composition of
+    Matter'), which shouldn't be rendered as a separate "1.1" line.
+    """
+    norm = lambda s: re.sub(r'[^a-z0-9]+', '', (s or '').lower())
+    return norm(a) == norm(b)
+
+
 def _chapter_order_key(subject_name):
     """
     Maps a Subject's name to a key in CHAPTER_ORDER, or None if unlisted.
@@ -2516,6 +2528,12 @@ def landing_page(request):
         # ("1. Cell the unit of life", "2) Algebra", etc.) is stripped
         # here so the template's CSS counter is the ONLY numbering
         # rendered — otherwise it shows as "1. 1. Algebra".
+        #
+        # Submodules whose name is just a restatement of their own
+        # chapter's name (e.g. chapter "Composition of Matter" ->
+        # submodule "Composition of Matter") are dropped from the
+        # submodule list, so that chapter renders with no "1.1" line
+        # underneath instead of a redundant duplicate.
         submodule_by_id = {sm.id: sm for sm in all_submodules}
 
         plan.subject_chapter_groups = []
@@ -2530,6 +2548,7 @@ def landing_page(request):
                     submodule_by_id[sm_id].name
                     for sm_id in ch.get('submodule_ids', [])
                     if sm_id in submodule_by_id
+                    and not _names_are_equivalent(submodule_by_id[sm_id].name, name)
                 ]
                 chapters.append({'name': name, 'submodules': submodule_names})
 
