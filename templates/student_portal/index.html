@@ -4043,14 +4043,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     gap: 5px;
   }
   .price-chapter-list li {
-    counter-increment: chapter-item;
-    position: relative;
-    padding-left: 22px;
-    font-size: 0.875rem;
-    color: #4B5563;
-    line-height: 1.5;
-    font-family: var(--font-body);
-  }
+  counter-increment: chapter-item;
+  position: relative;
+  padding-left: 22px;
+  font-size: 0.875rem;
+  color: #4B5563;
+  line-height: 1.5;
+  font-family: var(--font-body);
+  text-transform: uppercase;
+}
   .price-chapter-list li::before {
     content: counter(chapter-item) ".";
     position: absolute;
