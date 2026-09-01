@@ -3768,6 +3768,9 @@ from .models import Payment
 
 logger = logging.getLogger(__name__)
 
+# Start sending reminders 2 days before expiry.
+# Expired students keep getting reminded (no cutoff) until they
+# purchase a new subscription — see latest_by_student logic below.
 REMINDER_DAYS_BEFORE = 2
 
 
@@ -3782,6 +3785,12 @@ def send_expiry_reminders(request):
     plans_path = reverse('student_portal:plan_list')
     plans_url = request.build_absolute_uri(plans_path)
 
+    # Keep only the LATEST-expiring successful payment per student.
+    # qs is ordered by expires_at ascending, so the last write per
+    # student_id wins = the payment with the furthest-out expiry.
+    # This means once a student renews, their new payment (with a
+    # later expires_at) automatically replaces the old expired one
+    # here, and reminders stop on their own — no manual flag needed.
     latest_by_student = {}
     qs = (
         Payment.objects
@@ -3792,19 +3801,33 @@ def send_expiry_reminders(request):
     for p in qs:
         latest_by_student[p.student_id] = p
 
+    logger.info(f"Total candidate payments to check: {len(latest_by_student)}")
+
     for payment in latest_by_student.values():
         if not payment.expires_at:
+            logger.warning(f"Payment {payment.id} (student {payment.student_id}) has no expires_at, skipping")
+            skipped += 1
             continue
+
         if payment.last_expiry_reminder_sent == today:
+            skipped += 1
             continue
 
         days_left = (payment.expires_at.date() - today).days
+
+        # Not yet within the reminder window (more than 2 days away)
         if days_left > REMINDER_DAYS_BEFORE:
+            skipped += 1
             continue
+
+        # No lower bound on days_left intentionally: expired students
+        # keep getting reminded every day until they buy a new plan.
 
         student = payment.student
         email = student.user.email
         if not email:
+            logger.warning(f"No email for student {student.id}, payment {payment.id}")
+            skipped += 1
             continue
 
         expired = days_left < 0
@@ -3832,7 +3855,6 @@ def send_expiry_reminders(request):
 
         text_content = strip_tags(html_content)
 
-        # Only attach List-Unsubscribe header if SUPPORT_EMAIL is configured
         support_email = getattr(settings, 'SUPPORT_EMAIL', None)
         headers = {}
         if support_email:
@@ -3859,4 +3881,5 @@ def send_expiry_reminders(request):
             logger.exception(f"Failed to send expiry reminder to {email} for payment {payment.id}")
             skipped += 1
 
+    logger.info(f"Expiry reminder run complete: sent={sent}, skipped={skipped}")
     return JsonResponse({'sent': sent, 'skipped': skipped})
