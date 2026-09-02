@@ -3755,8 +3755,8 @@ def exam_review_delete(request, review_id):
     review.delete()
     return JsonResponse({"status": "success"})
 
-
 import logging
+import time
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.http import JsonResponse
@@ -3773,6 +3773,11 @@ logger = logging.getLogger(__name__)
 # purchase a new subscription — see latest_by_student logic below.
 REMINDER_DAYS_BEFORE = 2
 
+# Small delay between sends to avoid tripping Gmail's per-second rate limit.
+# Remove/lower this if you're on a transactional provider (SES/SendGrid/etc)
+# instead of raw Gmail SMTP.
+SEND_DELAY_SECONDS = 1.2
+
 
 def send_expiry_reminders(request):
     if request.GET.get('key') != settings.CRON_SECRET_KEY:
@@ -3781,20 +3786,24 @@ def send_expiry_reminders(request):
     now = timezone.now()
     today = now.date()
     sent, skipped = 0, 0
+    skip_reasons = {}
+
+    def record_skip(reason):
+        skip_reasons[reason] = skip_reasons.get(reason, 0) + 1
 
     plans_path = reverse('student_portal:plan_list')
     plans_url = request.build_absolute_uri(plans_path)
 
-    # Keep only the LATEST-expiring successful payment per student.
-    # qs is ordered by expires_at ascending, so the last write per
-    # student_id wins = the payment with the furthest-out expiry.
-    # This means once a student renews, their new payment (with a
-    # later expires_at) automatically replaces the old expired one
-    # here, and reminders stop on their own — no manual flag needed.
+    # ── FIX: exclude NULL expires_at at the query level ──────────────────
+    # Postgres sorts NULLs last on ASC order, so without this filter a
+    # student's null-expiry payment can overwrite their real one below and
+    # get them silently skipped. Filtering here means only rows with a
+    # real expiry date are ever considered, so the "keep latest expiry per
+    # student" logic can't be corrupted by a null row.
     latest_by_student = {}
     qs = (
         Payment.objects
-        .filter(status=Payment.STATUS_SUCCESS)
+        .filter(status=Payment.STATUS_SUCCESS, expires_at__isnull=False)
         .select_related('student__user', 'plan')
         .order_by('expires_at')
     )
@@ -3804,12 +3813,8 @@ def send_expiry_reminders(request):
     logger.info(f"Total candidate payments to check: {len(latest_by_student)}")
 
     for payment in latest_by_student.values():
-        if not payment.expires_at:
-            logger.warning(f"Payment {payment.id} (student {payment.student_id}) has no expires_at, skipping")
-            skipped += 1
-            continue
-
         if payment.last_expiry_reminder_sent == today:
+            record_skip('already_sent_today')
             skipped += 1
             continue
 
@@ -3817,6 +3822,7 @@ def send_expiry_reminders(request):
 
         # Not yet within the reminder window (more than 2 days away)
         if days_left > REMINDER_DAYS_BEFORE:
+            record_skip('not_in_window_yet')
             skipped += 1
             continue
 
@@ -3824,8 +3830,9 @@ def send_expiry_reminders(request):
         # keep getting reminded every day until they buy a new plan.
 
         student = payment.student
-        email = student.user.email
+        email = (student.user.email or '').strip()
         if not email:
+            record_skip('no_email')
             logger.warning(f"No email for student {student.id}, payment {payment.id}")
             skipped += 1
             continue
@@ -3849,6 +3856,7 @@ def send_expiry_reminders(request):
         try:
             html_content = render_to_string('student_management/expiry_reminder.html', context)
         except Exception:
+            record_skip('template_render_failed')
             logger.exception(f"Template render failed for payment {payment.id}")
             skipped += 1
             continue
@@ -3863,23 +3871,50 @@ def send_expiry_reminders(request):
                 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
             }
 
-        try:
-            msg = EmailMultiAlternatives(
-                subject=subject,
-                body=text_content,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[email],
-                headers=headers,
-            )
-            msg.attach_alternative(html_content, "text/html")
-            msg.send(fail_silently=False)
+        # ── FIX: retry once on transient SMTP failure (covers brief
+        # Gmail throttling blips) before giving up on this student ─────────
+        last_error = None
+        success = False
+        for attempt in (1, 2):
+            try:
+                msg = EmailMultiAlternatives(
+                    subject=subject,
+                    body=text_content,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[email],
+                    headers=headers,
+                )
+                msg.attach_alternative(html_content, "text/html")
+                msg.send(fail_silently=False)
+                success = True
+                break
+            except Exception as e:
+                last_error = e
+                logger.warning(
+                    f"Send attempt {attempt} failed for {email} (payment {payment.id}): {e}"
+                )
+                if attempt == 1:
+                    time.sleep(3)  # brief backoff before retry
 
+        if success:
             payment.last_expiry_reminder_sent = today
             payment.save(update_fields=['last_expiry_reminder_sent'])
             sent += 1
-        except Exception:
-            logger.exception(f"Failed to send expiry reminder to {email} for payment {payment.id}")
+        else:
+            record_skip(f'send_failed:{last_error.__class__.__name__}')
+            logger.exception(
+                f"Failed to send expiry reminder to {email} for payment {payment.id} after retry"
+            )
             skipped += 1
 
-    logger.info(f"Expiry reminder run complete: sent={sent}, skipped={skipped}")
-    return JsonResponse({'sent': sent, 'skipped': skipped})
+        # ── FIX: throttle between sends so Gmail doesn't start rejecting
+        # connections partway through a large batch ────────────────────────
+        time.sleep(SEND_DELAY_SECONDS)
+
+    logger.info(f"Expiry reminder run complete: sent={sent}, skipped={skipped}, reasons={skip_reasons}")
+
+    return JsonResponse({
+        'sent': sent,
+        'skipped': skipped,
+        'skip_reasons': skip_reasons,
+    })
