@@ -854,7 +854,6 @@ from student_management.models import SubscriptionPlan, Payment
 
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
-
 @never_cache
 @login_required(login_url='student_portal:register')
 def plan_checkout(request, plan_uuid):
@@ -871,23 +870,31 @@ def plan_checkout(request, plan_uuid):
 
     # ── FREE PLAN: activate immediately, skip Razorpay ───────────────
     if plan.price == 0:
-        # Don't create duplicate free activations
-        already_active = student.payments.filter(
+        # Block re-use: once a student has successfully activated this
+        # free plan (even if it has since expired), they can't activate
+        # it again. Only an unexpired check would let expired students
+        # keep re-claiming the same free plan forever.
+        already_used = student.payments.filter(
             plan=plan,
             status=Payment.STATUS_SUCCESS,
-            expires_at__gt=timezone.now(),
         ).exists()
 
-        if not already_active:
-            now = timezone.now()
-            Payment.objects.create(
-                student=student,
-                plan=plan,
-                amount=0,
-                status=Payment.STATUS_SUCCESS,
-                paid_at=now,
-                expires_at=now + timedelta(days=plan.duration_days),
+        if already_used:
+            messages.error(
+                request,
+                "You've already used this free plan. Please choose a paid plan to continue."
             )
+            return redirect('student_portal:plan_list')
+
+        now = timezone.now()
+        Payment.objects.create(
+            student=student,
+            plan=plan,
+            amount=0,
+            status=Payment.STATUS_SUCCESS,
+            paid_at=now,
+            expires_at=now + timedelta(days=plan.duration_days),
+        )
         return redirect('student_portal:dashboard')
 
     # ── PAID PLAN: reuse existing pending order if page is refreshed ──
@@ -941,7 +948,6 @@ def plan_checkout(request, plan_uuid):
         'has_specific_content': plan.subjects.exists() or plan.submodules.exists() or plan.exams.exists(),
     }
     return render(request, 'student_portal/plan_checkout.html', context)
-
 
 @login_required(login_url='student_portal:register')
 def razorpay_payment_callback(request):
