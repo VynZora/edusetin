@@ -39,9 +39,9 @@
                             <span class="fw-medium">{{ student.user.email }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-    <span class="text-muted">Phone Number</span>
-    <span class="fw-medium">{{ student.phone_number|default:"—" }}</span>
-</li>
+                            <span class="text-muted">Phone Number</span>
+                            <span class="fw-medium">{{ student.phone_number|default:"—" }}</span>
+                        </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                             <span class="text-muted">Username</span>
                             <span class="fw-medium">{{ student.user.username }}</span>
@@ -71,7 +71,7 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted small mb-4">Use the actions below to manage this student's account access and data.</p>
-                    
+
                     <div class="d-grid gap-3">
                         {% if not student.is_active %}
                         <form method="post" action="{% url 'student_management:student_activate' student.id %}">
@@ -88,7 +88,7 @@
                             </button>
                         </form>
                         {% endif %}
-                        
+
                         <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center gap-2 mt-2" data-bs-toggle="modal" data-bs-target="#deleteStudentModal">
                             <i class="fas fa-trash-alt"></i> Delete Student
                         </button>
@@ -135,6 +135,59 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan History Card -->
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                    <h5 class="card-title mb-0">Plan History</h5>
+                </div>
+                <div class="card-body">
+                    {% if plan_history %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Plan</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Purchased On</th>
+                                    <th>Paid On</th>
+                                    <th>Expires On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in plan_history %}
+                                <tr>
+                                    <td class="fw-medium">{{ payment.plan.name }}</td>
+                                    <td>₹{{ payment.amount }}</td>
+                                    <td>
+                                        {% if payment.status == 'success' %}
+                                            {% if payment.is_expired %}
+                                                <span class="badge bg-secondary">Expired</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Active / Paid</span>
+                                            {% endif %}
+                                        {% elif payment.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Failed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ payment.created_at|date:"M d, Y H:i" }}</td>
+                                    <td>{{ payment.paid_at|date:"M d, Y"|default:"—" }}</td>
+                                    <td>{{ payment.expires_at|date:"M d, Y"|default:"—" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">This student hasn't purchased any plan yet.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

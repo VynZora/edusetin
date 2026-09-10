@@ -266,11 +266,19 @@ def student_detail(request, id):
     else:
         average_score = 0
 
-    
+    now = timezone.now()
+
     active_subscription = student.payments.filter(
         status=Payment.STATUS_SUCCESS,
-        expires_at__gt=timezone.now(),
+        expires_at__gt=now,
     ).select_related('plan').order_by('-expires_at').first()
+
+    # ── Plan History: every payment/plan this student has ever had ──
+    plan_history = list(
+        student.payments.select_related('plan').order_by('-created_at')
+    )
+    for p in plan_history:
+        p.is_expired = bool(p.expires_at and p.expires_at < now)
 
     return render(request, 'student_management/student_detail.html', {
         'student': student,
@@ -278,6 +286,7 @@ def student_detail(request, id):
         'total_results': total_results,
         'average_score': average_score,
         'active_subscription': active_subscription,
+        'plan_history': plan_history,
     })
 @admin_login_required
 def student_activate(request, id):

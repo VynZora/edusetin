@@ -2647,20 +2647,42 @@ from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.urls import reverse_lazy
 
+
 class StudentPasswordResetView(auth_views.PasswordResetView):
     template_name = 'student_portal/password_reset.html'
     email_template_name = 'student_portal/password_reset_email.html'
     subject_template_name = 'student_portal/password_reset_subject.txt'
-    success_url = reverse_lazy('student_portal:password_reset')
+    success_url = reverse_lazy('student_portal:password_reset_done')  # adjust if you route elsewhere
 
     def form_valid(self, form):
+        email = form.cleaned_data.get('email', '').strip()
+
+        # PasswordResetForm.get_users() is the SAME lookup Django uses
+        # internally to decide who actually gets emailed (active users
+        # with a usable password, matching email case-insensitively).
+        matched_users = list(form.get_users(email))
+
+        if not matched_users:
+            # No account with this email -> don't redirect, re-render
+            # the SAME form page with a flag so the template pops the
+            # "Email Not Registered" modal.
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    email_not_registered=True,
+                    submitted_email=email,
+                )
+            )
+
+        # Email exists -> proceed as normal (sends the reset email,
+        # redirects to success_url).
         response = super().form_valid(form)
         messages.success(
             self.request,
-            "We've emailed you instructions for setting your password, if an account exists with that email. Check your inbox (and spam folder)."
+            "We've emailed you instructions for setting your password. "
+            "Check your inbox (and spam folder)."
         )
         return response
-
 from django.shortcuts import render
 
 def custom_403_view(request, exception=None):
