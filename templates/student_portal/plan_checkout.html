@@ -577,10 +577,17 @@
         <h2>Order Summary</h2>
       </div>
 
+      <!-- NEW: shows full plan price, then the upgrade credit below it -->
       <div class="summary-row">
         <span>{{ plan.name }}</span>
-        <span class="val">₹{{ amount_display|floatformat:0 }}</span>
+        <span class="val">₹{{ original_price|floatformat:0 }}</span>
       </div>
+      {% if credit %}
+      <div class="summary-row">
+        <span>Credit for unused days ({{ old_plan.name }})</span>
+        <span class="val" style="color:#15A36B;">− ₹{{ credit|floatformat:0 }}</span>
+      </div>
+      {% endif %}
       <div class="summary-row">
         <span>Duration</span>
         <span class="val">{{ plan.duration_days }} day{{ plan.duration_days|pluralize }}</span>

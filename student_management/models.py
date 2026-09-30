@@ -496,6 +496,11 @@ class Payment(models.Model):
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
     last_expiry_reminder_sent = models.DateField(null=True, blank=True)
+    upgraded_from = models.ForeignKey(
+        'self', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='upgrades',
+    )
+    credit_applied = models.DecimalField(max_digits=8, decimal_places=2, default=0)
 
     class Meta:
         ordering = ["-created_at"]

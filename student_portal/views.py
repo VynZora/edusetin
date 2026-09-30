@@ -840,6 +840,7 @@ def plan_list_student(request):
 
 import json
 from datetime import timedelta
+from decimal import Decimal, ROUND_DOWN   # NEW
 
 import razorpay
 from django.conf import settings
@@ -853,6 +854,37 @@ from django.utils import timezone
 from student_management.models import SubscriptionPlan, Payment
 
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+
+# ── NEW: upgrade credit helper ───────────────────────────────────────
+def _calculate_upgrade_credit(student, new_plan):
+    """
+    Returns (old_payment, credit).
+    credit = old_amount x (unused_days / total_days)
+    Only applies when upgrading to a higher-priced plan.
+    """
+    now = timezone.now()
+    old = (
+        student.payments
+        .filter(status=Payment.STATUS_SUCCESS, expires_at__gt=now, amount__gt=0)
+        .select_related('plan')
+        .order_by('-expires_at')
+        .first()
+    )
+    if not old or not old.paid_at or new_plan.price <= old.plan.price:
+        return None, Decimal('0')
+
+    total_days  = max(1, round((old.expires_at - old.paid_at).total_seconds() / 86400))
+    unused_days = max(0, int((old.expires_at - now).total_seconds() // 86400))
+    unused_days = min(unused_days, total_days)
+
+    credit = (old.amount * Decimal(unused_days) / Decimal(total_days)).quantize(
+        Decimal('1'), rounding=ROUND_DOWN
+    )
+    # Razorpay minimum is Rs 1, so the net amount never goes below 1
+    credit = min(credit, new_plan.price - Decimal('1'))
+    return old, max(credit, Decimal('0'))
+
 
 @never_cache
 @login_required(login_url='student_portal:register')
@@ -897,6 +929,10 @@ def plan_checkout(request, plan_uuid):
         )
         return redirect('student_portal:dashboard')
 
+    # ── NEW: work out upgrade credit and the net price ───────────────
+    old_payment, credit = _calculate_upgrade_credit(student, plan)
+    net_price = plan.price - credit
+
     # ── PAID PLAN: reuse existing pending order if page is refreshed ──
     existing_payment = student.payments.filter(
         plan=plan,
@@ -907,18 +943,21 @@ def plan_checkout(request, plan_uuid):
     if existing_payment:
         # Verify the Razorpay order is still valid (not expired)
         try:
+            # NEW: credit changes as days pass, so reuse only if amount still matches
+            if existing_payment.amount != net_price:
+                raise Exception("Amount changed")
             rzp_order = razorpay_client.order.fetch(existing_payment.razorpay_order_id)
             if rzp_order.get('status') == 'created':
                 payment = existing_payment
                 razorpay_order_id = existing_payment.razorpay_order_id
-                amount_paise = int(plan.price * 100)
+                amount_paise = int(net_price * 100)          # CHANGED: plan.price -> net_price
             else:
                 raise Exception("Order no longer valid")
         except Exception:
             existing_payment = None
 
     if not existing_payment:
-        amount_paise = int(plan.price * 100)
+        amount_paise = int(net_price * 100)                  # CHANGED: plan.price -> net_price
         razorpay_order = razorpay_client.order.create({
             'amount': amount_paise,
             'currency': 'INR',
@@ -928,9 +967,11 @@ def plan_checkout(request, plan_uuid):
         payment = Payment.objects.create(
             student=student,
             plan=plan,
-            amount=plan.price,
+            amount=net_price,                                # CHANGED: plan.price -> net_price
             status=Payment.STATUS_PENDING,
             razorpay_order_id=razorpay_order_id,
+            upgraded_from=old_payment,                       # NEW
+            credit_applied=credit,                           # NEW
         )
 
     context = {
@@ -938,8 +979,11 @@ def plan_checkout(request, plan_uuid):
         'payment': payment,
         'razorpay_order_id': razorpay_order_id,
         'razorpay_key_id': settings.RAZORPAY_KEY_ID,
-        'amount_paise': int(plan.price * 100),
-        'amount_display': plan.price,
+        'amount_paise': amount_paise,                        # CHANGED: was int(plan.price * 100)
+        'amount_display': net_price,                         # CHANGED: was plan.price
+        'original_price': plan.price,                        # NEW
+        'credit': credit,                                    # NEW
+        'old_plan': old_payment.plan if old_payment else None,  # NEW
         'student_name': student.full_name,
         'student_email': request.user.email,
         'plan_subjects': plan.subjects.all(),
@@ -948,6 +992,7 @@ def plan_checkout(request, plan_uuid):
         'has_specific_content': plan.subjects.exists() or plan.submodules.exists() or plan.exams.exists(),
     }
     return render(request, 'student_portal/plan_checkout.html', context)
+
 
 @login_required(login_url='student_portal:register')
 def razorpay_payment_callback(request):
@@ -1005,6 +1050,13 @@ def razorpay_payment_callback(request):
         'paid_at',
         'expires_at',
     ])
+
+    # ── NEW: upgrade — close the old plan so the two don't overlap ───
+    if payment.upgraded_from_id:
+        old = payment.upgraded_from
+        if old.expires_at and old.expires_at > now:
+            old.expires_at = now
+            old.save(update_fields=['expires_at'])
 
     return JsonResponse({
         'status': 'success',
